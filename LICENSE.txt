@@ -1,0 +1,87 @@
+1. Single Use License
+
+Grant of License:
+
+Licensor grants Licensee a non-exclusive, non-transferable license to use the App in one single project (personal or commercial).
+
+The App may be modified and integrated into your project as needed.
+
+Permitted Uses:
+
+You may customize and integrate the App with third-party APIs or services.
+
+You may use the App for a client or your own end product (non-distributed).
+
+Restrictions:
+
+You may not resell, redistribute, or sublicense the source code.
+
+You may not claim the design or source code as your own product.
+
+Support and Updates:
+
+Includes 1 month of free support and updates (bug fixes, technical assistance).
+
+Disclaimer:
+
+Provided “as is,” without warranties of any kind.
+
+Licensor is not liable for any indirect or consequential damages.
+
+Termination:
+
+This license terminates automatically if any terms are breached.
+
+Upon termination, you must stop using the App and delete all copies.
+
+2. Extended License
+
+In addition to the Single Use License terms:
+
+Permitted Uses:
+
+You may use the App in multiple projects within your organization or for multiple clients.
+
+You may include it in a commercial end product (e.g., app, website, or software).
+
+Distribution Rights:
+
+Distribution allowed only as part of a compiled end product (no access to source code).
+
+You must include the Extended License terms in your product’s documentation.
+
+Attribution:
+
+Required credit: "Design & Code by Verdant Dev" (in UI or documentation).
+
+Support and Updates:
+
+Includes 1 month of support and updates.
+
+Termination:
+
+License remains valid unless terminated due to breach or non-payment.
+
+Instructions for Buyers
+
+Review the License Agreement:
+Understand the permitted uses before purchase or implementation.
+
+Purchase & Use:
+Available exclusively on CodeCanyon
+ (replace with your actual link).
+
+Support:
+For support or questions, contact verdantdev.contact@gmail.com
+.
+
+Attribution (Extended License only):
+Please include credit as outlined in the license terms.
+
+Feedback & Updates:
+We appreciate your support! Stay tuned for updates and share your suggestions.
+
+💚 Thank You
+
+Thank you for supporting Peticare UI Kit —
+we strive to deliver high-quality, developer-friendly, and visually polished Flutter solutions.
