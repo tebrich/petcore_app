@@ -1,57 +1,84 @@
-# Miscellaneous
-*.class
+# =========================
+# GENERAL
+# =========================
 *.log
-*.pyc
+*.tmp
+*.temp
 *.swp
+*.pyc
+*.class
 .DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+Thumbs.db
 
-# IntelliJ related
+# =========================
+# IDE
+# =========================
+.idea/
+.vscode/
 *.iml
 *.ipr
 *.iws
-.idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# =========================
+# FLUTTER / DART
+# =========================
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+build/
 
-# Symbolication related
-app.*.symbols
+# =========================
+# ANDROID
+# =========================
+android/.gradle/
+android/app/build/
+android/app/debug
+android/app/profile
+android/app/release
 
-# Obfuscation related
-app.*.map.json
+# =========================
+# IOS
+# =========================
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# =========================
+# DESKTOP
+# =========================
+macos/Flutter/ephemeral/
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
 
-# VS Code
-.vscode/
+# =========================
+# WEB
+# =========================
+web/.dart_tool/
 
-# iOS
-/ios/Pods/
-/ios/.symlinks/
-/ios/Flutter/Flutter.framework
-/ios/Flutter/Flutter.podspec
-
-# FVM Version Cache
+# =========================
+# FVM
+# =========================
 .fvm/
+
+# =========================
+# LARGE / DANGEROUS FILES
+# =========================
+*.txt
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.mp4
+*.mov
+*.avi
+
+# =========================
+# CACHE / TEMP
+# =========================
+.cache/
+tmp/
+temp/
