@@ -18,6 +18,7 @@ class AddNewVetAppointmentPageController extends GetxController {
   int? selectedAppointmentTypeId;
   String? appointmentType;
 
+  String? selectedVetName;
   int? selectedVetID;
 
   DateTime? appointmentDateTime;
@@ -28,9 +29,14 @@ class AddNewVetAppointmentPageController extends GetxController {
   bool useMobileLocation = false;
 
   List<dynamic> petsList = [];
-  List<dynamic> vetsList = [];
+  
 
-  /// TIPOS (OK)
+  /// 🔥 PRICING REAL
+  var servicePrice = 0.obs;
+  var currency = "PYG".obs;
+  var vetsList = <dynamic>[].obs;
+
+  /// TIPOS
   List<Map<String, dynamic>> appointmentTypes = [
     {"id": 1, "label_es": "Chequeo General", "icon": "Check"},
     {"id": 2, "label_es": "Vacunación", "icon": "Vaccine"},
@@ -43,18 +49,29 @@ class AddNewVetAppointmentPageController extends GetxController {
     super.onInit();
   }
 
-  /// 🔥 CONTROL DE FLUJO (CLAVE)
-  void updatePage(int index) {
+  /// =========================
+  /// CONTROL DE FLUJO
+  /// =========================
+  Future<void> updatePage(int index) async {
     currentPage = index;
 
-    /// 👉 cuando entra a veterinarias → carga datos
-    if (index == 4) {
-      loadVets();
+    /// 🔥 GARANTIZAR QUE VETS EXISTAN
+    if ((index == 4 || index == 5) && vetsList.isEmpty) {
+      print("📡 Cargando vets porque lista está vacía...");
+      await loadVets();
+    }
+
+    /// 🔥 CARGAR PRECIO EN REVIEW
+    if (index == 5) {
+      await fetchPrice();
     }
 
     update();
   }
 
+  /// =========================
+  /// SELECCIONES
+  /// =========================
   void updateSelectedPet(dynamic pet) {
     selectedPetId = pet["id"];
     selectedPetName = pet["name"];
@@ -64,11 +81,19 @@ class AddNewVetAppointmentPageController extends GetxController {
   void selectAppointmentType(int id, String label) {
     selectedAppointmentTypeId = id;
     appointmentType = label;
+
+    /// reset precio
+    servicePrice.value = 0;
+
     update();
   }
 
   void updateAppointmentType(String type) {
     appointmentType = type;
+
+    /// reset precio
+    servicePrice.value = 0;
+
     update();
   }
 
@@ -77,8 +102,26 @@ class AddNewVetAppointmentPageController extends GetxController {
     update();
   }
 
+  /// 🔥 NUEVO (compatible con UI nueva)
+  void updateSelectedVet(dynamic vet) {
+    selectedVetID = vet["id"];
+    selectedVetName = vet["name"];
+    update();
+  }
+
+  /// 🔥 COMPATIBILIDAD (NO ROMPE TU UI ACTUAL)
   void updateSelectedVetID(int vetId) {
     selectedVetID = vetId;
+
+    final vet = vetsList.firstWhere(
+      (v) => v["id"] == vetId,
+      orElse: () => null,
+    );
+
+    if (vet != null) {
+      selectedVetName = vet["name"];
+    }
+
     update();
   }
 
@@ -97,7 +140,57 @@ class AddNewVetAppointmentPageController extends GetxController {
     update();
   }
 
-  /// 🔥 FIX REAL → carga veterinarias desde backend
+  /// =========================
+  /// MAPEO SERVICE TYPE
+  /// =========================
+  String mapServiceType(String? appointmentType) {
+    if (appointmentType == null) return "vet";
+
+    switch (appointmentType) {
+      case "Chequeo General":
+      case "Vacunación":
+      case "Emergencia":
+        return "vet";
+
+      default:
+        return "vet";
+    }
+  }
+
+  /// =========================
+  /// FETCH PRECIO REAL
+  /// =========================
+  Future<void> fetchPrice() async {
+    try {
+      if (appointmentType == null) {
+        print("⚠️ appointmentType NULL → no se consulta precio");
+        return;
+      }
+
+      print("💰 FETCH PRICE...");
+
+      final serviceType = mapServiceType(appointmentType);
+
+      final response = await VetAppointmentsService.getBasePrice(
+        serviceType: serviceType,
+        isMobile: false,
+      );
+
+      print("💰 PRICE RESPONSE >>> $response");
+
+      if (response != null) {
+        servicePrice.value = response["price"];
+        currency.value = response["currency"];
+      }
+
+    } catch (e) {
+      print("❌ ERROR PRICE >>> $e");
+    }
+  }
+
+  /// =========================
+  /// LOAD VETS
+  /// =========================
   Future<void> loadVets() async {
     try {
       print("📡 CARGANDO VETERINARIAS...");
@@ -110,7 +203,7 @@ class AddNewVetAppointmentPageController extends GetxController {
       print("📡 RESPONSE VETS >>> $data");
 
       if (data.isNotEmpty) {
-        vetsList = data;
+        vetsList.assignAll(data);
         update();
       } else {
         print("⚠️ No hay veterinarias");
@@ -121,7 +214,9 @@ class AddNewVetAppointmentPageController extends GetxController {
     }
   }
 
-  /// 🔥 CREATE APPOINTMENT CORRECTO (SIN GET.SNACKBAR BUG)
+  /// =========================
+  /// CREATE APPOINTMENT
+  /// =========================
   Future<bool> createAppointment(BuildContext context) async {
     print("========== DEBUG CITA ==========");
     print("PET: $selectedPetId");
@@ -129,6 +224,7 @@ class AddNewVetAppointmentPageController extends GetxController {
     print("TYPE: $appointmentType");
     print("DATE: $appointmentDateTime");
     print("================================");
+
     try {
       if (selectedPetId == null ||
           selectedVetID == null ||
@@ -163,7 +259,6 @@ class AddNewVetAppointmentPageController extends GetxController {
 
       if (response != null) {
 
-        /// 🔥 POPUP CORRECTO (SIN OVERLAY ERROR + UX LIMPIO)
         Get.defaultDialog(
           title: "✅ Cita enviada",
           middleText:
@@ -175,13 +270,8 @@ class AddNewVetAppointmentPageController extends GetxController {
           textConfirm: "Ir a Shopping",
           confirmTextColor: Colors.white,
 
-          /// ❌ ELIMINAMOS "Quedarme"
-          /// UX más limpio: ya no tiene sentido quedarse ahí
-
           onConfirm: () {
-            Get.back(); // cerrar popup
-
-            /// 🔥 NAVEGACIÓN SEGURA (NO rompe sesión)
+            Get.back();
             Get.to(() => const ShoppingPage());
           },
         );

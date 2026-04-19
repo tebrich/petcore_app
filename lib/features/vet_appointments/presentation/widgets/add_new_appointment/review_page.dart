@@ -2,11 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/vet_appointments/presentation/controllers/add_new_vet_appointment_page_controller.dart';
+import 'package:peticare/features/vet_appointments/presentation/widgets/add_new_appointment/succes_page.dart';
 
 Widget reviewAndPayPage(
   Size size,
   AddNewVetAppointmentPageController controller,
 ) {
+
+  /// 🔥 AQUÍ VA (JUSTO AQUÍ)
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (controller.vetsList.isEmpty) {
+      print("📡 FORZANDO LOAD VETS DESDE REVIEW");
+      controller.loadVets();
+    }
+  });
+
   return SafeArea(
     child: Scaffold(
       backgroundColor: Colors.white,
@@ -36,7 +46,27 @@ Widget reviewAndPayPage(
               "Veterinaria",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text("Vet ID: ${controller.selectedVetID ?? '-'}"),
+
+            Builder(
+              builder: (_) {
+                print("VETS LIST >>> ${controller.vetsList}");
+                print("SELECTED VET ID >>> ${controller.selectedVetID}");
+                return const SizedBox();
+              },
+            ),
+
+            Obx(() {
+              final vetName = controller.selectedVetID != null
+                  ? (controller.vetsList
+                          .firstWhere(
+                            (vet) => vet["id"] == controller.selectedVetID,
+                            orElse: () => {},
+                          )["name"] ??
+                      "Veterinaria")
+                  : "-";
+
+              return Text(vetName);
+            }),
 
             VerticalSpacing.sm(Get.context!),
 
@@ -59,6 +89,27 @@ Widget reviewAndPayPage(
                   ? controller.appointmentDateTime.toString()
                   : "-",
             ),
+
+            VerticalSpacing.md(Get.context!),
+
+            /// 💰 PRECIO REAL (🔥 NUEVO)
+            Obx(() => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Precio",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "${controller.currency.value} ${controller.servicePrice.value}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            )),
 
             VerticalSpacing.md(Get.context!),
 
@@ -115,9 +166,17 @@ Widget reviewAndPayPage(
                 onPressed: () {
                   print("💳 PAGAR CITA");
 
-                  Get.snackbar(
-                    "Pago",
-                    "Aquí conectamos la pasarela de pago",
+                  final ctx = Get.context!;
+
+                  Get.to(
+                    () => Scaffold(
+                      backgroundColor: Colors.white,
+                      appBar: AppBar(
+                        title: const Text("Confirmación"),
+                        centerTitle: true,
+                      ),
+                      body: successPage(MediaQuery.of(ctx).size),
+                    ),
                   );
                 },
                 child: const Text("Pagar"),

@@ -87,4 +87,29 @@ class VetAppointmentsService {
       throw Exception("Error getting nearby vets");
     }
   }
+
+  static Future<Map<String, dynamic>?> getBasePrice({
+    required String serviceType,
+    required bool isMobile,
+  }) async {
+    try {
+      final response = await ApiClient.get(
+        "/api/v1/pricing/base?service_type=$serviceType&is_mobile=$isMobile",
+        auth: true,
+      );
+
+      print("PRICE STATUS >>> ${response.statusCode}");
+      print("PRICE BODY >>> ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+
+      return null;
+
+    } catch (e) {
+      print("ERROR GET BASE PRICE >>> $e");
+      return null;
+    }
+  }
 }
