@@ -5,35 +5,39 @@ import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 
-/// A widget function that builds the success confirmation screen. ✅
-///
-/// This widget serves as the final step in the `PageView` of the
-/// `AddNewVetAppoitnmentPage`. It is displayed after the user has successfully
-/// confirmed and paid for their appointment.
-///
-/// Key UI elements include:
-/// - A prominent "Success" title.
-/// - A central illustration (`happy_pet_chekmark.svg`) enhanced with a
-///   `FloatingAnimation` for subtle motion.
-/// - A descriptive text confirming that the appointment has been scheduled.
-///
-/// The "Done" button in the `BottomNavigationBar` of the parent page will
-/// typically navigate the user away from this flow.
-///
-/// [screenSize] The size of the screen, used for responsive layouts.
+/// Pantalla completa de confirmación de cita ✅
+class SuccessPageScreen extends StatelessWidget {
+  const SuccessPageScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text("Confirmación"),
+        centerTitle: true,
+      ),
+      body: successPage(size),
+    );
+  }
+}
+
+/// Contenido de la pantalla de éxito
 Widget successPage(Size screenSize) {
   return LayoutBuilder(
     builder: (context, constraints) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          /// Top spacing
+          /// Espacio superior
           const Spacer(flex: 1),
 
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
             child: Text(
-              "Success",
+              "Cita enviada",
               style: AppTextStyles.headingLarge.copyWith(
                 color: AppPalette.textOnSecondaryBg(context),
                 fontSize: constraints.maxHeight > 580 ? 35 : 32,
@@ -42,7 +46,7 @@ Widget successPage(Size screenSize) {
             ),
           ),
 
-          /// Space after Title
+          /// Espacio después del título
           VerticalSpacing.lg(context),
 
           Stack(
@@ -60,7 +64,7 @@ Widget successPage(Size screenSize) {
               ),
               FloatingAnimation(
                 type: FloatingType.wave,
-                duration: Duration(seconds: 8),
+                duration: const Duration(seconds: 8),
                 floatStrength: 2.5,
                 curve: Curves.linear,
                 child: Stack(
@@ -92,14 +96,17 @@ Widget successPage(Size screenSize) {
             ],
           ),
 
-          // Space after illustration
+          // Espacio después de la ilustración
           VerticalSpacing.xl(context),
 
-          /// Texts
+          /// Textos
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
             child: Text(
-              "Your appointment has been successfully scheduled",
+              "Tu solicitud de cita fue enviada correctamente.\n\n"
+              "Podrás ver el estado en:\n"
+              "🔔 Alertas o 📅 Mis citas.\n\n"
+              "Te notificaremos cuando sea confirmada.",
               style: AppTextStyles.bodyRegular.copyWith(
                 fontWeight: FontWeight.w500,
                 color: AppPalette.primaryText(context),
@@ -109,7 +116,7 @@ Widget successPage(Size screenSize) {
             ),
           ),
 
-          // Bottom spacer
+          // Espacio inferior
           const Spacer(flex: 1),
         ],
       );

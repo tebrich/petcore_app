@@ -3,14 +3,17 @@ import 'package:get/get.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/vet_appointments/presentation/controllers/add_new_vet_appointment_page_controller.dart';
 import 'package:peticare/features/vet_appointments/presentation/widgets/add_new_appointment/succes_page.dart';
+import 'package:intl/intl.dart';
 
 Widget reviewAndPayPage(
   Size size,
   AddNewVetAppointmentPageController controller,
 ) {
-
-  /// 🔥 AQUÍ VA (JUSTO AQUÍ)
+  /// 🔥 GARANTIZAR VETS + PRECIO EN REVIEW
   WidgetsBinding.instance.addPostFrameCallback((_) {
+    print("📄 REVIEW MONTADO → FORZANDO loadPrice()");
+    controller.loadPrice(); // 👈 IMPORTANTE
+
     if (controller.vetsList.isEmpty) {
       print("📡 FORZANDO LOAD VETS DESDE REVIEW");
       controller.loadVets();
@@ -29,7 +32,6 @@ Widget reviewAndPayPage(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             VerticalSpacing.md(Get.context!),
 
             /// 🐶 Mascota
@@ -77,6 +79,21 @@ Widget reviewAndPayPage(
             ),
             Text(controller.appointmentType ?? "-"),
 
+            /// 💰 PRECIO REAL MOSTRADO JUNTO AL SERVICIO
+            Obx(() {
+
+              final formatter = NumberFormat("#,##0", "es_PY"); // 50.000
+              final formattedPrice = formatter.format(controller.servicePrice.value);
+
+              return Text(
+                "${controller.currency.value} $formattedPrice",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              );
+            }),
+
             VerticalSpacing.sm(Get.context!),
 
             /// 📅 Fecha
@@ -89,27 +106,6 @@ Widget reviewAndPayPage(
                   ? controller.appointmentDateTime.toString()
                   : "-",
             ),
-
-            VerticalSpacing.md(Get.context!),
-
-            /// 💰 PRECIO REAL (🔥 NUEVO)
-            Obx(() => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Precio",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "${controller.currency.value} ${controller.servicePrice.value}",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            )),
 
             VerticalSpacing.md(Get.context!),
 
@@ -161,26 +157,15 @@ Widget reviewAndPayPage(
 
             /// 🔥 Botón pagar
             SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  print("💳 PAGAR CITA");
+               width: double.infinity,
+               child: ElevatedButton(
+                 onPressed: () {
+                   print("💳 PAGAR CITA");
 
-                  final ctx = Get.context!;
-
-                  Get.to(
-                    () => Scaffold(
-                      backgroundColor: Colors.white,
-                      appBar: AppBar(
-                        title: const Text("Confirmación"),
-                        centerTitle: true,
-                      ),
-                      body: successPage(MediaQuery.of(ctx).size),
-                    ),
-                  );
-                },
-                child: const Text("Pagar"),
-              ),
+                   Get.to(() => const SuccessPageScreen());
+                 },
+                 child: const Text("Pagar"),
+               ),
             ),
 
             VerticalSpacing.lg(Get.context!),

@@ -5,7 +5,6 @@ import 'package:peticare/features/vet_appointments/data/services/vet_appointment
 import 'package:peticare/features/shopping/presentation/pages/shopping_page.dart';
 
 class AddNewVetAppointmentPageController extends GetxController {
-
   final storage = const FlutterSecureStorage();
 
   late PageController pageController;
@@ -29,12 +28,15 @@ class AddNewVetAppointmentPageController extends GetxController {
   bool useMobileLocation = false;
 
   List<dynamic> petsList = [];
-  
 
   /// 🔥 PRICING REAL
   var servicePrice = 0.obs;
   var currency = "PYG".obs;
   var vetsList = <dynamic>[].obs;
+
+  /// 🔥 TIPO DE SERVICIO (lo que entiende el backend)
+  /// Para este MVP: siempre "vet"
+  String serviceType = "vet";
 
   /// TIPOS
   List<Map<String, dynamic>> appointmentTypes = [
@@ -61,9 +63,9 @@ class AddNewVetAppointmentPageController extends GetxController {
       await loadVets();
     }
 
-    /// 🔥 CARGAR PRECIO EN REVIEW
+    /// 🔥 CARGAR PRECIO EN REVIEW (ÚNICO LUGAR DONDE SE HACE)
     if (index == 5) {
-      await fetchPrice();
+      await loadPrice();
     }
 
     update();
@@ -82,7 +84,10 @@ class AddNewVetAppointmentPageController extends GetxController {
     selectedAppointmentTypeId = id;
     appointmentType = label;
 
-    /// reset precio
+    /// 🔥 CLAVE: para este MVP, siempre "vet"
+    serviceType = "vet";
+
+    /// reset precio (la carga real se hace en review)
     servicePrice.value = 0;
 
     update();
@@ -91,7 +96,10 @@ class AddNewVetAppointmentPageController extends GetxController {
   void updateAppointmentType(String type) {
     appointmentType = type;
 
-    /// reset precio
+    /// 🔥 CLAVE: siempre "vet"
+    serviceType = "vet";
+
+    /// reset precio (la carga real se hace en review)
     servicePrice.value = 0;
 
     update();
@@ -141,48 +149,27 @@ class AddNewVetAppointmentPageController extends GetxController {
   }
 
   /// =========================
-  /// MAPEO SERVICE TYPE
+  /// PRECIO REAL (usa service_pricing_config)
   /// =========================
-  String mapServiceType(String? appointmentType) {
-    if (appointmentType == null) return "vet";
-
-    switch (appointmentType) {
-      case "Chequeo General":
-      case "Vacunación":
-      case "Emergencia":
-        return "vet";
-
-      default:
-        return "vet";
-    }
-  }
-
-  /// =========================
-  /// FETCH PRECIO REAL
-  /// =========================
-  Future<void> fetchPrice() async {
+  Future<void> loadPrice() async {
     try {
-      if (appointmentType == null) {
-        print("⚠️ appointmentType NULL → no se consulta precio");
-        return;
-      }
-
-      print("💰 FETCH PRICE...");
-
-      final serviceType = mapServiceType(appointmentType);
+      print("💰 BUSCANDO PRECIO: $serviceType");
 
       final response = await VetAppointmentsService.getBasePrice(
-        serviceType: serviceType,
-        isMobile: false,
+        serviceType: serviceType,        // siempre "vet" en este MVP
+        isMobile: useMobileLocation,     // respeta el toggle de ubicación
       );
 
       print("💰 PRICE RESPONSE >>> $response");
 
       if (response != null) {
-        servicePrice.value = response["price"];
-        currency.value = response["currency"];
-      }
+        servicePrice.value = response["price"] ?? 0;
+        currency.value = response["currency"] ?? "PYG";
 
+        print("💰 PRECIO OK >>> ${servicePrice.value} ${currency.value}");
+      } else {
+        print("❌ NO SE ENCONTRÓ PRECIO");
+      }
     } catch (e) {
       print("❌ ERROR PRICE >>> $e");
     }
@@ -208,7 +195,6 @@ class AddNewVetAppointmentPageController extends GetxController {
       } else {
         print("⚠️ No hay veterinarias");
       }
-
     } catch (e) {
       print("❌ ERROR LOAD VETS >>> $e");
     }
@@ -221,7 +207,8 @@ class AddNewVetAppointmentPageController extends GetxController {
     print("========== DEBUG CITA ==========");
     print("PET: $selectedPetId");
     print("VET: $selectedVetID");
-    print("TYPE: $appointmentType");
+    print("TYPE (UI): $appointmentType");
+    print("SERVICE_TYPE (backend): $serviceType");
     print("DATE: $appointmentDateTime");
     print("================================");
 
@@ -230,7 +217,6 @@ class AddNewVetAppointmentPageController extends GetxController {
           selectedVetID == null ||
           appointmentType == null ||
           appointmentDateTime == null) {
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Completa todos los campos")),
         );
@@ -251,25 +237,21 @@ class AddNewVetAppointmentPageController extends GetxController {
         userId: userId,
         petId: selectedPetId!,
         vetId: selectedVetID!,
-        appointmentType: appointmentType!,
+        appointmentType: appointmentType!,      // lo que ve el usuario
         appointmentDateTime: appointmentDateTime!,
         addToCalendar: addToCalendar,
         addReminder: addReminder,
       );
 
       if (response != null) {
-
         Get.defaultDialog(
           title: "✅ Cita enviada",
-          middleText:
-              "Tu solicitud fue enviada correctamente.\n\n"
+          middleText: "Tu solicitud fue enviada correctamente.\n\n"
               "Podrás ver el estado en:\n"
               "🔔 Alertas o 📅 Mis citas.\n\n"
               "Te notificaremos cuando sea confirmada.",
-
           textConfirm: "Ir a Shopping",
           confirmTextColor: Colors.white,
-
           onConfirm: () {
             Get.back();
             Get.to(() => const ShoppingPage());
@@ -284,7 +266,6 @@ class AddNewVetAppointmentPageController extends GetxController {
       );
 
       return false;
-
     } catch (e) {
       print("ERROR CREATE APPOINTMENT >>> $e");
 
