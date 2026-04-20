@@ -3,8 +3,9 @@ import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 
-class AddNewGroomAppointmentPageController extends GetxController {
+import 'package:peticare/features/groom_appointments/data/services/groom_appointments_service.dart';
 
+class AddNewGroomAppointmentPageController extends GetxController {
   // ================================
   // PAGE CONTROL
   // ================================
@@ -83,12 +84,12 @@ class AddNewGroomAppointmentPageController extends GetxController {
   void updateSelectedGroomerID(String? id) {
     selectedGroomerID = id;
 
-    // 🔥 LLAMAR PRECIO AUTOMÁTICO
+    // 🔥 LLAMAR PRECIO AUTOMÁTICO (usa pricing/base con service_type=grooming)
     if (id != null) {
       fetchGroomingPrice(
         clinicId: int.parse(id),
-        serviceName: "bath", // luego dinámico
-        petSize: "medium",   // luego automático desde pet
+        serviceName: "bath", // TODO: luego dinámico
+        petSize: "medium",   // TODO: luego automático desde pet
         isMobile: isMobileGrooming ?? false,
       );
     }
@@ -121,7 +122,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
   // ================================
 
   Future<void> fetchGroomers() async {
-
     if (isMobileGrooming == null) {
       print("❌ isMobileGrooming NULL");
       return;
@@ -140,7 +140,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
 
       // 🔥 SI USA GPS (IGUAL QUE VET)
       if (useMobileLocation) {
-
         LocationPermission permission = await Geolocator.checkPermission();
 
         if (permission == LocationPermission.denied) {
@@ -149,9 +148,7 @@ class AddNewGroomAppointmentPageController extends GetxController {
 
         if (permission != LocationPermission.denied &&
             permission != LocationPermission.deniedForever) {
-
           Position position = await Geolocator.getCurrentPosition();
-
           url += "&lat=${position.latitude}&lng=${position.longitude}";
         }
       }
@@ -171,7 +168,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
       } else {
         groomersList = [];
       }
-
     } catch (e) {
       print("ERROR GROOMERS: $e");
       groomersList = [];
@@ -187,28 +183,20 @@ class AddNewGroomAppointmentPageController extends GetxController {
 
   bool canContinue() {
     switch (currentPage) {
-
       case 0:
         return true;
-
       case 1:
         return selectedPetId != null;
-
       case 2:
         return appointmentType != null;
-
       case 3:
         return true;
-
       case 4:
         return isMobileGrooming != null;
-
       case 5:
         return selectedGroomerID != null;
-
       case 6:
         return true;
-
       default:
         return false;
     }
@@ -234,10 +222,15 @@ class AddNewGroomAppointmentPageController extends GetxController {
     );
   }
 
+  /// 🔥 PARA SINCRONIZAR CON EL WIZARD (igual patrón que VET)
+  Future<void> updatePage(int index) async {
+    currentPage = index;
+    update();
+  }
+
   // ================================
   // INIT
   // ================================
-
   @override
   void onInit() {
     super.onInit();
@@ -271,7 +264,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
     required String petSize,
     required bool isMobile,
   }) async {
-
     isLoadingPrice = true;
     update();
 
@@ -279,13 +271,11 @@ class AddNewGroomAppointmentPageController extends GetxController {
       final token = await storage.read(key: 'access_token');
 
       final response = await GetConnect().get(
-        "http://192.168.40.54:8000/api/v1/grooming/price"
-        "?clinic_id=$clinicId"
-        "&service_name=$serviceName"
-        "&pet_size=$petSize"
+        "http://192.168.40.54:8000/api/v1/pricing/base"
+        "?service_type=grooming"
         "&is_mobile=$isMobile",
         headers: {
-            'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
         },
       );
 
@@ -294,12 +284,73 @@ class AddNewGroomAppointmentPageController extends GetxController {
       } else {
         groomingPrice = null;
       }
-
     } catch (e) {
       groomingPrice = null;
     }
 
     isLoadingPrice = false;
     update();
+  }
+
+  // ================================
+  // CREATE GROOM APPOINTMENT (REAL)
+  // ================================
+  Future<bool> createGroomAppointment(BuildContext context) async {
+    print("========== DEBUG CITA GROOM ==========");
+    print("PET: $selectedPetId");
+    print("GROOMER: $selectedGroomerID");
+    print("TYPE: $appointmentType");
+    print("DATE: $appointmentDateTime");
+    print("MOBILE: $isMobileGrooming");
+    print("======================================");
+
+    try {
+      if (selectedPetId == null ||
+          selectedGroomerID == null ||
+          appointmentType == null ||
+          appointmentDateTime == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Completa todos los campos")),
+        );
+        return false;
+      }
+
+      final userIdStr = await storage.read(key: 'user_id');
+      final userId = int.tryParse(userIdStr ?? '');
+
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Usuario no autenticado")),
+        );
+        return false;
+      }
+
+      // 🔥 LLAMADA REAL AL BACKEND (necesita endpoint /groom-appointments)
+      final response = await GroomAppointmentsService.createAppointment(
+        userId: userId,
+        petId: selectedPetId!,
+        groomerId: int.parse(selectedGroomerID!),
+        appointmentType: appointmentType!,
+        appointmentDateTime: appointmentDateTime!,
+        addToCalendar: addToCalendar,
+        addReminder: addReminder,
+      );
+
+      if (response != null) {
+        // El wizard se encargará de avanzar / mostrar success
+        return true;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No se pudo crear la cita de grooming")),
+      );
+      return false;
+    } catch (e) {
+      print("ERROR CREATE GROOM APPOINTMENT >>> $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error inesperado")),
+      );
+      return false;
+    }
   }
 }

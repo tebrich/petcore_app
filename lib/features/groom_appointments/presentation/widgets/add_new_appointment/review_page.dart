@@ -39,7 +39,9 @@ Widget reviewAndPayPage(
       final api = GetConnect();
 
       final response = await api.get(
-        "http://192.168.40.54:8000/api/v1/grooming/reservation-fee?is_mobile=$isMobile",
+        "http://192.168.40.54:8000/api/v1/pricing/base"
+        "?service_type=grooming"
+        "&is_mobile=$isMobile",
         headers: {
           'Authorization': 'Bearer $token',
         },
