@@ -530,85 +530,85 @@ class _AddReminderPageState extends State<AddReminderPage> {
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: .05),
-                    offset: Offset(0, -1),
+                    offset: const Offset(0, -1),
                     blurRadius: 1,
                   ),
                 ],
               ),
               alignment: Alignment.center,
-              child:
-                  /// CTA - Save Button
-                  AnimatedElevatedButton(
-                    text: '',
-                    size: Size(constraints.maxWidth * .9, 45),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text('Guardar', style: AppTextStyles.ctaBold),
-                        ),
-                        FaIcon(FontAwesomeIcons.paw, size: 15),
-                      ],
+              child: AnimatedElevatedButton(
+                text: '',
+                size: Size(constraints.maxWidth * .9, 45),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text('Guardar', style: AppTextStyles.ctaBold),
                     ),
-                    onClick: () async {
-                      try {
-                        final api = GetConnect();
+                    const FaIcon(FontAwesomeIcons.paw, size: 15),
+                  ],
+                ),
+                onClick: () async {
+                  try {
+                    final api = GetConnect();
+                    final dashboard = Get.find<DashboardController>();
+                    final userId = dashboard.userId.value;
 
-                      /// 1️ TYPE
-                      final selectedType = reminderTypesList.firstWhere(
-                        (item) => item["label_es"] == typeTextController.text,
+                    /// 1️⃣ TYPE
+                    final selectedType = reminderTypesList.firstWhere(
+                      (item) => item["label_es"] == typeTextController.text,
+                    );
+                    final type = selectedType["code"];
+
+                    /// 2️⃣ TIME
+                    final time =
+                      DateFormat("HH:mm:ss").format(selectedDateTime!);
+
+                    /// 3️⃣ DATE (reminder_date)
+                    final reminderDate =
+                      DateFormat("yyyy-MM-dd").format(selectedDateTime!);
+
+                    /// 4️⃣ TITLE
+                    final title = titleTextController.text;
+
+                    /// 5️⃣ NOTES
+                    final notes = noteTextController.text;
+
+                    /// 6️⃣ MASCOTAS SELECCIONADAS
+                    for (var pet in selectedPets) {
+                      final petId = int.parse(pet["id"].toString());
+
+                      final payload = {
+                        "user_id": userId,              // 👈 dinámico
+                        "pet_id": petId,
+                        "type": type,
+                        "title": title,
+                        "reminder_time": time,
+                        "reminder_date": reminderDate, // 👈 nuevo campo
+                        "notes": notes,
+                      };
+
+                      final response = await api.post(
+                        "http://192.168.40.54:8000/api/v1/reminders/",
+                        payload,
                       );
 
-                      final type = selectedType["code"];
-
-                      /// 2️ TIME
-                      final time = DateFormat("HH:mm:ss").format(selectedDateTime!);
-
-                      /// 3️ TITLE
-                      final title = titleTextController.text;
-
-                      /// 4️ NOTES
-                      final notes = noteTextController.text;
-
-                      /// 5️ MASCOTAS SELECCIONADAS (YA LO TIENES ✔)
-                      final pets = selectedPets;
-
-                      /// 🔥 ITERAR POR CADA MASCOTA (DINÁMICO)
-                      for (var pet in selectedPets) {
-
-                        final petId = int.parse(pet["id"].toString());
-
-                        final payload = {
-                          "user_id": 4, // luego lo haremos dinámico
-                          "pet_id": petId,
-                          "type": type,
-                          "title": title,
-                          "reminder_time": time,
-                          "notes": notes,
-                        };
-
-                        final response = await api.post(
-                          "http://192.168.40.54:8000/api/v1/reminders/",
-                          payload,
-                        );
-
-                        if (response.statusCode != 200) {
-                          print("ERROR: ${response.body}");
-                        }
+                      if (response.statusCode != 200) {
+                        print("ERROR: ${response.body}");
                       }
-
-                      /// 🔄 refrescar dashboard
-                      Get.find<DashboardController>().loadReminders();
-
-                      Get.back();
-
-                    } catch (e) {
-                      print("SAVE ERROR: $e");
                     }
-                  },
-                ),         
+
+                    // 🔄 refrescar dashboard
+                    Get.find<DashboardController>().loadReminders();
+
+                    Get.back();
+                  } catch (e) {
+                    print("SAVE ERROR: $e");
+                  }
+                },
+              ),
             ),
           ),
         );
