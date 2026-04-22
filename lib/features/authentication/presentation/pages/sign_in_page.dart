@@ -16,7 +16,6 @@ import 'package:peticare/features/authentication/presentation/pages/sign_up_page
 import 'package:get_storage/get_storage.dart';
 import 'dart:convert';
 
-
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
 
@@ -168,7 +167,7 @@ class _SignInPageState extends State<SignInPage> {
 
                   VerticalSpacing.xl(context),
 
-                  /// BOTÓN LOGIN (CORRECTO)
+                  /// BOTÓN LOGIN
                   AnimatedElevatedButton(
                     text: _isLoading ? 'login_loading'.tr : 'login_button'.tr,
                     size: Size(screenSize.width * 0.6, 45),
@@ -179,8 +178,7 @@ class _SignInPageState extends State<SignInPage> {
                                 _passwordController.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content:
-                                      Text('login_fill_fields'.tr),
+                                  content: Text('login_fill_fields'.tr),
                                 ),
                               );
                               return;
@@ -196,13 +194,14 @@ class _SignInPageState extends State<SignInPage> {
 
                               final rawUser =
                                   await const FlutterSecureStorage().read(key: 'user');
-                              final user = rawUser != null ? jsonDecode(rawUser) : null;
+                              final user =
+                                  rawUser != null ? jsonDecode(rawUser) : null;
 
                               print("🧠 USER FROM STORAGE >>> $user");
 
                               if (user != null && user["role"] == "vet") {
-                                print("🚀 NAV → VET");
-                                Get.offAllNamed('/VetAppointments');
+                                print("🚀 NAV → VET (GROOM)");
+                                Get.offAllNamed('/GroomVetAppointments');
                               } else {
                                 print("🚀 NAV → USER");
                                 Get.offAllNamed('/HomePage');
@@ -230,7 +229,7 @@ class _SignInPageState extends State<SignInPage> {
                       children: [
                         TextSpan(
                           text: 'login_no_account'.tr + '\n',
-                          style: TextStyle(fontSize: 12),
+                          style: const TextStyle(fontSize: 12),
                         ),
                         WidgetSpan(
                           child: AnimatedTextButton(

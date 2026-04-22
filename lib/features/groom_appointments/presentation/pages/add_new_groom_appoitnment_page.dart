@@ -78,7 +78,6 @@ class AddNewGroomAppoitnmentPage extends StatelessWidget {
                     ? "Solicitar servicio"
                     : "Continuar",
                 size: Size(screenSize.width * 0.85, 45),
-
                 onClick: ((controller.currentPage == 1 &&
                             controller.selectedPetId == null) ||
                         (controller.currentPage == 2 &&
@@ -91,18 +90,12 @@ class AddNewGroomAppoitnmentPage extends StatelessWidget {
                     : () async {
                         // Última página del wizard → crear cita grooming PENDING
                         if (controller.currentPage == 6) {
-                          final ok = await controller.createGroomAppointment(context);
-
-                          if (ok) {
-                            // avanzar a pantalla de éxito (index 7 si la agregas luego)
-                            // De momento, como tu PageView tiene 7 páginas (0..6),
-                            // simplemente cerramos el flujo o navegas donde quieras.
-                            Get.back(); // o reemplázalo luego por ir a una Success propia
-                          }
-
+                          await controller.createGroomAppointment(context);
+                          // El popup se muestra dentro de createGroomAppointment
                         } else {
                           // Avanzar de página + updatePage (igual que vet)
-                          await controller.updatePage(controller.currentPage + 1);
+                          await controller
+                              .updatePage(controller.currentPage + 1);
 
                           controller.pageController.nextPage(
                             duration: const Duration(milliseconds: 150),

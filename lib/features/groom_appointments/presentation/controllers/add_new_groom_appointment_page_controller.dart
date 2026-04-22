@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:peticare/features/groom_appointments/data/services/groom_appointments_service.dart';
+import 'package:peticare/features/shopping/presentation/pages/shopping_page.dart';
 
 class AddNewGroomAppointmentPageController extends GetxController {
   // ================================
@@ -84,7 +85,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
   void updateSelectedGroomerID(String? id) {
     selectedGroomerID = id;
 
-    // 🔥 LLAMAR PRECIO AUTOMÁTICO (usa pricing/base con service_type=grooming)
     if (id != null) {
       fetchGroomingPrice(
         clinicId: int.parse(id),
@@ -120,7 +120,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
   // ================================
   // FETCH GROOMERS (PRODUCCIÓN)
   // ================================
-
   Future<void> fetchGroomers() async {
     if (isMobileGrooming == null) {
       print("❌ isMobileGrooming NULL");
@@ -138,7 +137,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
       String url =
           "http://192.168.40.54:8000/api/v1/groomers?is_mobile=$isMobileGrooming";
 
-      // 🔥 SI USA GPS (IGUAL QUE VET)
       if (useMobileLocation) {
         LocationPermission permission = await Geolocator.checkPermission();
 
@@ -180,7 +178,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
   // ================================
   // VALIDACIONES
   // ================================
-
   bool canContinue() {
     switch (currentPage) {
       case 0:
@@ -205,7 +202,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
   // ================================
   // NAVEGACIÓN
   // ================================
-
   void nextPage() {
     if (!canContinue()) return;
 
@@ -222,7 +218,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
     );
   }
 
-  /// 🔥 PARA SINCRONIZAR CON EL WIZARD (igual patrón que VET)
   Future<void> updatePage(int index) async {
     currentPage = index;
     update();
@@ -325,7 +320,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
         return false;
       }
 
-      // 🔥 LLAMADA REAL AL BACKEND (necesita endpoint /groom-appointments)
       final response = await GroomAppointmentsService.createAppointment(
         userId: userId,
         petId: selectedPetId!,
@@ -337,7 +331,22 @@ class AddNewGroomAppointmentPageController extends GetxController {
       );
 
       if (response != null) {
-        // El wizard se encargará de avanzar / mostrar success
+
+        print("💬 MOSTRANDO POPUP GROOMING");   // 👈 agrega esto
+        Get.defaultDialog(
+          title: "✅ Cita enviada",
+          middleText: "Tu solicitud de grooming fue enviada correctamente.\n\n"
+              "Podrás ver el estado en:\n"
+              "🔔 Alertas o 📅 Mis citas.\n\n"
+              "Te notificaremos cuando sea confirmada.",
+          textConfirm: "Ir a Shopping",
+          confirmTextColor: Colors.white,
+          onConfirm: () {
+            Get.back();
+            Get.to(() => const ShoppingPage());
+          },
+        );
+
         return true;
       }
 

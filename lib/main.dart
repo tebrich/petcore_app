@@ -42,6 +42,9 @@ import 'package:peticare/features/notifications/controllers/notifications_contro
 import 'package:peticare/features/vet/presentation/pages/vet_appointments_page.dart';
 import 'package:peticare/features/vet_appointments/presentation/pages/review_page_wrapper.dart';
 
+// 👇 importar la página de citas grooming para vet
+import 'package:peticare/features/vet/presentation/pages/groom_vet_appointments_page.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -50,7 +53,7 @@ void main() async {
   Get.put(PostSignupPageController());
   Get.put(NotificationsController());
 
-  runApp(const MyApp()); // ✅ CORRECTO (SIN GetMaterialApp aquí)
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -79,8 +82,10 @@ class MyApp extends StatelessWidget {
     }
 
     if (user["role"] == "vet") {
-      print("➡️ GO TO /VetAppointments");
-      return '/VetAppointments';
+       print("➡️ INITIAL ROUTE → /GroomVetAppointments");
+      // 👇 ahora mandamos al panel de grooming del vet
+      print("➡️ GO TO /GroomVetAppointments");
+      return '/GroomVetAppointments';
     }
 
     print("➡️ GO TO /HomePage");
@@ -123,10 +128,8 @@ class MyApp extends StatelessWidget {
               themeMode: Get.find<ThemeController>().themeMode,
 
               initialRoute: snapshot.data,
-              
 
               getPages: [
-
                 GetPage(name: '/', page: () => WelcomePage()),
 
                 GetPage(
@@ -164,10 +167,15 @@ class MyApp extends StatelessWidget {
                   binding: GlobalControllerBinding(),
                 ),
 
-                /// 🔥 AGREGA ESTO AQUÍ
                 GetPage(
                   name: '/VetAppointments',
                   page: () => VetAppointmentsPage(),
+                ),
+
+                // 👇 nueva ruta para citas grooming del vet
+                GetPage(
+                  name: '/GroomVetAppointments',
+                  page: () => const GroomVetAppointmentsPage(),
                 ),
 
                 GetPage(
@@ -200,21 +208,42 @@ class MyApp extends StatelessWidget {
                   page: () => NotificationsPage(),
                 ),
 
-                GetPage(name: '/AccountDetails', page: () => AccountDetailsPage()),
-                GetPage(name: '/PaymentMethods', page: () => PaymentMethodsPage()),
-                GetPage(name: '/TwoFactorAuthentication', page: () => TwoFactorAuthenticationPage()),
-                GetPage(name: '/LoginHistory', page: () => LoginHistoryPage()),
-                GetPage(name: '/TrustedDevices', page: () => TrustedDevicesPage()),
-                GetPage(name: '/RemindersSetting', page: () => RemindersSettingPage()),
-                GetPage(name: '/CalendarRemindersSetting', page: () => CalendarRemindersSettingPage()),
-                GetPage(name: '/AppearanceSeetings', page: () => AppearanceSeetingsPage()),
-                GetPage(name: '/LanguageSettings', page: () => LanguageSettingsPage()),
-                GetPage(name: '/PrivacySecurity', page: () => PrivacySecurityPage()),
-                GetPage(name: '/HelpSupport', page: () => HelpSupportPage()),
+                GetPage(
+                    name: '/AccountDetails',
+                    page: () => AccountDetailsPage()),
+                GetPage(
+                    name: '/PaymentMethods',
+                    page: () => PaymentMethodsPage()),
+                GetPage(
+                    name: '/TwoFactorAuthentication',
+                    page: () => TwoFactorAuthenticationPage()),
+                GetPage(
+                    name: '/LoginHistory',
+                    page: () => LoginHistoryPage()),
+                GetPage(
+                    name: '/TrustedDevices',
+                    page: () => TrustedDevicesPage()),
+                GetPage(
+                    name: '/RemindersSetting',
+                    page: () => RemindersSettingPage()),
+                GetPage(
+                    name: '/CalendarRemindersSetting',
+                    page: () => CalendarRemindersSettingPage()),
+                GetPage(
+                    name: '/AppearanceSeetings',
+                    page: () => AppearanceSeetingsPage()),
+                GetPage(
+                    name: '/LanguageSettings',
+                    page: () => LanguageSettingsPage()),
+                GetPage(
+                    name: '/PrivacySecurity',
+                    page: () => PrivacySecurityPage()),
+                GetPage(
+                    name: '/HelpSupport', page: () => HelpSupportPage()),
                 GetPage(
                   name: "/vet-review",
                   page: () => const ReviewPageWrapper(),
-                ),        
+                ),
               ],
             );
           },

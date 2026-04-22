@@ -1,10 +1,10 @@
 ﻿import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package/get_storage/get_storage.dart';
 import 'package:peticare/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:peticare/features/vet/presentation/pages/vet_appointments_page.dart';
+import 'package:peticare/features/vet/presentation/pages/groom_vet_appointments_page.dart';
 
 class LoginController extends GetxController {
-
   final storage = GetStorage();
 
   var isLoading = false.obs;
@@ -24,7 +24,6 @@ class LoginController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-
         final token = response.body["access_token"];
         final user = response.body["user"];
 
@@ -41,18 +40,21 @@ class LoginController extends GetxController {
 
         /// 🔥 REDIRECCIÓN DIRECTA
         if (savedUser["role"] == "vet") {
-          print("🚀 NAV → VET");
-          Get.offAllNamed('/VetDirect');
+          print("🚀 NAV → VET (GROOM)");
+          // Opciones:
+          // 1) Usar la ruta que definimos en main.dart:
+          Get.offAllNamed('/GroomVetAppointments');
+
+          // 2) O navegar directo al widget (equivalente):
+          // Get.offAll(() => const GroomVetAppointmentsPage());
+
         } else {
           print("🚀 NAV → USER");
           Get.offAllNamed('/HomePage');
         }
-      }
-
       } else {
         Get.snackbar("Error", "Login inválido");
       }
-
     } catch (e) {
       print("LOGIN ERROR >>> $e");
     } finally {
