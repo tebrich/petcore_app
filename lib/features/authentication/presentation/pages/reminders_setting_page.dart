@@ -4,27 +4,9 @@ import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-
-/// A settings page for managing reminder notifications.
-///
-/// This page allows users to customize how and when they receive notifications
-/// for various pet care tasks. The layout is built within a `SingleChildScrollView`
-/// and includes decorative background illustrations for visual appeal.
-///
-/// Key UI elements include:
-/// - A main "Notifications" switch that acts as a master control, enabling or
-///   disabling all reminder notifications at once.
-/// - A series of individual `_switchTile` widgets for fine-grained control over
-///   specific reminder categories, such as:
-///   - To-Do Notifications
-///   - Meal Reminders
-///   - Medication Alerts
-///   - Activity Alerts
-///   - Grooming Session Reminders
-/// - A clear description at the top explaining the page's purpose.
-///
-/// The state for each switch is managed locally within the `_RemindersSettingPageState`.
+/// Página de ajustes para gestionar recordatorios (notificaciones locales).
 class RemindersSettingPage extends StatefulWidget {
   const RemindersSettingPage({super.key});
 
@@ -32,11 +14,6 @@ class RemindersSettingPage extends StatefulWidget {
   State<RemindersSettingPage> createState() => _RemindersSettingPageState();
 }
 
-/// Manages the state for the [RemindersSettingPage].
-///
-/// This state class holds the boolean flags for each notification setting.
-/// It includes logic to handle the master switch's behavior, where disabling
-/// the main "Notifications" toggle also disables all other reminder toggles.
 class _RemindersSettingPageState extends State<RemindersSettingPage> {
   /// Variables
   late bool areNotificationEnabled;
@@ -46,16 +23,33 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
   late bool activityReminders;
   late bool groomingReminders;
 
+  final _box = GetStorage();
+  final String _keyMasterNotifications = "settings_notifications_enabled";
+
   /// INIT STATE
   @override
   void initState() {
     super.initState();
-    areNotificationEnabled = true;
+
+    // Master desde storage (default true)
+    final stored = _box.read(_keyMasterNotifications);
+    areNotificationEnabled = stored is bool ? stored : true;
+
+    // El resto de toggles por ahora se mantienen en true por defecto
     dailyReminders = true;
     feedingReminders = true;
     medicationReminders = true;
     activityReminders = true;
     groomingReminders = true;
+
+    // Si el master está apagado, apagamos todos visualmente
+    if (!areNotificationEnabled) {
+      dailyReminders = false;
+      feedingReminders = false;
+      medicationReminders = false;
+      activityReminders = false;
+      groomingReminders = false;
+    }
   }
 
   @override
@@ -64,7 +58,6 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-
         title: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
@@ -75,7 +68,7 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
             ),
           ),
         ),
-        actions: [SizedBox(width: 24.0)],
+        actions: const [SizedBox(width: 24.0)],
       ),
       body: SingleChildScrollView(
         child: Stack(
@@ -128,34 +121,39 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
 
                   // Sections Spacing
                   VerticalSpacing.xl(context),
+
+                  /// Master switch: Notificaciones
                   _switchTile(
                     'Notificaciones',
                     'Mantente informado con actualizaciones oportunas sobre el cuidado y las actividades de tu mascota. Activa o desactiva aquí todas las notificaciones de la aplicación.',
                     areNotificationEnabled,
                     (value) {
-                      if (value == false) {
-                        setState(() {
-                          areNotificationEnabled = false;
+                      setState(() {
+                        areNotificationEnabled = value;
+
+                        if (!value) {
                           dailyReminders = false;
                           feedingReminders = false;
                           medicationReminders = false;
                           activityReminders = false;
                           groomingReminders = false;
-                        });
-                      } else {
-                        setState(() {
-                          areNotificationEnabled = true;
-                        });
-                      }
+                        }
+                      });
+
+                      // 🔥 guardar en storage para usarlo como default en citas
+                      _box.write(_keyMasterNotifications, areNotificationEnabled);
                     },
                   ),
+
                   VerticalSpacing.lg(context),
                   Divider(
                     color: AppPalette.disabled(context).withValues(alpha: .5),
                     height: 1,
                     thickness: 1,
                   ),
+
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -167,11 +165,14 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
                       (value) {
                         setState(() {
                           dailyReminders = value;
+                          if (!value) areNotificationEnabled = false;
                         });
                       },
                     ),
                   ),
+
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -183,12 +184,14 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
                       (value) {
                         setState(() {
                           feedingReminders = value;
+                          if (!value) areNotificationEnabled = false;
                         });
                       },
                     ),
                   ),
 
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -200,11 +203,14 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
                       (value) {
                         setState(() {
                           medicationReminders = value;
+                          if (!value) areNotificationEnabled = false;
                         });
                       },
                     ),
                   ),
+
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -216,12 +222,14 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
                       (value) {
                         setState(() {
                           activityReminders = value;
+                          if (!value) areNotificationEnabled = false;
                         });
                       },
                     ),
                   ),
 
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -233,10 +241,13 @@ class _RemindersSettingPageState extends State<RemindersSettingPage> {
                       (value) {
                         setState(() {
                           groomingReminders = value;
+                          if (!value) areNotificationEnabled = false;
                         });
                       },
                     ),
                   ),
+
+                  VerticalSpacing.xl(context),
                 ],
               ),
             ),

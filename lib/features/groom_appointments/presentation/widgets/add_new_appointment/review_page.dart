@@ -10,6 +10,7 @@ import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/groom_appointments/presentation/controllers/add_new_groom_appointment_page_controller.dart';
+import 'package:peticare/features/groom_appointments/presentation/widgets/add_new_appointment/success_page.dart';
 
 Widget reviewAndPayPage(
   Size screenSize,
@@ -68,7 +69,6 @@ Widget reviewAndPayPage(
       return SingleChildScrollView(
         child: Column(
           children: [
-
             VerticalSpacing.md(context),
 
             /// 🔙 BACK
@@ -108,11 +108,18 @@ Widget reviewAndPayPage(
               ),
               child: Column(
                 children: [
-
-                  _row(context, 'Mascota', controller.selectedPet?['name'] ?? ''),
+                  _row(
+                    context,
+                    'Mascota',
+                    controller.selectedPet?['name'] ?? '',
+                  ),
                   _divider(context),
 
-                  _row(context, 'Servicio', controller.appointmentType ?? ''),
+                  _row(
+                    context,
+                    'Servicio',
+                    controller.appointmentType ?? '',
+                  ),
                   _divider(context),
 
                   _row(
@@ -154,7 +161,7 @@ Widget reviewAndPayPage(
                     return _row(
                       context,
                       'Pago mínimo',
-                      "Gs. ${reservationFee.value}",
+                      "${currency.value} ${reservationFee.value}",
                       isHighlight: true,
                     );
                   }),
@@ -217,6 +224,25 @@ Widget reviewAndPayPage(
                     onChanged: controller.updateAddToCalendar,
                   ),
                 ],
+              ),
+            ),
+
+            VerticalSpacing.lg(context),
+
+            /// 🔥 Botón pagar
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.width * .05,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    print("💳 PAGAR CITA GROOMING");
+                    Get.to(() => const GroomSuccessPageScreen());
+                  },
+                  child: const Text("Pagar"),
+                ),
               ),
             ),
 

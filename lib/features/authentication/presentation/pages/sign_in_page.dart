@@ -200,8 +200,8 @@ class _SignInPageState extends State<SignInPage> {
                               print("🧠 USER FROM STORAGE >>> $user");
 
                               if (user != null && user["role"] == "vet") {
-                                print("🚀 NAV → VET (GROOM)");
-                                Get.offAllNamed('/GroomVetAppointments');
+                                print("🚀 NAV → VET PANEL");
+                                Get.offAllNamed('/VetPanel');
                               } else {
                                 print("🚀 NAV → USER");
                                 Get.offAllNamed('/HomePage');

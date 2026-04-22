@@ -44,6 +44,7 @@ import 'package:peticare/features/vet_appointments/presentation/pages/review_pag
 
 // 👇 importar la página de citas grooming para vet
 import 'package:peticare/features/vet/presentation/pages/groom_vet_appointments_page.dart';
+import 'package:peticare/features/vet/presentation/pages/vet_panel_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,10 +83,8 @@ class MyApp extends StatelessWidget {
     }
 
     if (user["role"] == "vet") {
-       print("➡️ INITIAL ROUTE → /GroomVetAppointments");
-      // 👇 ahora mandamos al panel de grooming del vet
-      print("➡️ GO TO /GroomVetAppointments");
-      return '/GroomVetAppointments';
+      print("➡️ GO TO /VetPanel");
+      return '/VetPanel';
     }
 
     print("➡️ GO TO /HomePage");
@@ -243,6 +242,11 @@ class MyApp extends StatelessWidget {
                 GetPage(
                   name: "/vet-review",
                   page: () => const ReviewPageWrapper(),
+                ),
+
+                GetPage(
+                  name: '/VetPanel',
+                  page: () => const VetPanelPage(),
                 ),
               ],
             );

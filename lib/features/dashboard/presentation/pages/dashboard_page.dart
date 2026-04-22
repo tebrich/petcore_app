@@ -10,7 +10,7 @@ import 'package:peticare/features/dashboard/presentation/widgets/health_alerts.d
 import 'package:peticare/features/dashboard/presentation/widgets/pet_widget.dart';
 import 'package:peticare/features/dashboard/presentation/widgets/reminders_widget.dart';
 import 'package:peticare/features/dashboard/presentation/widgets/todos_widget.dart';
-import 'package:peticare/features/vet/presentation/pages/vet_appointments_page.dart';
+import 'package:peticare/features/notifications/controllers/notifications_controller.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -18,6 +18,7 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(DashboardController());
+    final notifController = Get.find<NotificationsController>();
 
     Size screenSize = MediaQuery.of(context).size;
 
@@ -86,13 +87,40 @@ class DashboardPage extends StatelessWidget {
                                   color: AppPalette.danger(context),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Text(
-                                  "3",
-                                  style: AppTextStyles.playfulTag.copyWith(
-                                    fontSize: 12,
-                                    color: AppPalette.lBackground,
-                                  ),
-                                ),
+                                child: Obx(() {
+                                  // 🔥 contar solo citas vet/grooming aceptadas o reprogramadas
+                                  final total = notifController.notificationsList
+                                      .where((e) {
+                                    final type =
+                                        (e['type'] ?? '').toString().toLowerCase();
+                                    final serviceType = (e['service_type'] ?? '')
+                                        .toString()
+                                        .toLowerCase();
+                                    final status =
+                                        (e['status'] ?? '').toString().toLowerCase();
+
+                                    final isAppointment =
+                                        type == 'appointment'; // notificación de cita
+                                    final isVetOrGroom =
+                                        serviceType == 'vet' ||
+                                            serviceType == 'grooming';
+                                    final isRelevantStatus =
+                                        status == 'accepted' ||
+                                            status == 'rescheduled';
+
+                                    return isAppointment &&
+                                        isVetOrGroom &&
+                                        isRelevantStatus;
+                                  }).length;
+
+                                  return Text(
+                                    total.toString(),
+                                    style: AppTextStyles.playfulTag.copyWith(
+                                      fontSize: 12,
+                                      color: AppPalette.lBackground,
+                                    ),
+                                  );
+                                }),
                               ),
                             ),
                           ],
@@ -145,7 +173,7 @@ class DashboardPage extends StatelessWidget {
 
                 VerticalSpacing.xxl(context),
 
-                /// TODOS (de momento igual)
+                /// TODOS
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: screenSize.width * 0.05,
@@ -162,11 +190,11 @@ class DashboardPage extends StatelessWidget {
 
                 VerticalSpacing.md(context),
 
-                TodosWidget(),
+                const TodosWidget(),
 
                 VerticalSpacing.xl(context),
 
-                /// UPCOMING EVENTS (igual por ahora)
+                /// UPCOMING EVENTS
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: screenSize.width * 0.05,

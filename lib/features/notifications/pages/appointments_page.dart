@@ -9,6 +9,11 @@ import 'package:peticare/features/notifications/controllers/notifications_contro
 import 'package:peticare/features/vet_appointments/presentation/controllers/add_new_vet_appointment_page_controller.dart';
 import 'package:peticare/features/vet_appointments/presentation/widgets/add_new_appointment/review_page.dart';
 
+// 👇 import de grooming (alias para no chocar nombres)
+import 'package:peticare/features/groom_appointments/presentation/controllers/add_new_groom_appointment_page_controller.dart';
+import 'package:peticare/features/groom_appointments/presentation/widgets/add_new_appointment/review_page.dart'
+    as groom_review;
+
 class AppointmentsPage extends StatelessWidget {
   const AppointmentsPage({super.key});
 
@@ -18,10 +23,10 @@ class AppointmentsPage extends StatelessWidget {
         return "En espera";
       case "accepted":
         return "Confirmada";
-      case "rejected":
-        return "Rechazada";
       case "rescheduled":
         return "Reprogramada";
+      case "rejected":
+        return "Rechazada";
       default:
         return status;
     }
@@ -33,55 +38,56 @@ class AppointmentsPage extends StatelessWidget {
     Size screenSize = MediaQuery.of(context).size;
 
     return Obx(() {
-
-      /// 🔥 AHORA TODO VIENE DE notificationsList
       final List<Map<String, dynamic>> appointments =
           controller.notificationsList.map<Map<String, dynamic>>((e) {
-
         return {
           ...Map<String, dynamic>.from(e),
-
           "date": DateTime.parse(e["created_at"]),
           "status": e["status"] ?? "pending",
           "title": e["title"],
           "message": e["message"],
-
-          /// 🔥 IMPORTANTE
           "appointment_id": e["appointment_id"],
+          "service_type": e["service_type"],   // 👈 vet / grooming
         };
-
       }).toList();
 
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
 
-      List<Map<String, dynamic>> todaysAppointments = appointments.where((a) {
+      // Solo citas relevantes (no alertas genéricas)
+      final filtered = appointments.where((a) {
+        final st = (a["service_type"] ?? "").toString();
+        return st == "vet" || st == "grooming";
+      }).toList();
+
+      List<Map<String, dynamic>> todaysAppointments = filtered.where((a) {
         final d = a['date'];
         return d.year == today.year &&
             d.month == today.month &&
             d.day == today.day;
       }).toList();
 
-      List<Map<String, dynamic>> yesterdaysAppointments = appointments.where((a) {
+      List<Map<String, dynamic>> yesterdaysAppointments = filtered.where((a) {
         final d = a['date'];
         final alertDate = DateTime(d.year, d.month, d.day);
         return today.difference(alertDate).inDays == 1;
       }).toList();
 
-      List<Map<String, dynamic>> lastweeksAppointments = appointments.where((a) {
+      List<Map<String, dynamic>> lastweeksAppointments = filtered.where((a) {
         final d = a['date'];
         final alertDate = DateTime(d.year, d.month, d.day);
         final diff = today.difference(alertDate).inDays;
         return diff > 1 && diff < 8;
       }).toList();
 
-      List<Map<String, dynamic>> olderAppointments = appointments.where((a) {
+      List<Map<String, dynamic>> olderAppointments = filtered.where((a) {
         final d = a['date'];
         final alertDate = DateTime(d.year, d.month, d.day);
         final diff = today.difference(alertDate).inDays;
         return diff > 7;
       }).toList();
 
+      // Orden
       todaysAppointments.sort((a, b) => -a['date'].compareTo(b['date']));
       yesterdaysAppointments.sort((a, b) => -a['date'].compareTo(b['date']));
       lastweeksAppointments.sort((a, b) => -a['date'].compareTo(b['date']));
@@ -94,16 +100,12 @@ class AppointmentsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VerticalSpacing.md(context),
-
               _section("Hoy", todaysAppointments, context),
               VerticalSpacing.lg(context),
-
               _section("Ayer", yesterdaysAppointments, context),
               VerticalSpacing.lg(context),
-
               _section("Última semana", lastweeksAppointments, context),
               VerticalSpacing.lg(context),
-
               _section("Anteriores", olderAppointments, context),
             ],
           ),
@@ -140,6 +142,7 @@ class AppointmentsPage extends StatelessWidget {
               alert['message'] ?? "Detalle de cita",
               alert['date'],
               alert['status'],
+              (alert['service_type'] ?? "").toString(),
             );
           },
         ),
@@ -154,8 +157,8 @@ class AppointmentsPage extends StatelessWidget {
     String subtitle,
     DateTime dateTime,
     String? status,
+    String serviceType,
   ) {
-
     Color statusColor;
     String statusText;
 
@@ -164,13 +167,13 @@ class AppointmentsPage extends StatelessWidget {
         statusColor = Colors.green;
         statusText = "Aceptada";
         break;
+      case "rescheduled":
+        statusColor = Colors.orange;
+        statusText = "Reprogramada";
+        break;
       case "rejected":
         statusColor = Colors.red;
         statusText = "Rechazada";
-        break;
-      case "reprogrammed":
-        statusColor = Colors.orange;
-        statusText = "Reprogramada";
         break;
       case "completed":
         statusColor = Colors.blue;
@@ -193,10 +196,15 @@ class AppointmentsPage extends StatelessWidget {
 
             print("CLICK >>> $appointmentId");
             print("STATUS >>> $currentStatus");
+            print("SERVICE_TYPE >>> $serviceType");
 
             if (appointmentId.isEmpty) return;
 
-            if (currentStatus.toLowerCase().trim() != "accepted") {
+            // Solo permitir entrar a review si está aceptada o reprogramada
+            final allowed = currentStatus.toLowerCase().trim() == "accepted" ||
+                currentStatus.toLowerCase().trim() == "rescheduled";
+
+            if (!allowed) {
               Get.snackbar(
                 "Cita en proceso",
                 "Aún no fue confirmada",
@@ -207,7 +215,8 @@ class AppointmentsPage extends StatelessWidget {
 
             final notificationsController = Get.find<NotificationsController>();
 
-            final fullItem = notificationsController.notificationsList.firstWhere(
+            final fullItem =
+                notificationsController.notificationsList.firstWhere(
               (e) => e["appointment_id"].toString() == appointmentId,
               orElse: () => {},
             );
@@ -217,20 +226,45 @@ class AppointmentsPage extends StatelessWidget {
               return;
             }
 
-            final controller = AddNewVetAppointmentPageController();
+            // 🔥 RUTEAR SEGÚN TIPO
+            final st = (fullItem["service_type"] ?? "vet").toString();
 
-            controller.selectedPetName = fullItem["pet_name"];
-            controller.selectedVetID = fullItem["vet_id"];
-            controller.appointmentType = fullItem["appointment_type"];
-            controller.appointmentDateTime =
-                DateTime.parse(fullItem["appointment_datetime"]);
+            if (st == "vet") {
+              final controller = AddNewVetAppointmentPageController();
 
-            Get.to(() => Scaffold(
-                  body: reviewAndPayPage(
-                    MediaQuery.of(context).size,
-                    controller,
-                  ),
-                ));
+              controller.selectedPetName = fullItem["pet_name"];
+              controller.selectedVetID = fullItem["vet_id"];
+              controller.appointmentType = fullItem["appointment_type"];
+              controller.appointmentDateTime =
+                  DateTime.parse(fullItem["appointment_datetime"]);
+
+              Get.to(() => Scaffold(
+                    body: reviewAndPayPage(
+                      MediaQuery.of(context).size,
+                      controller,
+                    ),
+                  ));
+            } else if (st == "grooming") {
+              final controller = AddNewGroomAppointmentPageController();
+
+              controller.selectedPet = {
+                "id": fullItem["pet_id"],
+                "name": fullItem["pet_name"],
+              };
+              controller.selectedPetId = fullItem["pet_id"];
+              controller.appointmentType = fullItem["appointment_type"];
+              controller.appointmentDateTime =
+                  DateTime.parse(fullItem["appointment_datetime"]);
+              controller.selectedGroomerID =
+                  fullItem["groomer_id"]?.toString();
+
+              Get.to(() => Scaffold(
+                    body: groom_review.reviewAndPayPage(
+                      MediaQuery.of(context).size,
+                      controller,
+                    ),
+                  ));
+            }
           },
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Container(
@@ -242,10 +276,10 @@ class AppointmentsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// STATUS
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -274,9 +308,7 @@ class AppointmentsPage extends StatelessWidget {
                       alignment: Alignment.center,
                       child: alertsIconGetter("appointment"),
                     ),
-
                     const SizedBox(width: 8),
-
                     Expanded(
                       child: Text.rich(
                         TextSpan(
@@ -298,9 +330,7 @@ class AppointmentsPage extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(width: 16),
-
                     Text(
                       dateFormatter(dateTime),
                       style: AppTextStyles.bodyRegular.copyWith(

@@ -1,30 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-
-/// A settings page for managing calendar synchronization.
-///
-/// This page allows users to control which Peticare events are synced to their
-/// device's native calendar and to set default alert times for those events.
-/// The layout is built within a `SingleChildScrollView` and includes decorative
-/// background illustrations.
-///
-/// Key UI elements include:
-/// - A main "Calendar Sync" switch that acts as a master control, enabling or
-///   disabling all calendar synchronization.
-/// - A series of individual `_switchTile` widgets for fine-grained control over
-///   which specific event types are synced, such as:
-///   - To-Do Notifications
-///   - Meal Reminders
-///   - Medication Alerts
-/// - A section to configure a default reminder time (e.g., "10 mins before")
-///   using a `DropdownMenu` and an associated `Switch`.
-///
-/// The state for each setting is managed locally within the `_CalendarRemindersSettingPageState`.
+/// Página de ajustes para sincronización con calendario.
 class CalendarRemindersSettingPage extends StatefulWidget {
   const CalendarRemindersSettingPage({super.key});
 
@@ -33,12 +15,6 @@ class CalendarRemindersSettingPage extends StatefulWidget {
       _CalendarRemindersSettingPageState();
 }
 
-/// Manages the state for the [CalendarRemindersSettingPage].
-///
-/// This state class holds the boolean flags for the main sync toggle and each
-/// individual event type. It also manages the state for the default reminder
-/// time dropdown. It includes logic to handle the master switch's behavior,
-/// where disabling "Calendar Sync" also disables all other related toggles on the page.
 class _CalendarRemindersSettingPageState
     extends State<CalendarRemindersSettingPage> {
   /// Variables
@@ -51,17 +27,33 @@ class _CalendarRemindersSettingPageState
   late bool enableTeminderTime;
   Duration? reminderTime;
 
+  final _box = GetStorage();
+  final String _keyCalendarSync = "settings_calendar_sync_enabled";
+
   /// INIT STATE
   @override
   void initState() {
     super.initState();
-    enableSync = true;
+
+    // Master desde storage (default true)
+    final stored = _box.read(_keyCalendarSync);
+    enableSync = stored is bool ? stored : true;
+
     dailyReminders = true;
     feedingReminders = true;
     medicationReminders = true;
     activityReminders = true;
     groomingReminders = true;
     enableTeminderTime = true;
+
+    if (!enableSync) {
+      dailyReminders = false;
+      feedingReminders = false;
+      medicationReminders = false;
+      activityReminders = false;
+      groomingReminders = false;
+      enableTeminderTime = false;
+    }
   }
 
   @override
@@ -70,7 +62,6 @@ class _CalendarRemindersSettingPageState
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-
         title: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
@@ -81,7 +72,7 @@ class _CalendarRemindersSettingPageState
             ),
           ),
         ),
-        actions: [SizedBox(width: 24.0)],
+        actions: const [SizedBox(width: 24.0)],
       ),
       body: SingleChildScrollView(
         child: Stack(
@@ -120,7 +111,6 @@ class _CalendarRemindersSettingPageState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Heading Space
                   VerticalSpacing.md(context),
 
                   Text(
@@ -132,39 +122,45 @@ class _CalendarRemindersSettingPageState
                     textAlign: TextAlign.start,
                   ),
 
-                  // Sections Spacing
                   VerticalSpacing.xl(context),
+
+                  /// Master: Sincronización calendario
                   _switchTile(
                     'calendar_sync_title'.tr,
-                    enableSync 
-                        ? 'calendar_sync_on'.tr: 'calendar_sync_off'.tr,
+                    enableSync
+                        ? 'calendar_sync_on'.tr
+                        : 'calendar_sync_off'.tr,
                     enableSync,
                     (value) {
-                      if (value == false) {
-                        setState(() {
-                          enableSync = false;
+                      setState(() {
+                        enableSync = value;
+
+                        if (!value) {
                           dailyReminders = false;
                           feedingReminders = false;
                           medicationReminders = false;
                           activityReminders = false;
                           groomingReminders = false;
                           enableTeminderTime = false;
-                        });
-                      } else {
-                        setState(() {
-                          enableSync = true;
+                        } else {
                           enableTeminderTime = true;
-                        });
-                      }
+                        }
+                      });
+
+                      // 🔥 guardar en storage para usarlo como default en citas
+                      _box.write(_keyCalendarSync, enableSync);
                     },
                   ),
+
                   VerticalSpacing.lg(context),
                   Divider(
-                    color: AppPalette.disabled(context).withValues(alpha: .5),
+                    color:
+                        AppPalette.disabled(context).withValues(alpha: .5),
                     height: 1,
                     thickness: 1,
                   ),
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -176,11 +172,14 @@ class _CalendarRemindersSettingPageState
                       (value) {
                         setState(() {
                           dailyReminders = value;
+                          if (!value) enableSync = false;
                         });
                       },
                     ),
                   ),
+
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -192,12 +191,14 @@ class _CalendarRemindersSettingPageState
                       (value) {
                         setState(() {
                           feedingReminders = value;
+                          if (!value) enableSync = false;
                         });
                       },
                     ),
                   ),
 
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -209,11 +210,14 @@ class _CalendarRemindersSettingPageState
                       (value) {
                         setState(() {
                           medicationReminders = value;
+                          if (!value) enableSync = false;
                         });
                       },
                     ),
                   ),
+
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -225,12 +229,14 @@ class _CalendarRemindersSettingPageState
                       (value) {
                         setState(() {
                           activityReminders = value;
+                          if (!value) enableSync = false;
                         });
                       },
                     ),
                   ),
 
                   VerticalSpacing.md(context),
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: screenSize.width * .025,
@@ -242,6 +248,7 @@ class _CalendarRemindersSettingPageState
                       (value) {
                         setState(() {
                           groomingReminders = value;
+                          if (!value) enableSync = false;
                         });
                       },
                     ),
@@ -249,11 +256,13 @@ class _CalendarRemindersSettingPageState
 
                   VerticalSpacing.xl(context),
                   Divider(
-                    color: AppPalette.disabled(context).withValues(alpha: .5),
+                    color:
+                        AppPalette.disabled(context).withValues(alpha: .5),
                     height: 1,
                     thickness: 1,
                   ),
                   VerticalSpacing.md(context),
+
                   Text.rich(
                     TextSpan(
                       children: [
@@ -279,7 +288,6 @@ class _CalendarRemindersSettingPageState
                   VerticalSpacing.md(context),
                   _reminderTieWidget(),
 
-                  /// Bottom Spacing
                   VerticalSpacing.xl(context),
                 ],
               ),
@@ -352,19 +360,19 @@ class _CalendarRemindersSettingPageState
             },
             dropdownMenuEntries: [
               DropdownMenuEntry(
-                value: Duration(minutes: 10),
+                value: const Duration(minutes: 10),
                 label: 'calendar_10_min'.tr,
               ),
               DropdownMenuEntry(
-                value: Duration(minutes: 30),
+                value: const Duration(minutes: 30),
                 label: 'calendar_30_min'.tr,
               ),
               DropdownMenuEntry(
-                value: Duration(hours: 1),
+                value: const Duration(hours: 1),
                 label: 'calendar_1_hour'.tr,
               ),
               DropdownMenuEntry(
-                value: Duration(days: 1),
+                value: const Duration(days: 1),
                 label: 'calendar_1_day'.tr,
               ),
             ],

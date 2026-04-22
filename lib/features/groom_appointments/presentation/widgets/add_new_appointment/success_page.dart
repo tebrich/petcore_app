@@ -5,14 +5,32 @@ import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 
-/// Pantalla final de confirmación de cita de peluquería
+/// Pantalla completa de confirmación de cita de peluquería ✅
+class GroomSuccessPageScreen extends StatelessWidget {
+  const GroomSuccessPageScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text("Confirmación"),
+        centerTitle: true,
+      ),
+      body: successPage(size),
+    );
+  }
+}
+
+/// Contenido de la pantalla de éxito (cita grooming)
 Widget successPage(Size screenSize) {
   return LayoutBuilder(
     builder: (context, constraints) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-
           /// ESPACIO SUPERIOR
           const Spacer(flex: 1),
 
@@ -46,7 +64,6 @@ Widget successPage(Size screenSize) {
                   BlendMode.srcATop,
                 ),
               ),
-
               FloatingAnimation(
                 type: FloatingType.wave,
                 duration: const Duration(seconds: 8),
@@ -66,7 +83,6 @@ Widget successPage(Size screenSize) {
                         BlendMode.srcATop,
                       ),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.only(top: 25),
                       child: SvgPicture.asset(
@@ -89,7 +105,10 @@ Widget successPage(Size screenSize) {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
             child: Text(
-              "Tu cita de peluquería fue agendada correctamente.\n\nRecibirás un recordatorio antes del servicio.",
+              "Tu pago fue procesado correctamente.\n\n"
+              "Podrás ver el detalle de tu cita en:\n"
+              "📅 Mis citas.\n\n"
+              "Te enviaremos recordatorios según tus configuraciones.",
               style: AppTextStyles.bodyRegular.copyWith(
                 fontWeight: FontWeight.w500,
                 color: AppPalette.primaryText(context),

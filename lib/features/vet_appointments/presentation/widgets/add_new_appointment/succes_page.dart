@@ -5,7 +5,7 @@ import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 
-/// Pantalla completa de confirmación de cita ✅
+/// Pantalla completa de confirmación de pago de cita ✅
 class SuccessPageScreen extends StatelessWidget {
   const SuccessPageScreen({super.key});
 
@@ -37,7 +37,7 @@ Widget successPage(Size screenSize) {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
             child: Text(
-              "Cita enviada",
+              "Pago realizado",
               style: AppTextStyles.headingLarge.copyWith(
                 color: AppPalette.textOnSecondaryBg(context),
                 fontSize: constraints.maxHeight > 580 ? 35 : 32,
@@ -103,10 +103,10 @@ Widget successPage(Size screenSize) {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
             child: Text(
-              "Tu solicitud de cita fue enviada correctamente.\n\n"
-              "Podrás ver el estado en:\n"
-              "🔔 Alertas o 📅 Mis citas.\n\n"
-              "Te notificaremos cuando sea confirmada.",
+              "Tu pago fue procesado correctamente.\n\n"
+              "Podrás ver el detalle de tu cita en:\n"
+              "📅 Mis citas.\n\n"
+              "Te enviaremos recordatorios según tus configuraciones.",
               style: AppTextStyles.bodyRegular.copyWith(
                 fontWeight: FontWeight.w500,
                 color: AppPalette.primaryText(context),
