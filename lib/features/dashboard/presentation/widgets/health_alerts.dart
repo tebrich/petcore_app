@@ -8,29 +8,19 @@ import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/all_health_alerts_list.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
-import 'package:peticare/dummy_data/dummy_data.dart';
 
-/// A widget function that builds the "Health Alerts" section for the dashboard.
-///
-/// This function constructs a `Column` containing a title and a list of health
-/// alerts. Each alert is wrapped in an `OpenContainer` from the `animations`
-/// package, which provides a seamless transition to the detailed `HealthAlertPage`
-/// when an alert is tapped.
-///
-/// [context] The build context.
-/// [screenSize] The size of the screen, used for responsive padding.
-///
-/// > **Note:** The number of alerts is currently hardcoded. This should be replaced
-/// with a dynamic value from a state management solution.
 Widget healthAlerts(BuildContext context, Size screenSize) {
-  // -----------------------------------------------------------------------------
-  // NOTE: The value below is a placeholder for demonstration purposes only.
-  // 'alertsNumber' should not be hardcoded. Replace this static value with a
-  // dynamically fetched value from your database, API, or state management source
-  // (e.g., Firestore, Supabase, or local provider) to display the real number of
-  // health alerts associated with the current user or pet profile.
-  // -----------------------------------------------------------------------------
-  const int alertsNumber = 3;
+  // Construimos la lista directamente desde allHealthAlerts (manteniendo las claves originales)
+  final allAlerts = allHealthAlerts.entries.map((entry) {
+    return {
+      'alert': entry.key,
+      // healthAlertWidget / HealthAlertPage esperan 'conerned_pet' — dejamos vacío por catálogo
+      'conerned_pet': {'name': ''},
+    };
+  }).toList();
+
+  final displayAlerts = allAlerts; // muestra TODO el catálogo
+  final int alertsNumber = displayAlerts.length;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -51,51 +41,53 @@ Widget healthAlerts(BuildContext context, Size screenSize) {
         ),
       ),
 
-      /// Heath Alerts List
-      ...DummyData.healthAlertsList(context).map(
-        (element) => OpenContainer(
-          openColor: AppPalette.background(context),
-          closedColor: AppPalette.background(context),
-          closedElevation: 0,
-          closedBuilder: (context, action) =>
-              healthAlertWidget(context, screenSize.width, element),
-          openBuilder: (context, action) =>
-              HealthAlertPage(healthAlert: element),
-        ),
+      /// Health Alerts List (desde allHealthAlerts)
+      ...displayAlerts.map(
+        (element) {
+          return OpenContainer(
+            openColor: AppPalette.background(context),
+            closedColor: AppPalette.background(context),
+            closedElevation: 0,
+            closedBuilder: (context, action) =>
+                healthAlertWidget(context, screenSize.width, element),
+            openBuilder: (context, action) =>
+                HealthAlertPage(healthAlert: element),
+          );
+        },
       ),
     ],
   );
 }
 
 /// Builds a single list item widget for a health alert summary.
-///
-/// This widget displays a concise summary of a health alert, including a
-/// severity-colored icon, the alert name, the concerned pet's name, and a
-/// brief description. It is designed to be used within a `ListView`.
-///
-/// [context] The build context.
-/// [width] The width of the widget, typically the screen width.
-/// [healthAlertDetails] A map containing the details of the specific alert.
-///
-/// > **Refactoring Note:** This function should be refactored to accept a strongly-typed `HealthAlert` model object instead of a `Map` for better type safety.
 Widget healthAlertWidget(
   BuildContext context,
   double width,
   Map<String, dynamic> healthAlertDetails,
 ) {
   // -----------------------------------------------------------------------------
-  /// NOTE: Refactor this section to use strongly typed entities and models
-  /// instead of raw maps.
-  ///
-  /// This will improve type safety, maintainability, and make it easier to
-  /// integrate with your domain layer or state management solution.
+  // NOTE: Refactor this section to use strongly typed entities and models
+  // instead of raw maps.
   // -----------------------------------------------------------------------------
 
-  String alertName = healthAlertDetails['alert'];
-  Map<String, dynamic> alertDetails = allHealthAlerts[alertName] ?? {};
-  Map<String, dynamic> conernedPetDetails = healthAlertDetails['conerned_pet'];
+  final String alertName = (healthAlertDetails['alert'] as String?) ?? '';
 
-  /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// //
+  // Normalizamos la clave para buscar en las traducciones (mismo patrón que en es_es.dart)
+  String _sanitizedKey(String name) =>
+      'alert_' + name.replaceAll(RegExp(r'[^A-Za-z0-9]'), '_');
+
+  final String displayName = _sanitizedKey(alertName).tr;
+
+  final Map<String, dynamic> alertDetails =
+      (allHealthAlerts[alertName] as Map<String, dynamic>?) ?? {};
+  final Map<String, dynamic> conernedPetDetails =
+      (healthAlertDetails['conerned_pet'] as Map<String, dynamic>?) ??
+          {'name': ''};
+
+  // Protegemos CTA cuando sea necesario
+  final List<dynamic> ctaList =
+      (alertDetails['CTA'] is List) ? List.from(alertDetails['CTA']) : <dynamic>[];
+
   return Container(
     width: width,
     margin: EdgeInsets.all(8.0),
@@ -103,7 +95,7 @@ Widget healthAlertWidget(
       color: AppPalette.background(context),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
+          color: Colors.black.withOpacity(0.05),
           spreadRadius: 2,
           blurRadius: 4,
           offset: const Offset(0, 3),
@@ -125,62 +117,59 @@ Widget healthAlertWidget(
           color: alertDetails['severity'] == "Urgent"
               ? AppPalette.danger(context).withValues(alpha: .4)
               : alertDetails['severity'] == "Medium"
-              ? AppPalette.warning(context).withValues(alpha: .6)
-              : AppPalette.success(context).withValues(alpha: .4),
+                  ? AppPalette.warning(context).withValues(alpha: .6)
+                  : AppPalette.success(context).withValues(alpha: .4),
         ),
-        child: SvgPicture.asset(alertDetails['icon'], fit: BoxFit.contain),
+        child: alertDetails['icon'] != null
+            ? SvgPicture.asset(alertDetails['icon'], fit: BoxFit.contain)
+            : const SizedBox.shrink(),
       ),
-      title: Text.rich(
-        TextSpan(
-          children: [
-            /// Health Alert Type
-            TextSpan(
-              text: alertName,
-              style: AppTextStyles.bodyRegular.copyWith(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppPalette.primaryText(context),
-              ),
-            ),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  /// Health Alert Type (displayName traducido si existe)
+                  TextSpan(
+                    text: displayName,
+                    style: AppTextStyles.bodyRegular.copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: AppPalette.primaryText(context),
+                    ),
+                  ),
 
-            /// Pet Name
-            TextSpan(
-              text: ' (${conernedPetDetails['name']})',
-              style: AppTextStyles.playfulTag.copyWith(
-                fontSize: 14,
-                color: AppPalette.textOnSecondaryBg(context),
+                  /// Pet Name
+                  TextSpan(
+                    text: ' (${conernedPetDetails['name'] ?? ''})',
+                    style: AppTextStyles.playfulTag.copyWith(
+                      fontSize: 14,
+                      color: AppPalette.textOnSecondaryBg(context),
+                    ),
+                  ),
+                ],
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-
       subtitle: Text(
-        alertDetails['description'],
+        alertDetails['description'] ?? '',
         style: AppTextStyles.bodyRegular.copyWith(
           fontSize: 12,
           color: AppPalette.disabled(context),
         ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
     ),
   );
 }
 
-/// A full-screen page that displays detailed information about a specific health alert.
-///
-/// This page provides an in-depth view of a health alert, including:
-/// - A summary card with the alert name, pet name, and severity.
-/// - Call-to-action (CTA) buttons based on the alert's recommendations.
-/// - A detailed explanation of "Possible Causes".
-/// - A list of "Recommended Actions" for the pet owner.
-///
-/// The page is typically presented via a transition from the `healthAlertWidget`.
-///
-/// > **Refactoring Note:** This page currently relies on `Map<String, dynamic>` for data.
-/// For a production application, this should be refactored to use a strongly-typed
-/// `HealthAlert` model to ensure data integrity and easier state management.
 class HealthAlertPage extends StatelessWidget {
-  /// The health alert data to display on the page.
   final Map<String, dynamic> healthAlert;
   const HealthAlertPage({required this.healthAlert, super.key});
 
@@ -188,18 +177,17 @@ class HealthAlertPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-    // -----------------------------------------------------------------------------
-    /// NOTE: Refactor this section to use strongly typed entities and models
-    /// instead of raw maps.
-    ///
-    /// This will improve type safety, maintainability, and make it easier to
-    /// integrate with your domain layer or state management solution.
-    // -----------------------------------------------------------------------------
-    String alertName = healthAlert['alert'];
-    Map<String, dynamic> alertDetails = allHealthAlerts[alertName] ?? {};
-    Map<String, dynamic> conernedPetDetails = healthAlert['conerned_pet'];
+    final String alertName = (healthAlert['alert'] as String?) ?? '';
+    final Map<String, dynamic> alertDetails =
+        (allHealthAlerts[alertName] as Map<String, dynamic>?) ?? {};
+    final Map<String, dynamic> conernedPetDetails =
+        (healthAlert['conerned_pet'] as Map<String, dynamic>?) ??
+            {'name': ''};
 
-    /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
+    final List<dynamic> ctaList =
+        (alertDetails['CTA'] is List) ? List.from(alertDetails['CTA']) : <dynamic>[];
+    final String primaryCta =
+        ctaList.isNotEmpty ? ctaList.first.toString().toLowerCase() : '';
 
     return Scaffold(
       appBar: AppBar(
@@ -221,7 +209,6 @@ class HealthAlertPage extends StatelessWidget {
           ),
         ),
       ),
-
       body: SafeArea(
         bottom: true,
         child: SingleChildScrollView(
@@ -235,31 +222,14 @@ class HealthAlertPage extends StatelessWidget {
                   vertical: 8.0,
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16.0),
-
                 decoration: BoxDecoration(
                   color: AppPalette.surfaces(context),
-                  /* boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      spreadRadius: 2,
-                      blurRadius: 4,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],*/
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                 ),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        /// Pet Avatar
-                        /* healthAlert['conerned_pet']['avatar'](
-                          80.0,
-                          0.9,
-                          healthAlert['conerned_pet'] == 'Female'
-                              ? AppPalette.roseQuartz
-                              : AppPalette.softBlue,
-                        ),*/
                         Container(
                           height: 70.0,
                           width: 70.0,
@@ -269,76 +239,74 @@ class HealthAlertPage extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: AppPalette.primary.withValues(alpha: .75),
                           ),
-                          child: SvgPicture.asset(
-                            alertDetails['icon'],
-                            fit: BoxFit.contain,
-                          ),
+                          child: alertDetails['icon'] != null
+                              ? SvgPicture.asset(
+                                  alertDetails['icon'],
+                                  fit: BoxFit.contain,
+                                )
+                              : const SizedBox.shrink(),
                         ),
 
-                        /// Some Horizontal Spacing
                         const SizedBox(width: 16.0),
 
-                        /// Alert
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: alertName,
-                                style: AppTextStyles.bodyRegular.copyWith(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppPalette.primaryText(context),
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: alertName,
+                                  style: AppTextStyles.bodyRegular.copyWith(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppPalette.primaryText(context),
+                                  ),
                                 ),
-                              ),
 
-                              /// Pet Name
-                              TextSpan(
-                                text: '\n${conernedPetDetails['name']}\n',
-                                style: AppTextStyles.playfulTag.copyWith(
-                                  fontSize: 14,
-                                  color: AppPalette.secondaryText(context),
-                                  fontWeight: FontWeight.w600,
+                                TextSpan(
+                                  text: '\n${conernedPetDetails['name']}\n',
+                                  style: AppTextStyles.playfulTag.copyWith(
+                                    fontSize: 14,
+                                    color: AppPalette.secondaryText(context),
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
 
-                              /// Severity
-                              WidgetSpan(
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8.0,
-                                    vertical: 4.0,
-                                  ),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(7.5),
+                                WidgetSpan(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 4.0,
                                     ),
-                                    color: alertDetails['severity'] == "Urgent"
-                                        ? AppPalette.danger(context)
-                                        : alertDetails['severity'] == "Medium"
-                                        ? AppPalette.warning(context)
-                                        : AppPalette.success(context),
-                                  ),
-                                  child: Text(
-                                    alertDetails['severity'],
-                                    style: AppTextStyles.playfulTag.copyWith(
-                                      fontSize: 12,
-                                      color: AppPalette.background(context),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(7.5),
+                                      ),
+                                      color: alertDetails['severity'] == "Urgent"
+                                          ? AppPalette.danger(context)
+                                          : alertDetails['severity'] == "Medium"
+                                              ? AppPalette.warning(context)
+                                              : AppPalette.success(context),
+                                    ),
+                                    child: Text(
+                                      alertDetails['severity'] ?? '',
+                                      style: AppTextStyles.playfulTag.copyWith(
+                                        fontSize: 12,
+                                        color: AppPalette.background(context),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                            textAlign: TextAlign.start,
                           ),
-                          textAlign: TextAlign.start,
                         ),
                       ],
                     ),
 
-                    /// Some Vertical Spacing
                     VerticalSpacing.md(context),
 
-                    /// Alert Description
                     Text.rich(
                       TextSpan(
                         children: [
@@ -351,9 +319,8 @@ class HealthAlertPage extends StatelessWidget {
                             ),
                           ),
 
-                          /// Pet Name
                           TextSpan(
-                            text: '\n${alertDetails['description']}',
+                            text: '\n${alertDetails['description'] ?? ''}',
                             style: AppTextStyles.bodyRegular.copyWith(
                               fontSize: 14,
                               color: AppPalette.secondaryText(context),
@@ -364,34 +331,41 @@ class HealthAlertPage extends StatelessWidget {
                       textAlign: TextAlign.start,
                     ),
 
-                    /// CTA Vertical Spacing
                     VerticalSpacing.md(context),
+
                     AnimatedElevatedButton(
-                      text: alertDetails['CTA'].first,
+                      text: ctaList.isNotEmpty
+                          ? ctaList.first.toString()
+                          : 'Reservar cita veterinaria',
                       size: Size(screenSize.width * .8, 40),
                       textStyle: AppTextStyles.ctaBold.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                       radius: BorderRadius.circular(10),
-                      onClick: () {},
+                      onClick: () {
+                        final primary = primaryCta;
+                        if (primary.contains("book vet appointment") ||
+                            primary.contains("reservar")) {
+                          Get.toNamed('/NewVetAppointment');
+                        } else if (primary.contains("buy") ||
+                            primary.contains("comprar")) {
+                          // Get.toNamed('/Shopping');
+                        }
+                      },
                     ),
 
-                    /// CTA Vertical Spacing
-                    if (alertDetails['CTA'].length > 1)
-                      VerticalSpacing.sm(context),
-                    if (alertDetails['CTA'].length > 1)
+                    if (ctaList.length > 1) VerticalSpacing.sm(context),
+                    if (ctaList.length > 1)
                       AnimatedElevatedButton(
                         text: "",
                         size: Size(screenSize.width * .8, 40),
-
                         radius: BorderRadius.circular(10),
                         backgroundcolor: AppPalette.secondaryText(context),
-
                         onClick: () {},
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            alertDetails['CTA'][1],
+                            ctaList.length > 1 ? ctaList[1].toString() : '',
                             style: AppTextStyles.ctaBold.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -402,10 +376,8 @@ class HealthAlertPage extends StatelessWidget {
                 ),
               ),
 
-              /// Section Vertical Spacing
               VerticalSpacing.lg(context),
 
-              /// Alert Possible Causes
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.symmetric(
@@ -413,7 +385,6 @@ class HealthAlertPage extends StatelessWidget {
                   vertical: 8.0,
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16.0),
-
                 decoration: BoxDecoration(
                   color: AppPalette.surfaces(context),
                   borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -430,9 +401,8 @@ class HealthAlertPage extends StatelessWidget {
                           height: .5,
                         ),
                       ),
-
                       TextSpan(
-                        text: '\n${alertDetails['possible_causes']}',
+                        text: '\n${alertDetails['possible_causes'] ?? ''}',
                         style: AppTextStyles.bodyRegular.copyWith(
                           fontSize: 12.5,
                           color: AppPalette.secondaryText(context),
@@ -444,10 +414,8 @@ class HealthAlertPage extends StatelessWidget {
                 ),
               ),
 
-              /// Section Vertical Spacing
               VerticalSpacing.lg(context),
 
-              /// Alert Recommended Actions
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.symmetric(
@@ -455,7 +423,6 @@ class HealthAlertPage extends StatelessWidget {
                   vertical: 8.0,
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16.0),
-
                 decoration: BoxDecoration(
                   color: AppPalette.surfaces(context),
                   borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -472,24 +439,25 @@ class HealthAlertPage extends StatelessWidget {
                           height: .7,
                         ),
                       ),
-
-                      ...(alertDetails['recommended_actions'] as List<String>)
-                          .map(
-                            (element) => TextSpan(
-                              text: '\n• $element',
-                              style: AppTextStyles.bodyRegular.copyWith(
-                                fontSize: 12.5,
-                                color: AppPalette.secondaryText(context),
-                              ),
-                            ),
-                          ),
+                      ...(alertDetails['recommended_actions'] is List
+                          ? (alertDetails['recommended_actions'] as List)
+                              .map(
+                                (element) => TextSpan(
+                                  text: '\n• $element',
+                                  style: AppTextStyles.bodyRegular.copyWith(
+                                    fontSize: 12.5,
+                                    color: AppPalette.secondaryText(context),
+                                  ),
+                                ),
+                              )
+                              .toList()
+                          : <TextSpan>[]),
                     ],
                   ),
                   textAlign: TextAlign.start,
                 ),
               ),
 
-              /// Some Bottom Vertical Spacing
               VerticalSpacing.md(context),
             ],
           ),

@@ -25,6 +25,64 @@ class DashboardPage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Obx(() {
+          // 🔥 construir lista de “próximos eventos” desde notifications
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+
+          final upcomingEvents =
+              notifController.notificationsList.where((e) {
+            final type =
+                (e['type'] ?? '').toString().toLowerCase(); // "appointment"
+            final serviceType =
+                (e['service_type'] ?? '').toString().toLowerCase();
+            final status =
+                (e['status'] ?? '').toString().toLowerCase();
+            final dtStr = e['appointment_datetime'];
+
+            if (type != 'appointment') return false;
+            if (serviceType != 'vet' && serviceType != 'grooming') {
+              return false;
+            }
+            if (status != 'accepted' && status != 'rescheduled') {
+              return false;
+            }
+            if (dtStr == null) return false;
+
+            DateTime dt;
+            try {
+              dt = DateTime.parse(dtStr.toString());
+            } catch (_) {
+              return false;
+            }
+            final date = DateTime(dt.year, dt.month, dt.day);
+
+            // Solo citas de hoy en adelante
+            return date.isAtSameMomentAs(today) || date.isAfter(today);
+          }).map<Map<String, dynamic>>((e) {
+            final serviceType =
+                (e['service_type'] ?? '').toString().toLowerCase();
+            final dt = DateTime.parse(e['appointment_datetime']);
+
+            final dateLabel =
+                "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}";
+            final timeLabel =
+                "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+
+            final isVet = serviceType == 'vet';
+
+            return {
+              'title': isVet
+                  ? (e['appointment_type'] ?? 'Cita veterinaria')
+                  : (e['appointment_type'] ?? 'Cita grooming'),
+              'time': timeLabel,
+              'date': dateLabel,
+              'icon': isVet
+                  ? 'assets/illustrations/vet_appointment.svg'
+                  : 'assets/illustrations/grooming_appointment.svg',
+              'pet_name': e['pet_name'] ?? 'Mascota',   // 👈 NUEVO
+            };
+          }).toList();
+
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +158,7 @@ class DashboardPage extends StatelessWidget {
                                         (e['status'] ?? '').toString().toLowerCase();
 
                                     final isAppointment =
-                                        type == 'appointment'; // notificación de cita
+                                        type == 'appointment';
                                     final isVetOrGroom =
                                         serviceType == 'vet' ||
                                             serviceType == 'grooming';
@@ -211,7 +269,7 @@ class DashboardPage extends StatelessWidget {
 
                 VerticalSpacing.md(context),
 
-                remindersWidget(context, []),
+                remindersWidget(context, upcomingEvents),
 
                 VerticalSpacing.xl(context),
 

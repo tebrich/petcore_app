@@ -1,446 +1,326 @@
 /// ============================================================================
-/// 🩺 All Health Alerts List
+/// 🩺 All Health Alerts List (traducido al español)
 /// ============================================================================
 ///
-/// This file contains a centralized list of predefined **health alerts** used
-/// throughout the Peticare app. Each alert entry includes:
+/// Map<String, Map<String, dynamic>> allHealthAlerts
 ///
-/// - **severity** → Indicates the urgency level (e.g., Urgent, Medium, Mild)
-/// - **description** → Short summary shown in alert cards or notifications
-/// - **icon** → Path to the corresponding SVG illustration asset
-/// - **possible_causes** → Descriptive paragraph explaining what might trigger
-///   the condition or symptom
-/// - **recommended_actions** → A list of actionable steps the user can take
-///   based on the symptom or issue
-/// - **CTA** → Suggested quick actions (e.g., "Book Vet Appointment")
+/// Cada entrada contiene:
+/// - severity (Urgent|Medium|Mild) — se mantiene en inglés para lógica interna.
+/// - description — resumen breve en español.
+/// - icon — ruta al asset SVG.
+/// - possible_causes — causas posibles en español.
+/// - recommended_actions — lista de acciones recomendadas en español.
+/// - CTA — lista de CTAs en español.
 ///
-/// The structure follows this format:
-/// ```dart
-/// Map<String, Map<String, dynamic>> allHealthAlerts = {
-///   "AlertName": {
-///     "severity": "Urgent",
-///     "description": "Brief summary",
-///     "icon": "assets/illustrations/health_alerts/filename.svg",
-///     "possible_causes": "Detailed explanation",
-///     "recommended_actions": [
-///       "Step 1",
-///       "Step 2",
-///     ],
-///     "CTA": ["Primary CTA", "Secondary CTA"],
-///   },
-/// };
-/// ```
-///
-/// ⚠️ **Note:**
-/// - This data is intended as **placeholder/demo content** and should be
-///   customized, localized, or extended as needed for production use.
-/// - For maintainability and scalability, consider refactoring this static map
-///   into a dedicated **HealthAlertModel** class with proper typing, and
-///   eventually fetching this data dynamically from your backend or CMS.
-///
+/// Mantén este archivo como fuente única del catálogo en la app.
 /// ============================================================================
-library;
-
 Map<String, Map<String, dynamic>> allHealthAlerts = {
   /// Urgent Alerts
   "Vomiting": {
     "severity": "Urgent",
-    "description": "More than 2–3 times in a short period",
+    "description": "Más de 2–3 vómitos en un corto periodo",
     "icon": "assets/illustrations/health_alerts/vomiting.svg",
     "possible_causes":
-        "This may be caused by food intolerance, sudden diet changes, motion sickness, ingestion of toxic substances, or underlying infections affecting the stomach or intestines. Occasional vomiting may be harmless, but frequent or severe episodes can indicate a serious condition.",
+        "Puede ser causado por intolerancia alimentaria, cambios bruscos de dieta, mareo por movimiento, ingestión de sustancias tóxicas o infecciones gastrointestinales. Vómitos ocasionales pueden ser benignos, pero episodios frecuentes o severos pueden indicar una condición grave.",
     "recommended_actions": [
-      "Withhold food for 8–12 hours, but keep providing small amounts of water to prevent dehydration.",
-
-      "Avoid giving any human food or treats during this period.",
-
-      "Check if your pet might have eaten something toxic or spoiled.",
-
-      "Monitor for additional symptoms like lethargy, diarrhea, or blood in vomit.",
-
-      "If vomiting persists beyond 24 hours or your pet seems weak, contact a veterinarian immediately.",
-
-      "Bring a sample of the vomit if you visit the vet (for easier diagnosis).",
+      "Suspender la alimentación por 8–12 horas, pero ofrecer pequeñas cantidades de agua para evitar deshidratación.",
+      "Evitar dar comida humana o golosinas durante este periodo.",
+      "Comprobar si la mascota pudo ingerir algo tóxico o en mal estado.",
+      "Vigilar síntomas adicionales como letargo, diarrea o sangre en el vómito.",
+      "Si los vómitos persisten más de 24 horas o la mascota está débil, contactar urgentemente al veterinario.",
+      "Si acudes al veterinario, lleva una muestra del vómito si es posible para facilitar el diagnóstico.",
     ],
-    "CTA": ["Book Vet Appointment", "Buy Eye Drops"],
+    "CTA": ["Reservar cita veterinaria", "Comprar colirio"],
   },
+
   "Diarrhea": {
     "severity": "Urgent",
-    "description": "Dehydration risk, could indicate infection",
+    "description": "Riesgo de deshidratación; puede indicar infección",
     "icon": "assets/illustrations/health_alerts/diarrhea.svg",
-
     "possible_causes":
-        "This may be caused by sudden dietary changes, stress, food intolerance, bacterial or viral infections, or ingestion of spoiled or contaminated food. It can also signal underlying issues like intestinal parasites or inflammatory bowel disease. Persistent diarrhea can quickly lead to dehydration, especially in small pets or young animals.",
+        "Puede deberse a cambios bruscos en la dieta, estrés, intolerancia alimentaria, infecciones bacterianas o virales, o ingestión de alimentos en mal estado. También puede indicar parásitos intestinales o enfermedades inflamatorias. La diarrea persistente puede causar deshidratación, especialmente en cachorros o mascotas pequeñas.",
     "recommended_actions": [
-      "Ensure your pet has constant access to clean, fresh water.",
-
-      "Withhold food for 12–24 hours, then reintroduce a bland diet (e.g., boiled chicken and rice).",
-
-      "Avoid giving dairy, table scraps, or rich treats.",
-
-      "Check for other symptoms such as vomiting, blood in stool, or lethargy.",
-
-      "If diarrhea continues beyond 24 hours, or your pet seems weak or refuses water, consult a veterinarian immediately.",
-
-      "Bring a stool sample to the vet if possible — it can help with diagnosis.",
+      "Asegurar acceso constante a agua fresca y limpia.",
+      "Suspender la alimentación por 12–24 horas y luego reintroducir una dieta blanda (ej.: pollo hervido y arroz).",
+      "Evitar lácteos, sobras o alimentos ricos.",
+      "Comprobar otros síntomas como vómito, sangre en las heces o letargo.",
+      "Si la diarrea continúa más de 24 horas o la mascota se muestra débil o rehúsa agua, consultar al veterinario inmediatamente.",
+      "Si es posible, llevar una muestra de heces al veterinario para ayudar en el diagnóstico.",
     ],
-    "CTA": [
-      "Book Vet Appointment",
-      "Buy Digestive Support or Electrolyte Solution",
-    ],
+    "CTA": ["Reservar cita veterinaria", "Comprar soporte digestivo o solución electrolítica"],
   },
+
   "Lethargy": {
     "severity": "Urgent",
-    "description": "Sudden drop in activity or collapse",
+    "description": "Caída súbita de actividad o colapso",
     "icon": "assets/illustrations/health_alerts/less_active.svg",
-
     "possible_causes":
-        "This may be caused by fever, dehydration, anemia, infection, or metabolic conditions such as diabetes or low blood sugar. In some cases, lethargy can result from pain, poisoning, or even emotional distress. A sudden or severe loss of energy—especially if your pet refuses food or water—requires prompt attention.",
+        "Puede ser causado por fiebre, deshidratación, anemia, infecciones o alteraciones metabólicas como diabetes o hipoglucemia. En ocasiones puede deberse a dolor, envenenamiento o estrés extremo. Una pérdida severa de energía, especialmente si la mascota no come ni bebe, requiere atención inmediata.",
     "recommended_actions": [
-      "Check your pet’s gums and nose for dryness or discoloration (possible dehydration or poor circulation).",
-
-      "Ensure your pet is resting in a calm, comfortable, and shaded environment.",
-
-      "Offer water frequently, but avoid forcing it if your pet resists.",
-
-      "Look for additional warning signs such as vomiting, diarrhea, labored breathing, or trembling.",
-
-      "If lethargy appeared suddenly or lasts more than a few hours, seek veterinary care immediately — especially if your pet collapses or becomes unresponsive.",
+      "Revisar mucosas (encías) y nariz por resequedad o coloración anómala (posible deshidratación o mala circulación).",
+      "Mantener a la mascota en un ambiente tranquilo, cómodo y a la sombra.",
+      "Ofrecer agua con frecuencia, sin forzar la ingesta.",
+      "Observar por otros signos como vómito, diarrea, respiración dificultosa o temblores.",
+      "Si el letargo apareció de forma súbita o dura más de unas horas, buscar atención veterinaria inmediatamente — especialmente si hay colapso o inconsistencia.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Loss of Appetite": {
     "severity": "Urgent",
-    "description": "Could be a symptom of serious illness",
+    "description": "Pérdida de apetito — puede ser síntoma de enfermedad",
     "icon": "assets/illustrations/health_alerts/appetite_loss.svg",
-
     "possible_causes":
-        "Loss of appetite in pets can result from mild digestive upset, dental discomfort, stress, or sudden changes in diet or environment. It may also indicate a reaction to new medication or, in more serious cases, an underlying condition such as kidney, liver, or hormonal disease.",
+        "La pérdida de apetito puede deberse a malestar digestivo, dolor dental, estrés o cambios en la dieta o el entorno. También puede indicar reacción a un medicamento o, en casos más graves, afecciones de riñón, hígado u hormonales.",
     "recommended_actions": [
-      "Check for other symptoms like vomiting or lethargy.",
-
-      "Ensure fresh water and a calm feeding environment.",
-
-      "Avoid forcing food — try warming meals slightly to increase smell.",
-
-      "If appetite loss lasts more than 24 hours, contact a vet immediately.",
-
-      "Keep note of appetite patterns to share during consultation.",
+      "Buscar otros síntomas como vómito o letargo.",
+      "Asegurar agua fresca y un ambiente tranquilo para comer.",
+      "No forzar la alimentación; probar calentar ligeramente la comida para aumentar el olor.",
+      "Si la falta de apetito dura más de 24 horas, contactar con el veterinario inmediatamente.",
+      "Registrar los patrones de apetito para compartir en la consulta.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Difficulty Breathing / Heavy Panting": {
     "severity": "Urgent",
-    "description": "May indicate heatstroke or heart issues",
+    "description": "Dificultad para respirar o jadeo intenso — posible golpe de calor o problema cardíaco",
     "icon": "assets/illustrations/health_alerts/heavy_panting.svg",
-
     "possible_causes":
-        "Difficulty breathing or excessive panting can be caused by heat exhaustion, allergic reactions, anxiety, or airway obstruction. It may also stem from more serious issues such as respiratory infections, heart disease, or fluid buildup in the lungs. Overexertion in hot weather or stress can further worsen the condition, especially in brachycephalic (flat-faced) breeds.",
+        "El jadeo excesivo o la dificultad respiratoria pueden deberse a golpe de calor, reacciones alérgicas, ansiedad u obstrucción de las vías aéreas. También pueden indicar infecciones respiratorias, enfermedades cardíacas o acumulación de líquido en los pulmones. Razas braquicéfalas (cara chata) son más susceptibles.",
     "recommended_actions": [
-      "Move your pet to a cool, well-ventilated area immediately.",
-
-      "Offer small amounts of water and avoid physical activity.",
-
-      "Check for signs of pale gums or wheezing.",
-
-      "Avoid exposing your pet to high temperatures or stressful environments.",
-
-      "Contact a vet urgently if breathing doesn’t normalize within minutes or if gums appear blue/pale.",
+      "Trasladar a la mascota a un lugar fresco y ventilado de inmediato.",
+      "Ofrecer pequeñas cantidades de agua y evitar actividad física.",
+      "Revisar si las encías están pálidas o si hay sibilancias.",
+      "Evitar exponer al animal a altas temperaturas o ambientes estresantes.",
+      "Contactar con el veterinario con urgencia si la respiración no mejora en minutos o las encías están azuladas/pálidas.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Seizure": {
     "severity": "Urgent",
-    "description": "Could be neurological",
-
+    "description": "Convulsiones — posible origen neurológico",
     "icon": "assets/illustrations/health_alerts/seizure.svg",
     "possible_causes":
-        "Seizures in pets are often linked to neurological disorders such as epilepsy, but they can also result from toxin exposure, metabolic imbalances (like low blood sugar or liver issues), head trauma, or infections affecting the brain. In some cases, severe stress, overheating, or ingestion of harmful substances like chocolate or pesticides can trigger sudden convulsions.",
+        "Las convulsiones suelen relacionarse con trastornos neurológicos como epilepsia, pero también pueden derivar de exposición a toxinas, desequilibrios metabólicos (p. ej. hipoglucemia), traumatismos craneales o infecciones cerebrales. En algunos casos, estrés intenso, sobrecalentamiento o ingestión de sustancias tóxicas pueden desencadenarlas.",
     "recommended_actions": [
-      "Keep your pet away from sharp objects and prevent injury during the seizure.",
-
-      "Do not try to restrain your pet or place anything in its mouth.",
-
-      "After the seizure, keep the environment quiet and dimly lit.",
-
-      "Monitor the duration and frequency of seizures for your vet.",
-
-      "Seek immediate veterinary attention if the seizure lasts more than 2–3 minutes or occurs repeatedly.",
+      "Alejar objetos punzantes y prevenir lesiones durante la convulsión.",
+      "No intentar sujetar al animal ni introducir objetos en su boca.",
+      "Tras la convulsión, mantener el entorno tranquilo y con baja iluminación.",
+      "Registrar duración y frecuencia de las convulsiones para informar al veterinario.",
+      "Buscar atención veterinaria inmediata si la convulsión dura más de 2–3 minutos o se repite.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Trembling": {
     "severity": "Urgent",
-    "description": "Could be neurological",
-
+    "description": "Temblores — posible causa neurológica o dolor",
     "icon": "assets/illustrations/health_alerts/trembling.svg",
-
     "possible_causes":
-        "Trembling or shaking in pets can result from a variety of causes, ranging from anxiety, fear, or cold temperatures to more serious issues like pain, poisoning, low blood sugar, or neurological disorders. It may also indicate muscle weakness, fever, or a reaction to certain medications. If trembling appears suddenly or is accompanied by other symptoms such as lethargy, vomiting, or confusion, it could signal an underlying health emergency.",
+        "Los temblores pueden provenir de ansiedad, frío, dolor, intoxicación, hipoglucemia o trastornos neurológicos. También pueden indicar debilidad muscular o fiebre. Si aparecen de forma súbita o van acompañados de otros signos como letargo o vómito, pueden señalar una emergencia.",
     "recommended_actions": [
-      "Move your pet to a calm, warm environment and monitor for additional symptoms.",
-
-      "Check for signs of pain, injury, or toxic exposure.",
-
-      "Offer fresh water and avoid over-stimulation until the trembling subsides.",
-
-      "Note how long the trembling lasts and what triggered it.",
-
-      "Seek immediate veterinary care if trembling is persistent or accompanied by disorientation or loss of balance.",
+      "Trasladar a la mascota a un lugar cálido y tranquilo y vigilar otros síntomas.",
+      "Comprobar si hay signos de dolor, lesión o exposición a toxinas.",
+      "Ofrecer agua y evitar sobreestimular al animal hasta que pase.",
+      "Anotar duración y desencadenantes del temblor.",
+      "Consultar al veterinario si los temblores persisten o van acompañados de desorientación o pérdida de equilibrio.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Limping / Dragging Legs": {
     "severity": "Urgent",
-    "description": "May be injury or spinal issue",
+    "description": "Cojeo o arrastre de patas — posible lesión o problema de columna",
     "icon": "assets/illustrations/health_alerts/limping.svg",
-
     "possible_causes":
-        "Limping or dragging legs can stem from muscle strains, sprains, or joint injuries caused by sudden movement, falls, or overexertion. It may also indicate broken bones, ligament tears, arthritis, or nerve and spinal cord problems that affect coordination. In some cases, it can be linked to infections, tick-borne diseases, or neurological disorders impacting mobility. Persistent or severe limping should always be treated as a sign of potential pain or nerve damage.",
+        "Puede deberse a esguinces, distensiones, fracturas, desgarros de ligamentos, artritis o problemas neurológicos que afectan la coordinación. También puede relacionarse con infecciones o enfermedades transmitidas por garrapatas. El cojeo persistente puede indicar dolor significativo.",
     "recommended_actions": [
-      "Limit your pet’s movement and prevent further strain on the affected limb.",
-
-      "Gently check for swelling, cuts, or visible deformities — avoid applying pressure.",
-
-      "Keep your pet comfortable and discourage jumping or running.",
-
-      "Apply a cool compress if there’s swelling, and monitor for pain reactions.",
-
-      "Seek veterinary attention immediately if your pet can’t bear weight or drags its leg continuously.",
+      "Limitar el movimiento de la mascota para evitar más daño.",
+      "Revisar suavemente si hay hinchazón, cortes o deformidades visibles — sin presionar.",
+      "Mantener cómodo al animal y evitar saltos o ejercicio intenso.",
+      "Aplicar compresas frías si hay hinchazón y vigilar la respuesta al dolor.",
+      "Acudir al veterinario inmediatamente si la mascota no apoya la pata o arrastra continuamente.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Bleeding Gums / Nose / Wounds": {
     "severity": "Urgent",
-    "description": "Sign of trauma or infection",
+    "description": "Sangrado de encías, nariz o heridas — posible trauma o infección",
     "icon": "assets/illustrations/health_alerts/bleeding.svg",
-
     "possible_causes":
-        "Bleeding from the gums, nose, or wounds may result from oral infections, dental disease, or physical trauma such as cuts or falls. It can also signal clotting disorders, toxin ingestion (like rat poison), or immune-related conditions that affect platelet function. In some cases, frequent nosebleeds or gum bleeding may point to systemic illnesses like liver disease, anemia, or severe infections. Persistent or unexplained bleeding should be treated as a veterinary emergency.",
+        "El sangrado puede originarse por infecciones orales, enfermedad dental, traumatismos, trastornos de coagulación o ingestión de toxinas (p. ej. raticida). También puede indicar enfermedades sistémicas como problemas hepáticos o anemia.",
     "recommended_actions": [
-      "Apply gentle pressure to stop external bleeding and keep your pet calm.",
-
-      "Avoid using human antiseptics or medication unless directed by a vet.",
-
-      "Check your pet’s mouth and nose for foreign objects or swelling.",
-
-      "Keep your pet hydrated and monitor for pale gums, which may indicate blood loss.",
-
-      "Contact your vet immediately if bleeding doesn’t stop within a few minutes or recurs frequently.",
+      "Aplicar presión suave para detener sangrado externo y mantener a la mascota tranquila.",
+      "No usar antisépticos humanos ni medicamentos sin indicación veterinaria.",
+      "Revisar cavidad oral y nariz por objetos extraños o hinchazón.",
+      "Vigilar signos de palidez en mucosas que indiquen pérdida de sangre.",
+      "Contactar al veterinario inmediatamente si el sangrado no cesa o reaparece frecuentemente.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Overdue Vaccination": {
     "severity": "Urgent",
-    "description": "High risk of preventable disease",
+    "description": "Vacunación vencida — riesgo de enfermedades prevenibles",
     "icon": "assets/illustrations/health_alerts/Overduevaccination.svg",
-
     "possible_causes":
-        "An overdue vaccination often occurs due to missed vet appointments, relocation, or lack of access to veterinary care. However, delaying essential vaccines can significantly increase your pet’s vulnerability to preventable diseases such as rabies, parvovirus, distemper, or leptospirosis. In young pets, skipped booster shots may compromise developing immunity, while adult pets may lose their protection over time, leaving them exposed to infections spread by other animals or the environment.",
+        "La vacunación vencida suele ser consecuencia de citas perdidas, mudanzas o falta de acceso a atención veterinaria. Retrasar vacunas incrementa la vulnerabilidad ante enfermedades como rabia, parvovirus, moquillo o leptospirosis.",
     "recommended_actions": [
-      "Check your pet’s vaccination record and identify which vaccines are overdue.",
-
-      "Book an appointment with a licensed veterinarian for immediate catch-up shots.",
-
-      "Avoid contact with unfamiliar animals or public places until your pet is vaccinated.",
-
-      "Set up automatic vaccination reminders through your app or vet clinic.",
-
-      "Discuss with your vet about annual or biannual booster schedules to stay up to date.",
+      "Revisar el historial de vacunación y detectar qué vacunas faltan.",
+      "Reservar cita con un veterinario para actualizar vacunaciones cuanto antes.",
+      "Evitar contacto con animales desconocidos o áreas públicas hasta estar al día.",
+      "Configurar recordatorios automáticos para futuras dosis de refuerzo.",
+      "Consultar con el veterinario la periodicidad de refuerzos recomendada.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Overdue Medication": {
     "severity": "Urgent",
-    "description": "High risk of preventable disease",
+    "description": "Medicación atrasada — riesgo de complicaciones",
     "icon": "assets/illustrations/health_alerts/overdue_medication.svg",
-
     "possible_causes":
-        "Missing or delaying a prescribed medication dose can reduce its effectiveness and cause the recurrence or worsening of the underlying condition. This may happen due to forgetfulness, difficulty administering medication, or running out of supply. In chronic cases such as heart disease, diabetes, infections, or parasite prevention, overdue medication can quickly lead to complications, resistance to treatment, or a higher risk of reinfection.",
+        "Omitir o retrasar dosis puede reducir la eficacia del tratamiento y causar recurrencia o empeoramiento de la condición. Suele ocurrir por olvido, dificultad para administrar medicación o falta de suministro.",
     "recommended_actions": [
-      "Check when the last dose was administered and resume medication as soon as possible (unless instructed otherwise by your vet).",
-
-      "Never double the next dose to “make up” for a missed one.",
-
-      "Contact your vet if more than one dose has been missed or if your pet shows symptoms related to the condition.",
-
-      "Set up in-app reminders or refill alerts to avoid future lapses.",
-
-      "Refill prescriptions before the current supply runs out.",
+      "Comprobar cuándo fue la última dosis y reanudar según indicaciones veterinarias.",
+      "No duplicar dosis para compensar omisiones a menos que lo indique el profesional.",
+      "Contactar al veterinario si faltaron múltiples dosis o aparecen síntomas relacionados.",
+      "Configurar recordatorios o alertas de suministro en la app.",
+      "Reponer recetas antes de que se agoten.",
     ],
-    "CTA": ["Book Vet Appointment", "Order Medication Refill"],
+    "CTA": ["Reservar cita veterinaria", "Solicitar reposición de medicación"],
   },
 
   /// Medium Alerts
   "Eye Discharge": {
-    "description": "Common sign of conjunctivitis or allergies",
+    "description": "Secreción ocular — posible conjuntivitis o alergia",
     "severity": "Medium",
     "icon": "assets/illustrations/health_alerts/eye_discharge.svg",
-
     "possible_causes":
-        "Eye discharge in pets can be caused by mild irritations such as dust, allergies, or blocked tear ducts, but it can also signal infections like conjunctivitis or corneal ulcers. Breeds with protruding eyes or long hair around the face are more prone to eye irritation. Persistent or colored discharge (yellow, green, or bloody) may indicate bacterial or viral infection that requires veterinary care. Left untreated, these conditions can lead to discomfort or even vision loss.",
+        "La secreción ocular puede deberse a irritación por polvo, alergias, conductos lagrimales obstruidos o infecciones. Si la secreción es persistente, espesa o de color (amarilla/verde), puede indicar infección.",
     "recommended_actions": [
-      "Gently clean the eye area using a soft cloth and warm water.",
-
-      "Avoid using human eye drops or medication without veterinary advice.",
-
-      "Monitor for redness, swelling, or changes in discharge color.",
-
-      "Keep hair trimmed around the eyes to prevent further irritation.",
-
-      "Visit a veterinarian if discharge persists for more than 24–48 hours or becomes thick or colored.",
+      "Limpiar suavemente el área ocular con un paño húmedo y limpio.",
+      "No usar colirios humanos sin indicación veterinaria.",
+      "Vigilar enrojecimiento, hinchazón o cambio en el color de la secreción.",
+      "Recortar el pelo alrededor de los ojos para evitar irritación.",
+      "Visitar al veterinario si la secreción persiste más de 24–48 horas o empeora.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
+
   "Red Eyes": {
-    "description": "Common sign of conjunctivitis or allergies",
+    "description": "Ojos enrojecidos — posible irritación o infección",
     "severity": "Medium",
     "icon": "assets/illustrations/health_alerts/red_eye.svg",
-
     "possible_causes":
-        "Red eyes in pets are often caused by eye irritation, allergies, or mild infections like conjunctivitis. However, they can also indicate more serious issues such as corneal ulcers, glaucoma, or high blood pressure. Environmental irritants—like smoke, dust, or strong cleaning products—can also trigger redness and inflammation. In some pets, eye redness may result from dry eyes or blocked tear ducts, especially in breeds prone to ocular conditions. Persistent redness or swelling usually signals an underlying infection or inflammation requiring veterinary attention.",
+        "El enrojecimiento puede venir de irritantes ambientales, alergias, conjuntivitis o problemas más serios como úlceras corneales o glaucoma.",
     "recommended_actions": [
-      "Keep your pet away from smoke, dust, and chemical fumes.",
-
-      "Gently clean any discharge with a sterile, damp cloth.",
-
-      "Prevent your pet from scratching or rubbing its eyes.",
-
-      "Use an Elizabethan collar if irritation persists to avoid injury.",
-
-      "Visit your veterinarian if redness lasts more than 24 hours or is accompanied by swelling, discharge, or light sensitivity.",
+      "Evitar humo, polvo y productos químicos fuertes cerca de la mascota.",
+      "Limpiar la secreción con cuidado y mantener la zona seca.",
+      "Impedir que la mascota se rasque o frote los ojos.",
+      "Usar collar isabelino si es necesario para prevenir lesiones.",
+      "Consultar al veterinario si el enrojecimiento dura más de 24 horas o hay secreción anómala.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
 
   "Coughing / Sneezing": {
-    "description": "May indicate respiratory infection",
+    "description": "Tos o estornudos — posible infección respiratoria",
     "severity": "Medium",
     "icon": "assets/illustrations/health_alerts/sneezing.svg",
-
     "possible_causes":
-        "Coughing or sneezing in pets is often triggered by mild respiratory irritation from dust, allergies, or dry air, but it can also signal infections such as kennel cough, feline upper respiratory infection, or even early signs of pneumonia. Other possible causes include throat irritation, dental disease, heart issues, or inhaled foreign particles. Environmental factors—like cigarette smoke, perfume, or air conditioning—can worsen symptoms, especially in smaller breeds or short-nosed pets. Persistent or worsening coughing should always be evaluated by a vet.",
+        "Podría deberse a irritación por polvo, alergias, aire seco, o infecciones como tos de las perreras o infecciones respiratorias felinas. También puede relacionarse con problemas dentales o cardiacos.",
     "recommended_actions": [
-      "Keep your pet in a clean, dust-free environment and ensure proper ventilation.",
-
-      "Monitor the frequency and pattern of coughing or sneezing.",
-
-      "Avoid exposing your pet to smoke, perfumes, or strong cleaning products.",
-
-      "Ensure your pet is up to date on vaccinations, especially for kennel cough.",
-
-      "Visit your vet if coughing lasts more than a few days, becomes harsh, or is accompanied by lethargy or nasal discharge.",
+      "Mantener un ambiente limpio y bien ventilado.",
+      "Observar frecuencia y patrón de la tos o estornudos.",
+      "Evitar exposición a humo, perfumes o productos irritantes.",
+      "Asegurar vacunas al día según recomendaciones veterinarias.",
+      "Consultar al veterinario si la tos persiste o viene con letargo o secreción nasal.",
     ],
-    "CTA": ["Book Vet Appointment", "Shop Air Purifiers & Pet Humidifiers"],
+    "CTA": ["Reservar cita veterinaria", "Comprar purificadores de aire y humidificadores"],
   },
 
   /// Mild Alerts
   "Dry Skin": {
-    "description": "Coat	May be nutrition or hydration issue",
+    "description": "Piel seca — puede ser por nutrición o hidratación",
     "severity": "Mild",
     "icon": "assets/illustrations/health_alerts/dry_skin.svg",
-
     "possible_causes":
-        "Dry skin in pets is often caused by environmental factors like low humidity, frequent bathing, or exposure to harsh grooming products. However, it can also stem from poor diet, dehydration, allergies, or underlying conditions such as dermatitis or thyroid imbalance. Parasites like fleas or mites may further irritate the skin, leading to itching and flaking. Inadequate grooming or a lack of essential fatty acids in the diet can also make the coat dull and dry over time.",
+        "La piel seca puede ser por baja humedad, baños frecuentes, productos de aseo agresivos, dieta pobre o deshidratación. Parásitos o dermatitis también pueden causar sequedad y picor.",
     "recommended_actions": [
-      "Ensure your pet is well-hydrated and fed a balanced diet rich in omega-3 and omega-6 fatty acids.",
-
-      "Avoid excessive bathing or using human shampoos on your pet.",
-
-      "Brush regularly to remove dead skin and distribute natural oils.",
-
-      "Use a vet-approved moisturizing shampoo or conditioner.",
-
-      "Schedule a vet visit if dryness persists or is accompanied by itching, redness, or hair loss.",
+      "Asegurar buena hidratación y dieta equilibrada rica en ácidos grasos omega.",
+      "Evitar baños excesivos y productos no aptos para mascotas.",
+      "Cepillar regularmente para distribuir los aceites naturales del pelaje.",
+      "Usar champús o acondicionadores recomendados por el veterinario.",
+      "Visitar al veterinario si la sequedad persiste o hay pérdida de pelo.",
     ],
-    "CTA": ["Book Vet Appointment", "Shop Skin & Coat Care Products"],
+    "CTA": ["Reservar cita veterinaria", "Comprar productos para piel y pelaje"],
   },
+
   "Mild Bad Breath": {
-    "description": "Early dental hygiene issue",
+    "description": "Mal aliento leve — higiene dental inicial",
     "severity": "Mild",
     "icon": "assets/illustrations/health_alerts/bad_breath.svg",
-
     "possible_causes":
-        "Mild bad breath in pets is commonly caused by the buildup of plaque and bacteria in the mouth due to infrequent brushing or poor dental hygiene. It can also result from leftover food particles, mild gum inflammation, or diet-related factors. Occasionally, digestive issues, dehydration, or early signs of tartar accumulation may contribute to the odor. While mild at first, untreated bad breath can progress to periodontal disease if not properly managed through consistent care.",
+        "Generalmente causado por acumulación de placa, restos de comida o higiene dental insuficiente. Puede evolucionar a enfermedad periodontal si no se trata.",
     "recommended_actions": [
-      "Brush your pet’s teeth regularly using pet-safe toothpaste.",
-
-      "Offer dental chews or toys designed to reduce plaque buildup.",
-
-      "Ensure your pet has access to clean water throughout the day.",
-
-      "Schedule routine dental cleanings with your veterinarian.",
-
-      "Monitor for worsening odor, drooling, or visible tartar, which may indicate gum disease.",
+      "Cepillar los dientes regularmente con pasta para mascotas.",
+      "Ofrecer juguetes o golosinas dentales que ayuden a reducir sarro.",
+      "Asegurar agua fresca disponible en todo momento.",
+      "Programar limpiezas dentales periódicas con el veterinario.",
+      "Consultar si el mal aliento empeora o aparece dolor al comer.",
     ],
-    "CTA": ["Shop Dental Care Essentials", "Book Dental Cleaning Appointment"],
+    "CTA": ["Comprar productos dentales", "Reservar limpieza dental"],
   },
+
   "Eye Watering": {
-    "description": "Dust or seasonal irritation",
+    "description": "Lagrimeo — irritación por polvo o alergias",
     "severity": "Mild",
     "icon": "assets/illustrations/health_alerts/eye_watering.svg",
-
     "possible_causes":
-        "Eye watering in pets is often a response to mild irritation caused by dust, pollen, wind, or seasonal allergies. It can also occur when small particles enter the eye, or from minor scratches on the cornea. Certain breeds with prominent eyes or shallow eye sockets are naturally more prone to tear overflow. In some cases, watery eyes may indicate a mild infection, tear duct blockage, or early conjunctivitis. While usually harmless, persistent tearing or discoloration around the eyes may require veterinary evaluation.",
+        "Suele deberse a irritantes ambientales, pelo en la zona ocular o conductos lagrimales parcialmente obstruidos. Si es persistente, podría indicar infección o problema ocular.",
     "recommended_actions": [
-      "Gently wipe the area around your pet’s eyes with a clean, damp cloth.",
-
-      "Keep your pet’s environment free of dust, smoke, and strong fragrances.",
-
-      "Avoid letting hair around the eyes grow too long or obstruct vision.",
-
-      "Monitor for redness, swelling, or thick discharge that could indicate infection.",
-
-      "Visit a vet if watering persists for more than 48 hours or worsens suddenly.",
+      "Limpiar suavemente con paño húmedo y mantener el área limpia.",
+      "Evitar exposición a polvo y alérgenos cuando sea posible.",
+      "Recortar pelo alrededor de los ojos si molesta.",
+      "Vigilar cambios en color o consistencia de la secreción.",
+      "Consultar al veterinario si persiste más de 48 horas o empeora.",
     ],
-    "CTA": ["Book Vet Appointment", "Shop Pet Eye Wipes & Cleansers"],
+    "CTA": ["Reservar cita veterinaria", "Comprar toallitas oculares para mascotas"],
   },
-  /*
-  "Mild Appetite Change": {
-    "description": "Could be heat or stress",
-    "severity": "Mild",
-  
-    "possible_causes":,
-    "recommended_actions":,
-    },*/
+
   "Excessive Paw Licking": {
-    "description": "	Often due to boredom or minor irritation",
+    "description": "Lamerse las patas en exceso — irritación o conducta",
     "severity": "Mild",
     "icon": "assets/illustrations/health_alerts/paw_licking.svg",
-
     "possible_causes":
-        "Excessive paw licking is commonly linked to mild irritation from dust, grass, or small debris caught between the paw pads. It can also be a sign of dry skin, insect bites, mild allergies, or contact with irritants like cleaning products or road salt. In some cases, pets lick their paws out of boredom, anxiety, or as a self-soothing behavior. Persistent licking, redness, or hair loss around the area may indicate an underlying infection or allergy that requires attention.",
+        "Puede deberse a irritación por suciedad, pequeños objetos entre almohadillas, alergias, aburrimiento o estrés. También puede indicar dermatitis o infección si es persistente.",
     "recommended_actions": [
-      "Gently inspect and clean your pet’s paws after walks.",
-
-      "Keep the area dry and free of dirt or irritants.",
-
-      "Provide toys or mental stimulation to reduce boredom-related licking.",
-
-      "Avoid harsh floor cleaners or outdoor chemicals that can irritate paws.",
-
-      "Consult a vet if licking persists, or if you notice swelling, sores, or odor.",
+      "Inspeccionar y limpiar las patas después de paseos.",
+      "Mantener las almohadillas secas y libres de objetos.",
+      "Ofrecer estimulación mental y juguetes para reducir aburrimiento.",
+      "Evitar productos de limpieza agresivos en suelos por donde camina.",
+      "Consultar al veterinario si hay enrojecimiento, pérdida de pelo o mal olor.",
     ],
-    "CTA": ["Book Vet Appointment", "Shop Paw Balms & Protective Sprays"],
+    "CTA": ["Reservar cita veterinaria", "Comprar bálsamos para patas"],
   },
+
   "Slightly Less Active": {
-    "description": "May vary naturally, worth monitoring",
+    "description": "Actividad ligeramente reducida — vigilar",
     "severity": "Mild",
     "icon": "assets/illustrations/health_alerts/less_active.svg",
-
     "possible_causes":
-        "A slight decrease in activity can often be a normal variation due to changes in weather, age, or daily routine. Pets may also become less active after a heavy meal, mild fatigue, or emotional shifts such as boredom or minor stress. However, if the reduced activity persists, it could indicate early signs of discomfort, pain, minor illness, or even emotional distress. Monitoring patterns over a few days helps determine whether the change is temporary or a sign of an underlying issue.",
+        "Una ligera disminución de actividad puede ser normal por edad, clima o rutina. Si persiste, podría indicar malestar, dolor o enfermedad incipiente.",
     "recommended_actions": [
-      "Observe your pet’s behavior and energy levels for 2–3 days.",
-
-      "Ensure they’re eating, drinking, and sleeping normally.",
-
-      "Encourage light play or short walks to boost engagement.",
-
-      "Check for other mild symptoms like loss of appetite or limping.",
-
-      "Contact a vet if lethargy continues or worsens.",
+      "Observar comportamiento y nivel de energía por 2–3 días.",
+      "Asegurar que come, bebe y duerme con normalidad.",
+      "Fomentar paseos cortos o juego ligero para recuperar actividad.",
+      "Vigilar otros síntomas como pérdida de apetito o cojera.",
+      "Consultar al veterinario si la reducción de actividad continúa o empeora.",
     ],
-    "CTA": ["Book Vet Appointment"],
+    "CTA": ["Reservar cita veterinaria"],
   },
 };

@@ -338,4 +338,25 @@
   'signup_have_account': '¿Ya tienes una cuenta?',
   'signup_sign_in': 'Iniciar sesión',
 
+  // Traducciones de nombres de alertas
+  'alert_Vomiting': 'Vómitos',
+  'alert_Diarrhea': 'Diarrea',
+  'alert_Lethargy': 'Letargo',
+  'alert_Loss_of_Appetite': 'Pérdida de apetito',
+  'alert_Difficulty_Breathing___Heavy_Panting': 'Dificultad para respirar / Jadeo intenso',
+  'alert_Seizure': 'Convulsión',
+  'alert_Trembling': 'Temblores',
+  'alert_Limping___Dragging_Legs': 'Cojeo / Arrastre de patas',
+  'alert_Bleeding_Gums___Nose___Wounds': 'Sangrado (encías/nariz/heridas)',
+  'alert_Overdue_Vaccination': 'Vacunación vencida',
+  'alert_Overdue_Medication': 'Medicación atrasada',
+  'alert_Eye_Discharge': 'Secreción ocular',
+  'alert_Red_Eyes': 'Ojos rojos',
+  'alert_Coughing___Sneezing': 'Tos / Estornudos',
+  'alert_Dry_Skin': 'Piel seca',
+  'alert_Mild_Bad_Breath': 'Mal aliento leve',
+  'alert_Eye_Watering': 'Lagrimeo',
+  'alert_Excessive_Paw_Licking': 'Lamerse patas en exceso',
+  'alert_Slightly_Less_Active': 'Actividad ligeramente reducida',
+
 };

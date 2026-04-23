@@ -248,6 +248,11 @@ class MyApp extends StatelessWidget {
                   name: '/VetPanel',
                   page: () => const VetPanelPage(),
                 ),
+                
+                GetPage(
+                  name: '/NewVetAppointment',
+                  page: () => AddNewVetAppoitnmentPage(),
+                ),
               ],
             );
           },

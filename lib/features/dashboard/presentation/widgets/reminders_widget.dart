@@ -66,7 +66,8 @@ Widget activityTile(
   Map<String, dynamic> reminderDetails,
   int index,
 ) {
-  // The icon background color is randomized for UI variety.
+  final petName = reminderDetails['pet_name'] as String?; // puede ser null
+
   return ListTile(
     contentPadding: EdgeInsets.zero,
     minTileHeight: 45,
@@ -83,9 +84,9 @@ Widget activityTile(
           AppPalette.success(context),
           AppPalette.warning(context),
         ].elementAt(Random().nextInt(5)).withValues(alpha: 0.4),
-        borderRadius: BorderRadius.all(Radius.circular(15)),
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
       ),
-      margin: EdgeInsets.only(bottom: 5),
+      margin: const EdgeInsets.only(bottom: 5),
       child: SvgPicture.asset(reminderDetails['icon'], height: 30),
     ),
     title: Text(
@@ -95,12 +96,25 @@ Widget activityTile(
         color: AppPalette.primaryText(context),
       ),
     ),
-    subtitle: Text(
-      reminderDetails['time'] ?? '(-)',
-      style: AppTextStyles.bodyRegular.copyWith(
-        color: AppPalette.disabled(context),
-        fontSize: 11,
-      ),
+    subtitle: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          reminderDetails['time'] ?? '(-)',
+          style: AppTextStyles.bodyRegular.copyWith(
+            color: AppPalette.disabled(context),
+            fontSize: 11,
+          ),
+        ),
+        if (petName != null && petName.isNotEmpty)
+          Text(
+            "Mascota: $petName",
+            style: AppTextStyles.bodyRegular.copyWith(
+              color: AppPalette.secondaryText(context),
+              fontSize: 11,
+            ),
+          ),
+      ],
     ),
     trailing: Text(
       reminderDetails['date'],
@@ -111,3 +125,4 @@ Widget activityTile(
     ),
   );
 }
+
