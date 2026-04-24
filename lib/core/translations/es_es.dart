@@ -314,6 +314,8 @@
   'health_alert_details_section': 'Detalles',
   'health_alert_possible_causes': 'Posibles causas',
   'health_alert_recommended_actions': 'Acciones recomendadas',
+  'health_alerts_title': 'Alertas de salud',
+
 
   // =====================
   // SIGN UP
@@ -358,5 +360,9 @@
   'alert_Eye_Watering': 'Lagrimeo',
   'alert_Excessive_Paw_Licking': 'Lamerse patas en exceso',
   'alert_Slightly_Less_Active': 'Actividad ligeramente reducida',
+
+  'severity_Urgent': 'Urgente',
+  'severity_Medium': 'Moderado',
+  'severity_Mild': 'Leve',
 
 };

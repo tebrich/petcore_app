@@ -9,30 +9,29 @@ import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/all_health_alerts_list.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 
+// Helper para construir claves de traducción (ej: 'alert_Vomiting')
+String _sanitizedKey(String name) =>
+    'alert_' + name.replaceAll(RegExp(r'[^A-Za-z0-9]'), '_');
+
 Widget healthAlerts(BuildContext context, Size screenSize) {
-  // Construimos la lista directamente desde allHealthAlerts (manteniendo las claves originales)
   final allAlerts = allHealthAlerts.entries.map((entry) {
     return {
       'alert': entry.key,
-      // healthAlertWidget / HealthAlertPage esperan 'conerned_pet' — dejamos vacío por catálogo
       'conerned_pet': {'name': ''},
     };
   }).toList();
 
-  final displayAlerts = allAlerts; // muestra TODO el catálogo
+  final displayAlerts = allAlerts;
   final int alertsNumber = displayAlerts.length;
 
   return Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      /// Title
       Padding(
         padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
         child: Text(
-          'health_alerts_title'.trParams({
-            'count': alertsNumber.toString(),
-          }),
+          'health_alerts_title'.trParams({'count': alertsNumber.toString()}),
           style: AppTextStyles.headingMedium.copyWith(
             fontSize: 17,
             color: AppPalette.textOnSecondaryBg(context),
@@ -40,8 +39,6 @@ Widget healthAlerts(BuildContext context, Size screenSize) {
           ),
         ),
       ),
-
-      /// Health Alerts List (desde allHealthAlerts)
       ...displayAlerts.map(
         (element) {
           return OpenContainer(
@@ -59,23 +56,12 @@ Widget healthAlerts(BuildContext context, Size screenSize) {
   );
 }
 
-/// Builds a single list item widget for a health alert summary.
 Widget healthAlertWidget(
   BuildContext context,
   double width,
   Map<String, dynamic> healthAlertDetails,
 ) {
-  // -----------------------------------------------------------------------------
-  // NOTE: Refactor this section to use strongly typed entities and models
-  // instead of raw maps.
-  // -----------------------------------------------------------------------------
-
   final String alertName = (healthAlertDetails['alert'] as String?) ?? '';
-
-  // Normalizamos la clave para buscar en las traducciones (mismo patrón que en es_es.dart)
-  String _sanitizedKey(String name) =>
-      'alert_' + name.replaceAll(RegExp(r'[^A-Za-z0-9]'), '_');
-
   final String displayName = _sanitizedKey(alertName).tr;
 
   final Map<String, dynamic> alertDetails =
@@ -84,7 +70,6 @@ Widget healthAlertWidget(
       (healthAlertDetails['conerned_pet'] as Map<String, dynamic>?) ??
           {'name': ''};
 
-  // Protegemos CTA cuando sea necesario
   final List<dynamic> ctaList =
       (alertDetails['CTA'] is List) ? List.from(alertDetails['CTA']) : <dynamic>[];
 
@@ -130,7 +115,6 @@ Widget healthAlertWidget(
             child: Text.rich(
               TextSpan(
                 children: [
-                  /// Health Alert Type (displayName traducido si existe)
                   TextSpan(
                     text: displayName,
                     style: AppTextStyles.bodyRegular.copyWith(
@@ -139,8 +123,6 @@ Widget healthAlertWidget(
                       color: AppPalette.primaryText(context),
                     ),
                   ),
-
-                  /// Pet Name
                   TextSpan(
                     text: ' (${conernedPetDetails['name'] ?? ''})',
                     style: AppTextStyles.playfulTag.copyWith(
@@ -181,8 +163,12 @@ class HealthAlertPage extends StatelessWidget {
     final Map<String, dynamic> alertDetails =
         (allHealthAlerts[alertName] as Map<String, dynamic>?) ?? {};
     final Map<String, dynamic> conernedPetDetails =
-        (healthAlert['conerned_pet'] as Map<String, dynamic>?) ??
-            {'name': ''};
+        (healthAlert['conerned_pet'] as Map<String, dynamic>?) ?? {'name': ''};
+
+    final String displayName = _sanitizedKey(alertName).tr;
+    final String severityKey =
+        'severity_' + (alertDetails['severity'] ?? '').toString();
+    final String severityLabel = severityKey.tr;
 
     final List<dynamic> ctaList =
         (alertDetails['CTA'] is List) ? List.from(alertDetails['CTA']) : <dynamic>[];
@@ -214,7 +200,6 @@ class HealthAlertPage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              /// Alert Details
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.symmetric(
@@ -246,22 +231,19 @@ class HealthAlertPage extends StatelessWidget {
                                 )
                               : const SizedBox.shrink(),
                         ),
-
                         const SizedBox(width: 16.0),
-
                         Expanded(
                           child: Text.rich(
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: alertName,
+                                  text: displayName,
                                   style: AppTextStyles.bodyRegular.copyWith(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     color: AppPalette.primaryText(context),
                                   ),
                                 ),
-
                                 TextSpan(
                                   text: '\n${conernedPetDetails['name']}\n',
                                   style: AppTextStyles.playfulTag.copyWith(
@@ -270,7 +252,6 @@ class HealthAlertPage extends StatelessWidget {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-
                                 WidgetSpan(
                                   child: Container(
                                     padding: EdgeInsets.symmetric(
@@ -289,7 +270,7 @@ class HealthAlertPage extends StatelessWidget {
                                               : AppPalette.success(context),
                                     ),
                                     child: Text(
-                                      alertDetails['severity'] ?? '',
+                                      severityLabel,
                                       style: AppTextStyles.playfulTag.copyWith(
                                         fontSize: 12,
                                         color: AppPalette.background(context),
@@ -304,9 +285,7 @@ class HealthAlertPage extends StatelessWidget {
                         ),
                       ],
                     ),
-
                     VerticalSpacing.md(context),
-
                     Text.rich(
                       TextSpan(
                         children: [
@@ -318,7 +297,6 @@ class HealthAlertPage extends StatelessWidget {
                               color: AppPalette.primaryText(context),
                             ),
                           ),
-
                           TextSpan(
                             text: '\n${alertDetails['description'] ?? ''}',
                             style: AppTextStyles.bodyRegular.copyWith(
@@ -330,9 +308,7 @@ class HealthAlertPage extends StatelessWidget {
                       ),
                       textAlign: TextAlign.start,
                     ),
-
                     VerticalSpacing.md(context),
-
                     AnimatedElevatedButton(
                       text: ctaList.isNotEmpty
                           ? ctaList.first.toString()
@@ -353,7 +329,6 @@ class HealthAlertPage extends StatelessWidget {
                         }
                       },
                     ),
-
                     if (ctaList.length > 1) VerticalSpacing.sm(context),
                     if (ctaList.length > 1)
                       AnimatedElevatedButton(
@@ -375,9 +350,7 @@ class HealthAlertPage extends StatelessWidget {
                   ],
                 ),
               ),
-
               VerticalSpacing.lg(context),
-
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.symmetric(
@@ -413,9 +386,7 @@ class HealthAlertPage extends StatelessWidget {
                   textAlign: TextAlign.start,
                 ),
               ),
-
               VerticalSpacing.lg(context),
-
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.symmetric(
@@ -457,7 +428,6 @@ class HealthAlertPage extends StatelessWidget {
                   textAlign: TextAlign.start,
                 ),
               ),
-
               VerticalSpacing.md(context),
             ],
           ),

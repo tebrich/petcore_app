@@ -165,7 +165,7 @@ Map<String, Map<String, dynamic>> allHealthAlerts = {
   "Overdue Vaccination": {
     "severity": "Urgent",
     "description": "Vacunación vencida — riesgo de enfermedades prevenibles",
-    "icon": "assets/illustrations/health_alerts/Overduevaccination.svg",
+    "icon": "assets/illustrations/health_alerts/overdue_vaccination.svg",
     "possible_causes":
         "La vacunación vencida suele ser consecuencia de citas perdidas, mudanzas o falta de acceso a atención veterinaria. Retrasar vacunas incrementa la vulnerabilidad ante enfermedades como rabia, parvovirus, moquillo o leptospirosis.",
     "recommended_actions": [
