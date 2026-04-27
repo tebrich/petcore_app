@@ -1,32 +1,27 @@
 ﻿import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:peticare/features/vet/presentation/pages/attend_pet_page.dart';
 
 class VetAppointmentsController extends GetxController {
-
   var isLoading = true.obs;
   var appointments = [].obs;
 
   final String baseUrl = "http://192.168.40.54:8000/api/v1";
-
   final GetConnect http = GetConnect();
 
   @override
   void onInit() {
     super.onInit();
-
     http.baseUrl = baseUrl;
-
     fetchAppointments();
   }
 
   ////////////////////////////////////////////////////////////////
-  /// 🔹 GET APPOINTMENTS (CORREGIDO)
+  /// 🔹 GET APPOINTMENTS
   ////////////////////////////////////////////////////////////////
-
   Future<void> fetchAppointments() async {
     try {
       isLoading.value = true;
-
       final response = await http.get(
         "/vet-appointments/vet",
         headers: await _getHeaders(),
@@ -38,7 +33,6 @@ class VetAppointmentsController extends GetxController {
       if (response.statusCode == 200) {
         appointments.value = response.body;
       }
-
     } catch (e) {
       print("Exception: $e");
     } finally {
@@ -47,9 +41,8 @@ class VetAppointmentsController extends GetxController {
   }
 
   ////////////////////////////////////////////////////////////////
-  /// ✅ ACCEPT APPOINTMENT (CORREGIDO)
+  /// ✅ ACCEPT APPOINTMENT
   ////////////////////////////////////////////////////////////////
-
   Future<void> acceptAppointment(int id) async {
     try {
       print("ACCEPT $id");
@@ -65,24 +58,16 @@ class VetAppointmentsController extends GetxController {
 
       if (response.statusCode == 200) {
         await fetchAppointments();
-
-        Get.showSnackbar(
-          GetSnackBar(
-            message: "Cita aceptada",
-            duration: Duration(seconds: 2),
-          ),
-        );
+        print("Cita aceptada");
       }
-
     } catch (e) {
       print("Exception accept: $e");
     }
   }
 
   ////////////////////////////////////////////////////////////////
-  /// ❌ REJECT APPOINTMENT (CORREGIDO)
+  /// ❌ REJECT APPOINTMENT
   ////////////////////////////////////////////////////////////////
-
   Future<void> rejectAppointment(int id) async {
     try {
       print("REJECT $id");
@@ -98,24 +83,16 @@ class VetAppointmentsController extends GetxController {
 
       if (response.statusCode == 200) {
         await fetchAppointments();
-
-        Get.showSnackbar(
-          GetSnackBar(
-            message: "Cita rechazada",
-            duration: Duration(seconds: 2),
-          ),
-        );
+        print("Cita rechazada");
       }
-
     } catch (e) {
       print("Exception reject: $e");
     }
   }
 
   ////////////////////////////////////////////////////////////////
-  /// 🔄 RESCHEDULE (CORREGIDO)
+  /// 🔄 RESCHEDULE
   ////////////////////////////////////////////////////////////////
-
   Future<void> rescheduleAppointment(int id, DateTime newDateTime) async {
     try {
       final response = await http.put(
@@ -131,26 +108,53 @@ class VetAppointmentsController extends GetxController {
 
       if (response.statusCode == 200) {
         await fetchAppointments();
-
-        Get.showSnackbar(
-          GetSnackBar(
-            message: "Cita reprogramada",
-            duration: Duration(seconds: 2),
-          ),
-        );
+        print("Cita reprogramada");
       }
-
     } catch (e) {
       print("Error reschedule: $e");
     }
   }
-  Future<Map<String, String>> _getHeaders() async {
-  final token =
-      await const FlutterSecureStorage().read(key: 'access_token');
 
-  return {
-    "Authorization": "Bearer $token",
-    "Content-Type": "application/json",
-  };
-}
+  ////////////////////////////////////////////////////////////////
+  /// 🔥 ATTEND + NAVIGATE TO FICHA (NEW)
+  ////////////////////////////////////////////////////////////////
+  Future<bool> attendAndOpen(int appointmentId, int? petId) async {
+    try {
+      print("ATTEND $appointmentId");
+
+      final response = await http.post(
+        "/vet-appointments/$appointmentId/attend",
+        {},
+        headers: await _getHeaders(),
+      );
+
+      print("ATTEND STATUS: ${response.statusCode}");
+      print("ATTEND BODY: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchAppointments();
+        if (petId != null) {
+          Get.to(() => AttendPetPage(petId: petId, appointmentId: appointmentId));
+        }
+        return true;
+      } else {
+        print("Error attend: ${response.statusCode} ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Exception attend: $e");
+      return false;
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////
+  /// Helpers
+  ////////////////////////////////////////////////////////////////
+  Future<Map<String, String>> _getHeaders() async {
+    final token = await const FlutterSecureStorage().read(key: 'access_token');
+    return {
+      "Authorization": "Bearer $token",
+      "Content-Type": "application/json",
+    };
+  }
 }

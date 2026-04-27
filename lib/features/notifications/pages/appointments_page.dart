@@ -205,67 +205,101 @@ class AppointmentsPage extends StatelessWidget {
                 currentStatus.toLowerCase().trim() == "rescheduled";
 
             if (!allowed) {
-              Get.snackbar(
-                "Cita en proceso",
-                "Aún no fue confirmada",
-                snackPosition: SnackPosition.BOTTOM,
-              );
-              return;
-            }
-
-            final notificationsController = Get.find<NotificationsController>();
-
-            final fullItem =
-                notificationsController.notificationsList.firstWhere(
-              (e) => e["appointment_id"].toString() == appointmentId,
-              orElse: () => {},
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                content: Text("Aún no fue confirmada"),
+                duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
             );
+            return;
+          }
 
-            if (fullItem.isEmpty) {
-              print("ERROR: item vacío");
-              return;
-            }
+          final notificationsController = Get.find<NotificationsController>();
 
-            // 🔥 RUTEAR SEGÚN TIPO
-            final st = (fullItem["service_type"] ?? "vet").toString();
+          final fullItem =
+              notificationsController.notificationsList.firstWhere(
+            (e) => e["appointment_id"].toString() == appointmentId,
+            orElse: () => {},
+          );
 
-            if (st == "vet") {
-              final controller = AddNewVetAppointmentPageController();
+          if (fullItem.isEmpty) {
+            print("ERROR: item vacío");
+            return;
+          }
 
-              controller.selectedPetName = fullItem["pet_name"];
-              controller.selectedVetID = fullItem["vet_id"];
-              controller.appointmentType = fullItem["appointment_type"];
-              controller.appointmentDateTime =
-                  DateTime.parse(fullItem["appointment_datetime"]);
+          // CHECK: si ya fue pagada, mostrar diálogo con detalles y NO navegar
+          final paid = (fullItem['paid'] == true) ||
+              (fullItem['paid']?.toString().toLowerCase() == 'true');
 
-              Get.to(() => Scaffold(
-                    body: reviewAndPayPage(
-                      MediaQuery.of(context).size,
-                      controller,
-                    ),
-                  ));
-            } else if (st == "grooming") {
-              final controller = AddNewGroomAppointmentPageController();
+          if (paid) {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: const Text('Cita pagada'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Servicio: ${fullItem['appointment_type'] ?? '-'}'),
+                    Text('Mascota: ${fullItem['pet_name'] ?? fullItem['pet_id'] ?? '-'}'),
+                    Text('Fecha: ${fullItem['appointment_datetime'] ?? '-'}'),
+                    const SizedBox(height: 8),
+                    Text('Estado: ${getStatusLabel(fullItem['status'] ?? '')}'),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cerrar'),
+                  ),
+                ],
+              ),
+            );
+            return;
+          }
 
-              controller.selectedPet = {
-                "id": fullItem["pet_id"],
-                "name": fullItem["pet_name"],
-              };
-              controller.selectedPetId = fullItem["pet_id"];
-              controller.appointmentType = fullItem["appointment_type"];
-              controller.appointmentDateTime =
-                  DateTime.parse(fullItem["appointment_datetime"]);
-              controller.selectedGroomerID =
-                  fullItem["groomer_id"]?.toString();
+          // 🔥 RUTEAR SEGÚN TIPO (no pagada)
+          final st = (fullItem["service_type"] ?? "vet").toString();
 
-              Get.to(() => Scaffold(
-                    body: groom_review.reviewAndPayPage(
-                      MediaQuery.of(context).size,
-                      controller,
-                    ),
-                  ));
-            }
-          },
+          if (st == "vet") {
+            final controller = AddNewVetAppointmentPageController();
+
+            controller.selectedPetName = fullItem["pet_name"];
+            controller.selectedVetID = fullItem["vet_id"];
+            controller.appointmentType = fullItem["appointment_type"];
+            controller.appointmentDateTime =
+                DateTime.parse(fullItem["appointment_datetime"]);
+
+            Get.to(() => Scaffold(
+                  body: reviewAndPayPage(
+                    MediaQuery.of(context).size,
+                    controller,
+                  ),
+                ));
+          } else if (st == "grooming") {
+            final controller = AddNewGroomAppointmentPageController();
+
+            controller.selectedPet = {
+              "id": fullItem["pet_id"],
+              "name": fullItem["pet_name"],
+            };
+            controller.selectedPetId = fullItem["pet_id"];
+            controller.appointmentType = fullItem["appointment_type"];
+            controller.appointmentDateTime =
+                DateTime.parse(fullItem["appointment_datetime"]);
+            controller.selectedGroomerID =
+                fullItem["groomer_id"]?.toString();
+
+            Get.to(() => Scaffold(
+                  body: groom_review.reviewAndPayPage(
+                    MediaQuery.of(context).size,
+                    controller,
+                  ),
+                ));
+          }
+        },
+
           borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),

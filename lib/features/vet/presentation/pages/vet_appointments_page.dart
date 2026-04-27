@@ -15,24 +15,18 @@ class VetAppointmentsPage extends StatelessWidget {
       body: GetX<VetAppointmentsController>(
         init: VetAppointmentsController(),
         builder: (controller) {
-
           if (controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (controller.appointments.isEmpty) {
-            return const Center(
-              child: Text("No hay citas"),
-            );
+            return const Center(child: Text("No hay citas"));
           }
 
           return ListView.builder(
             itemCount: controller.appointments.length,
             itemBuilder: (context, index) {
-
-              final appointment = controller.appointments[index];
+              final appointment = controller.appointments[index] as Map<String, dynamic>;
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -41,14 +35,10 @@ class VetAppointmentsPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       /// 🐶 Mascota
                       Text(
                         appointment['pet_name'] ?? "Mascota",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
 
                       const SizedBox(height: 4),
@@ -62,36 +52,26 @@ class VetAppointmentsPage extends StatelessWidget {
                       const SizedBox(height: 8),
 
                       /// 📅 Fecha
-                      Text(
-                        "📅 ${_formatDate(appointment['appointment_datetime'])}",
-                      ),
+                      Text("📅 ${_formatDate(appointment['appointment_datetime'])}"),
 
                       /// 🕒 Hora
-                      Text(
-                        "🕒 ${_formatTime(appointment['appointment_datetime'])}",
-                      ),
+                      Text("🕒 ${_formatTime(appointment['appointment_datetime'])}"),
 
                       const SizedBox(height: 6),
 
                       /// 📌 Estado
                       Text(
                         "📌 ${_translateStatus(appointment['status'])}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
 
                       const SizedBox(height: 8),
 
                       /// 📞 Teléfono
-                      Text(
-                        "📞 ${appointment['phone'] ?? '-'}",
-                      ),
+                      Text("📞 ${appointment['phone'] ?? '-'}"),
 
                       /// ✉️ Email
-                      Text(
-                        "✉️ ${appointment['email'] ?? '-'}",
-                      ),
+                      Text("✉️ ${appointment['email'] ?? '-'}"),
 
                       const SizedBox(height: 12),
 
@@ -110,48 +90,38 @@ class VetAppointmentsPage extends StatelessWidget {
 }
 
 ////////////////////////////////////////////////////////////////
-/// 🔥 BOTONES SEGÚN ESTADO (FINAL)
+/// 🔥 BOTONES SEGÚN ESTADO
 ////////////////////////////////////////////////////////////////
 
 Widget _buildActionButtons(Map<String, dynamic> appointment) {
-  final status = appointment['status'];
+  final status = appointment['status'] as String? ?? '';
   final controller = Get.find<VetAppointmentsController>();
 
-  /// 🟡 PENDING → aceptar / rechazar
+  /// 🟡 PENDING → aceptar / rechazar / reprogramar
   if (status == "pending") {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-
         ElevatedButton(
           onPressed: () {
-            controller.acceptAppointment(appointment['id']);
+            controller.acceptAppointment(appointment['id'] as int);
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           child: const Text("Aceptar"),
         ),
-
         ElevatedButton(
           onPressed: () {
-            controller.rejectAppointment(appointment['id']);
+            controller.rejectAppointment(appointment['id'] as int);
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
           child: const Text("Rechazar"),
         ),
-
         ElevatedButton(
           onPressed: () {
-            _openRescheduleDialog(appointment['id']);
+            _openRescheduleDialog(appointment['id'] as int);
           },
-          
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
-          ),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
           child: const Text("Reprogramar"),
         ),
       ],
@@ -163,18 +133,35 @@ Widget _buildActionButtons(Map<String, dynamic> appointment) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          print("Atender ${appointment['id']}");
+        onPressed: () async {
+          final int appointmentId = appointment['id'] as int;
+          // pet_id may be present in the appointment map; pass null if missing
+          final int? petId = appointment.containsKey('pet_id') ? (appointment['pet_id'] as int?) : null;
+
+          final controller = Get.find<VetAppointmentsController>();
+          final success = await controller.attendAndOpen(appointmentId, petId);
+
+          if (!success) {
+            // fallback behavior: show simple dialog (safe without overlay issues)
+            showDialog(
+              context: Get.context!,
+              builder: (_) => AlertDialog(
+                title: const Text("Error"),
+                content: const Text("No se pudo iniciar la atención. Revisa logs."),
+                actions: [
+                  TextButton(onPressed: () => Navigator.of(Get.context!).pop(), child: const Text("OK")),
+                ],
+              ),
+            );
+          }
         },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
-        ),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
         child: const Text("Atender"),
       ),
     );
   }
 
-  /// 🔴 REJECTED / EXPIRED
+  /// 🔴 REJECTED / EXPIRED / OTHER
   return const SizedBox();
 }
 
@@ -182,13 +169,15 @@ Widget _buildActionButtons(Map<String, dynamic> appointment) {
 /// 🔥 FORMATOS
 ////////////////////////////////////////////////////////////////
 
-String _formatDate(String date) {
-  final parsed = DateTime.parse(date);
+String _formatDate(dynamic date) {
+  if (date == null) return "-";
+  final parsed = DateTime.parse(date.toString());
   return "${parsed.day} de ${_monthName(parsed.month)} ${parsed.year}";
 }
 
-String _formatTime(String date) {
-  final parsed = DateTime.parse(date);
+String _formatTime(dynamic date) {
+  if (date == null) return "-";
+  final parsed = DateTime.parse(date.toString());
   return "${parsed.hour.toString().padLeft(2, '0')}:${parsed.minute.toString().padLeft(2, '0')}";
 }
 
@@ -211,6 +200,8 @@ String _translateStatus(String status) {
       return "Rechazado";
     case "expired":
       return "Expirado";
+    case "rescheduled":
+      return "Reprogramado";
     default:
       return status;
   }
@@ -221,7 +212,7 @@ void _openRescheduleDialog(int appointmentId) async {
   TimeOfDay? selectedTime;
 
   selectedDate = await showDatePicker(
-    context: Get.overlayContext!,
+    context: Get.context!,
     initialDate: DateTime.now(),
     firstDate: DateTime.now(),
     lastDate: DateTime(2100),
@@ -230,7 +221,7 @@ void _openRescheduleDialog(int appointmentId) async {
   if (selectedDate == null) return;
 
   selectedTime = await showTimePicker(
-    context: Get.overlayContext!,
+    context: Get.context!,
     initialTime: TimeOfDay.now(),
   );
 
@@ -251,8 +242,7 @@ void _openRescheduleDialog(int appointmentId) async {
     textCancel: "No",
     onConfirm: () {
       Get.back();
-      Get.find<VetAppointmentsController>()
-        .rescheduleAppointment(appointmentId, newDateTime);
+      Get.find<VetAppointmentsController>().rescheduleAppointment(appointmentId, newDateTime);
     },
   );
 }
