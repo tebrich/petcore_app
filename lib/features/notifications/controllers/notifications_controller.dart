@@ -2,6 +2,7 @@
 
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_storage/get_storage.dart';
 
 class NotificationsController extends GetxController {
   var notificationsList = <Map<String, dynamic>>[].obs;
@@ -41,6 +42,8 @@ class NotificationsController extends GetxController {
 
   Future<void> loadNotifications() async {
     print(">> ENTER loadNotifications()");
+    print('DEBUG NOTIFS: reading token from secure >>> ${await storage.read(key: "access_token")}');
+    print('DEBUG NOTIFS: reading token from getstorage >>> ${GetStorage().read("token")}');
     try {
       isLoading.value = true;
       final headers = await _getHeaders();

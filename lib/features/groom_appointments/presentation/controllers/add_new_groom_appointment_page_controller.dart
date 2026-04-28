@@ -117,6 +117,31 @@ class AddNewGroomAppointmentPageController extends GetxController {
     update();
   }
 
+  // ======= Compatibilidad notifications =======
+  int? appointmentId;
+  var isReadOnly = false.obs;
+
+  /// Inicializa campos del controller desde un mapa de notificación (fullItem)
+  void setFromNotificationItem(Map<String, dynamic> fullItem) {
+    try {
+      appointmentId = fullItem['appointment_id'] ?? fullItem['id'];
+      selectedPet = {
+        "id": fullItem["pet_id"],
+        "name": fullItem["pet_name"],
+      };
+      selectedPetId = fullItem['pet_id'] ?? selectedPetId;
+      appointmentType = fullItem['appointment_type'] ?? appointmentType;
+      final rawDt = fullItem['appointment_datetime'];
+      appointmentDateTime = rawDt != null ? (DateTime.tryParse(rawDt.toString()) ?? appointmentDateTime) : appointmentDateTime;
+      final paid = (fullItem['paid'] == true) || (fullItem['paid']?.toString().toLowerCase() == 'true');
+      isReadOnly.value = paid;
+      update();
+    } catch (e) {
+      print("ERROR setFromNotificationItem (groom) >>> $e");
+    }
+  }
+
+
   // ================================
   // FETCH GROOMERS (PRODUCCIÓN)
   // ================================

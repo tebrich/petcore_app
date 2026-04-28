@@ -148,6 +148,29 @@ class AddNewVetAppointmentPageController extends GetxController {
     update();
   }
 
+  // ======= Compatibilidad notifications =======
+  int? appointmentId;
+  var isReadOnly = false.obs;
+
+  /// Inicializa campos del controller desde un mapa de notificación (fullItem)
+  void setFromNotificationItem(Map<String, dynamic> fullItem) {
+    try {
+      appointmentId = fullItem['appointment_id'] ?? fullItem['id'];
+      selectedPetId = fullItem['pet_id'] ?? selectedPetId;
+      selectedPetName = fullItem['pet_name'] ?? selectedPetName;
+      selectedVetID = fullItem['vet_id'] ?? selectedVetID;
+      appointmentType = fullItem['appointment_type'] ?? appointmentType;
+      final rawDt = fullItem['appointment_datetime'];
+      appointmentDateTime = rawDt != null ? DateTime.tryParse(rawDt.toString()) : appointmentDateTime;
+      final paid = (fullItem['paid'] == true) || (fullItem['paid']?.toString().toLowerCase() == 'true');
+      isReadOnly.value = paid;
+      update();
+    } catch (e) {
+      print("ERROR setFromNotificationItem (vet) >>> $e");
+    }
+  }
+
+
   /// =========================
   /// PRECIO REAL (usa service_pricing_config)
   /// =========================
