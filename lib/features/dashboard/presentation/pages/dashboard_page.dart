@@ -274,10 +274,37 @@ class DashboardPage extends StatelessWidget {
                                     final type = (e['type'] ?? '').toString().toLowerCase();
                                     final serviceType = (e['service_type'] ?? '').toString().toLowerCase();
                                     final status = (e['status'] ?? '').toString().toLowerCase();
-                                    final isAppointment = type == 'appointment';
-                                    final isVetOrGroom = serviceType == 'vet' || serviceType == 'grooming';
-                                    final isRelevantStatus = status == 'accepted' || status == 'rescheduled';
-                                    return isAppointment && isVetOrGroom && isRelevantStatus;
+
+                                    // exclude non-appointments
+                                    if (type != 'appointment') return false;
+                                    // only vet or grooming
+                                    if (!(serviceType == 'vet' || serviceType == 'grooming')) return false;
+                                    // only relevant statuses
+                                    if (!(status == 'accepted' || status == 'rescheduled')) return false;
+
+                                    // exclude paid
+                                    final paid = (e['paid'] == true) ||
+                                        (e['raw'] != null && (e['raw']['paid'] == true)) ||
+                                        (e['raw'] != null && (e['raw']['paid']?.toString()?.toLowerCase() == 'true'));
+                                    if (paid) return false;
+
+                                    // get appointment datetime (try top-level then raw)
+                                    final dtStr = e['appointment_datetime'] ?? (e['raw'] != null ? e['raw']['appointment_datetime'] : null);
+                                    if (dtStr == null) return true; // keep if no datetime info
+
+                                    DateTime dt;
+                                    try {
+                                      dt = DateTime.parse(dtStr.toString());
+                                    } catch (_) {
+                                      return true; // keep if unparsable
+                                    }
+
+                                    final now = DateTime.now();
+                                    final today = DateTime(now.year, now.month, now.day);
+                                    final apptDate = DateTime(dt.year, dt.month, dt.day);
+
+                                    // count only if appointment is today or in the future
+                                    return apptDate.isAtSameMomentAs(today) || apptDate.isAfter(today);
                                   }).length;
                                   return Text(
                                     total.toString(),

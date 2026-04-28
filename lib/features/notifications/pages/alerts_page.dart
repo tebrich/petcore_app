@@ -111,16 +111,36 @@ class AlertsPage extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: alerts.length,
           itemBuilder: (context, index) {
-            final alert = alerts[index];
+            final raw = alerts[index] as Map<String, dynamic>;
+            final id = (raw['id'] ?? "").toString();
+            final rawType = (raw['type'] ?? 'info').toString();
+            final serviceType = (raw['service_type'] ?? '').toString().toLowerCase();
+
+            String displayType;
+            if (rawType == 'appointment') {
+              if (serviceType == 'grooming') {
+                displayType = 'Cita peluquería';
+              } else if (serviceType == 'vet') {
+                displayType = 'Cita veterinaria';
+              } else {
+                displayType = 'Cita';
+              }
+            } else if (rawType == 'follow_up') {
+              displayType = 'Propuesta';
+            } else if (rawType == 'reminder') {
+              displayType = 'Recordatorio';
+            } else {
+              displayType = rawType;
+            }
 
             return _alertTile(
               context,
-              alert['id'].toString(),
-              alert['type'] ?? 'info',
-              null,
-              alert['title'] ?? '',
-              alert['message'] ?? '',
-              alert['date'],
+              id,
+              displayType,
+              serviceType, // subtype for icon
+              raw['title'] ?? '',
+              raw['message'] ?? '',
+              raw['date'],
             );
           },
         ),
