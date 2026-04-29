@@ -201,7 +201,7 @@ class _SignInPageState extends State<SignInPage> {
 
                               if (user != null && user["role"] == "vet") {
                                 print("🚀 NAV → VET PANEL");
-                                Get.offAllNamed('/VetPanel');
+                                Get.offAllNamed('/VetHome');
                               } else {
                                 print("🚀 NAV → USER");
                                 Get.offAllNamed('/HomePage');

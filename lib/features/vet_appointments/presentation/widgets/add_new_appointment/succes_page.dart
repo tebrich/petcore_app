@@ -1,5 +1,8 @@
+// C:\peticare\peticare_app\lib\features\vet_appointments\presentation\widgets\add_new_appointment\succes_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:peticare/core/commn/presentation/widgets/floating_aniamation.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
@@ -13,13 +16,27 @@ class SuccessPageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Confirmación"),
-        centerTitle: true,
+    return WillPopScope(
+      // Cuando el usuario presione atrás, ir al Dashboard (limpia pila)
+      onWillPop: () async {
+        Get.offAllNamed('/HomePage');
+        return false; // evita la navegación por defecto
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text("Confirmación"),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              // botón de retroceso en AppBar también lleva al Dashboard
+              Get.offAllNamed('/HomePage');
+            },
+          ),
+        ),
+        body: successPage(size),
       ),
-      body: successPage(size),
     );
   }
 }
@@ -113,6 +130,22 @@ Widget successPage(Size screenSize) {
                 fontSize: constraints.maxHeight <= 580 ? 16 : 18,
               ),
               textAlign: TextAlign.center,
+            ),
+          ),
+
+          VerticalSpacing.lg(context),
+
+          // Botón claro para volver al Dashboard
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.15),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Get.offAllNamed('/HomePage');
+                },
+                child: const Text('Ir al Dashboard'),
+              ),
             ),
           ),
 

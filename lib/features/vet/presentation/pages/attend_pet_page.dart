@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿// C:\peticare\peticare_app\lib\features\vet\presentation\pages\attend_pet_page.dart
+
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -59,7 +61,7 @@ class AttendPetPage extends StatelessWidget {
                         width: 80,
                         decoration: BoxDecoration(shape: BoxShape.circle, color: AppPalette.primary.withOpacity(.1)),
                         alignment: Alignment.center,
-                        child: Text(avatarCode, style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: Text(avatarCode, style: const TextStyle(fontWeight: FontWeight.bold)),
                       );
                     }
                     return Container(
@@ -69,7 +71,6 @@ class AttendPetPage extends StatelessWidget {
                       child: const Icon(Icons.pets, size: 40),
                     );
                   }),
-
 
                   const SizedBox(width: 12),
                   Expanded(
@@ -134,8 +135,65 @@ class AttendPetPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
+              // Reordered buttons: Subir examen, Próxima visita, Guardar visita
               Row(
                 children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.upload_file),
+                      label: const Text("Subir examen / archivo"),
+                      onPressed: () {
+                        Get.dialog(AlertDialog(
+                          title: const Text("Subir examen"),
+                          content: const Text("Aquí podrá seleccionar y subir archivos (implementación en el siguiente paso)."),
+                          actions: [TextButton(onPressed: () => Get.back(), child: const Text("Cerrar"))],
+                        ));
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.event_available),
+                      label: const Text("Próxima visita"),
+                      onPressed: () async {
+                        final DateTime? date = await showDatePicker(
+                          context: Get.context!,
+                          initialDate: DateTime.now().add(const Duration(days: 30)),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                        );
+                        if (date == null) return;
+
+                        // show dialog to enter note/motif
+                        final TextEditingController motifCtrl = TextEditingController();
+                        final time = await showTimePicker(context: Get.context!, initialTime: const TimeOfDay(hour: 9, minute: 0));
+                        if (time == null) return;
+
+                        final confirmed = await Get.dialog<bool>(
+                          AlertDialog(
+                            title: const Text("Motivo / Nota"),
+                            content: TextField(controller: motifCtrl, decoration: const InputDecoration(hintText: "Ej: Vacuna antirrábica")),
+                            actions: [
+                              TextButton(onPressed: () => Get.back(result: false), child: const Text("Cancelar")),
+                              TextButton(onPressed: () => Get.back(result: true), child: const Text("Confirmar")),
+                            ],
+                          ),
+                        );
+
+                        if (confirmed != true) return;
+
+                        final dt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                        final note = motifCtrl.text;
+
+                        final success = await controller.createFollowUpAppointment(dt, appointmentType: "vaccine", note: note);
+                        if (success) {
+                          Get.showSnackbar(const GetSnackBar(message: "Próxima visita propuesta creada", duration: Duration(seconds: 2)));
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -154,7 +212,7 @@ class AttendPetPage extends StatelessWidget {
                         );
 
                         if (recordId != null) {
-                          Get.showSnackbar(GetSnackBar(message: "Visita registrada (#$recordId)", duration: Duration(seconds: 2)));
+                          Get.showSnackbar(const GetSnackBar(message: "Visita registrada", duration: Duration(seconds: 2)));
                         }
                       },
                       child: const Text("Guardar visita"),
@@ -164,62 +222,6 @@ class AttendPetPage extends StatelessWidget {
               ),
 
               const SizedBox(height: 12),
-
-              ElevatedButton.icon(
-                icon: const Icon(Icons.upload_file),
-                label: const Text("Subir examen / archivo"),
-                onPressed: () {
-                  Get.dialog(AlertDialog(
-                    title: const Text("Subir examen"),
-                    content: const Text("Aquí podrá seleccionar y subir archivos (implementación en el siguiente paso)."),
-                    actions: [TextButton(onPressed: () => Get.back(), child: const Text("Cerrar"))],
-                  ));
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              ElevatedButton.icon(
-                icon: const Icon(Icons.event_available),
-                label: const Text("Próxima visita"),
-                onPressed: () async {
-                  final DateTime? date = await showDatePicker(
-                    context: Get.context!,
-                    initialDate: DateTime.now().add(const Duration(days: 30)),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
-                  );
-                  if (date == null) return;
-
-                  // show dialog to enter note/motif
-                  final TextEditingController motifCtrl = TextEditingController();
-                  final time = await showTimePicker(context: Get.context!, initialTime: const TimeOfDay(hour: 9, minute: 0));
-                  if (time == null) return;
-
-                  final confirmed = await Get.dialog<bool>(
-                    AlertDialog(
-                      title: const Text("Motivo / Nota"),
-                      content: TextField(controller: motifCtrl, decoration: const InputDecoration(hintText: "Ej: Vacuna antirrábica")),
-                      actions: [
-                        TextButton(onPressed: () => Get.back(result: false), child: const Text("Cancelar")),
-                        TextButton(onPressed: () => Get.back(result: true), child: const Text("Confirmar")),
-                      ],
-                    ),
-                  );
-
-                  if (confirmed != true) return;
-
-                  final dt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-                  final note = motifCtrl.text;
-
-                  final success = await controller.createFollowUpAppointment(dt, appointmentType: "vaccine", note: note);
-                  if (success) {
-                    // Optionally, notify user or refresh UI
-                  }
-                },
-              ),
-
-              const SizedBox(height: 20),
 
               // Historial
               Text("Historial médico", style: AppTextStyles.bodyRegular.copyWith(fontSize: 16, fontWeight: FontWeight.w600)),
@@ -257,7 +259,7 @@ class AttendPetPage extends StatelessWidget {
                                   if (await canLaunchUrl(Uri.parse(url))) {
                                     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
                                   } else {
-                                    Get.showSnackbar(GetSnackBar(message: "No se pudo abrir el documento", duration: Duration(seconds: 2)));
+                                    Get.showSnackbar(const GetSnackBar(message: "No se pudo abrir el documento", duration: Duration(seconds: 2)));
                                   }
                                 },
                                 child: Padding(
