@@ -269,9 +269,13 @@ class AppointmentsPage extends StatelessWidget {
             final st = (fullItemLocal["service_type"] ?? serviceType ?? "vet").toString();
 
             if (st == "vet") {
-              final controller = AddNewVetAppointmentPageController();
+              AddNewVetAppointmentPageController controller;
+              try {
+                controller = Get.find();
+              } catch (e) {
+                controller = Get.put(AddNewVetAppointmentPageController());
+              }
               controller.setFromNotificationItem(fullItemLocal);
-              controller.onInit();
               controller.isReadOnly.value = (fullItemLocal['paid'] == true);
               Get.to(() => Scaffold(body: reviewAndPayPage(MediaQuery.of(context).size, controller)));
             } else {

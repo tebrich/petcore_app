@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/vet_appointments/presentation/controllers/add_new_vet_appointment_page_controller.dart';
+import 'package:peticare/features/vet_appointments/data/services/vet_appointments_service.dart';
 import 'package:peticare/features/vet_appointments/presentation/widgets/add_new_appointment/succes_page.dart';
 import 'package:intl/intl.dart';
 
@@ -19,6 +20,72 @@ Widget reviewAndPayPage(
       controller.loadVets();
     }
   });
+
+  Future<void> _handlePay(BuildContext ctx) async {
+    // show processing dialog (prevents double taps)
+    showDialog(
+      context: ctx,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      print("DBG REVIEW BEFORE PAY -> selectedPetId=${controller.selectedPetId} selectedPetName=${controller.selectedPetName}");
+      final created = await controller.createAppointment(ctx);
+
+      print("DBG CREATE APPT RESULT -> $created");
+
+      if (!created) {
+        Navigator.of(ctx).pop(); // close processing
+        return;
+      }
+
+      // If controller knows appointmentId (e.g. from notification flow), try mark-paid
+      final apptId = controller.appointmentId;
+      bool paidOk = false;
+
+      if (apptId != null) {
+        paidOk = await VetAppointmentsService.markAppointmentPaid(apptId);
+      } else {
+        // If appointmentId not present, try to reload user's appointments and find the latest matching by datetime/vet/pet
+        // (best-effort) then mark paid.
+        try {
+          final myList = await VetAppointmentsService.getMyAppointments();
+          final match = myList.firstWhere(
+            (a) =>
+                a["pet_id"] == controller.selectedPetId &&
+                a["vet_id"] == controller.selectedVetID &&
+                a["appointment_datetime"] == controller.appointmentDateTime?.toIso8601String(),
+            orElse: () => null,
+          );
+          if (match != null) {
+            final foundId = match["id"] ?? match["appointment_id"] ?? match["id"];
+            if (foundId != null) {
+              paidOk = await VetAppointmentsService.markAppointmentPaid(foundId);
+            }
+          }
+        } catch (e) {
+          print("DBG unable to auto-find appointment id after create: $e");
+        }
+      }
+
+      Navigator.of(ctx).pop(); // close processing
+
+      if (paidOk) {
+        // mark local controller read-only so UI won't allow pay again
+        controller.isReadOnly.value = true;
+      }
+
+      // refresh notifications / user data might be handled elsewhere; navigate to success only if paid or created
+      Get.to(() => const SuccessPageScreen());
+    } catch (e) {
+      Navigator.of(ctx).pop(); // close processing
+      print("ERROR PAY FLOW >>> $e");
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        const SnackBar(content: Text("Error procesando el pago")),
+      );
+    }
+  }
 
   return SafeArea(
     child: Scaffold(
@@ -81,7 +148,6 @@ Widget reviewAndPayPage(
 
             /// 💰 PRECIO REAL MOSTRADO JUNTO AL SERVICIO
             Obx(() {
-
               final formatter = NumberFormat("#,##0", "es_PY"); // 50.000
               final formattedPrice = formatter.format(controller.servicePrice.value);
 
@@ -157,15 +223,15 @@ Widget reviewAndPayPage(
 
             /// 🔥 Botón pagar
             SizedBox(
-               width: double.infinity,
-               child: ElevatedButton(
-                 onPressed: () {
-                   print("💳 PAGAR CITA");
-
-                   Get.to(() => const SuccessPageScreen());
-                 },
-                 child: const Text("Pagar"),
-               ),
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: controller.isReadOnly.value
+                    ? null
+                    : () async {
+                        await _handlePay(Get.context!);
+                      },
+                child: const Text("Pagar"),
+              ),
             ),
 
             VerticalSpacing.lg(Get.context!),

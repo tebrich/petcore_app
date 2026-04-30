@@ -2,7 +2,6 @@
 import 'package:peticare/core/network/api_client.dart';
 
 class VetAppointmentsService {
-
   /// =========================
   /// CREATE APPOINTMENT (CORREGIDO)
   /// =========================
@@ -15,7 +14,6 @@ class VetAppointmentsService {
     required bool addToCalendar,
     required bool addReminder,
   }) async {
-
     final payload = {
       "user_id": userId, // 🔥 CLAVE
       "pet_id": petId,
@@ -46,6 +44,46 @@ class VetAppointmentsService {
   }
 
   /// =========================
+  /// MARK APPOINTMENT PAID
+  /// =========================
+  static Future<bool> markAppointmentPaid(int appointmentId) async {
+    try {
+      final response = await ApiClient.put(
+        "/api/v1/vet-appointments/$appointmentId/mark-paid",
+        {}, // empty body
+        auth: true,
+      );
+
+      print("MARK PAID STATUS >>> ${response.statusCode}");
+      print("MARK PAID BODY >>> ${response.body}");
+
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      print("ERROR MARK PAID >>> $e");
+      return false;
+    }
+  }
+
+  /// =========================
+  /// GET MY APPOINTMENTS
+  /// =========================
+  static Future<List<dynamic>> getMyAppointments() async {
+    final response = await ApiClient.get(
+      "/api/v1/vet-appointments/my",
+      auth: true,
+    );
+
+    print("GET MY APPTS STATUS >>> ${response.statusCode}");
+    print("GET MY APPTS BODY >>> ${response.body}");
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Error getting my appointments: ${response.body}");
+    }
+  }
+
+  /// =========================
   /// GET APPOINTMENT TYPES
   /// =========================
   static Future<List<dynamic>> getAppointmentTypes() async {
@@ -68,7 +106,6 @@ class VetAppointmentsService {
     double? lat,
     double? lng,
   }) async {
-
     String url = "/api/v1/vets/nearby";
 
     if (lat != null && lng != null) {
@@ -106,7 +143,6 @@ class VetAppointmentsService {
       }
 
       return null;
-
     } catch (e) {
       print("ERROR GET BASE PRICE >>> $e");
       return null;
