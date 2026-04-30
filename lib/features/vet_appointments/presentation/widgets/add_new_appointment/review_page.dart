@@ -4,6 +4,7 @@ import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/vet_appointments/presentation/controllers/add_new_vet_appointment_page_controller.dart';
 import 'package:peticare/features/vet_appointments/data/services/vet_appointments_service.dart';
 import 'package:peticare/features/vet_appointments/presentation/widgets/add_new_appointment/succes_page.dart';
+import 'package:peticare/features/notifications/controllers/notifications_controller.dart';
 import 'package:intl/intl.dart';
 
 Widget reviewAndPayPage(
@@ -72,9 +73,17 @@ Widget reviewAndPayPage(
       Navigator.of(ctx).pop(); // close processing
 
       if (paidOk) {
-        // mark local controller read-only so UI won't allow pay again
         controller.isReadOnly.value = true;
+
+        // refresh notifications immediately
+        try {
+          final notifsCtrl = Get.find<NotificationsController>();
+          await notifsCtrl.loadNotifications();
+        } catch (e) {
+          print("WARN: reload notifs failed -> $e");
+        }
       }
+
 
       // refresh notifications / user data might be handled elsewhere; navigate to success only if paid or created
       Get.to(() => const SuccessPageScreen());
