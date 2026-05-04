@@ -35,7 +35,14 @@ class SuccessPageScreen extends StatelessWidget {
             },
           ),
         ),
-        body: successPage(size),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: successPage(size),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -11,6 +11,8 @@ import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/groom_appointments/presentation/controllers/add_new_groom_appointment_page_controller.dart';
 import 'package:peticare/features/groom_appointments/presentation/widgets/add_new_appointment/success_page.dart';
+import 'package:peticare/features/groom_appointments/data/services/groom_appointments_service.dart';
+import 'package:peticare/features/notifications/controllers/notifications_controller.dart';
 
 Widget reviewAndPayPage(
   Size screenSize,
@@ -109,65 +111,67 @@ Widget reviewAndPayPage(
               child: Column(
                 children: [
                   _row(
+                  context,
+                  'Mascota',
+                  controller.selectedPet?['name'] ?? '',
+                ),
+                _divider(context),
+
+                _row(
+                  context,
+                  'Servicio',
+                  controller.appointmentType ?? '',
+                ),
+                _divider(context),
+
+                _row(
+                  context,
+                  'Fecha',
+                  controller.appointmentDateTime != null
+                      ? DateFormat('EEEE, dd MMM yyyy').format(controller.appointmentDateTime)
+                      : '-',
+                ),
+                _divider(context),
+
+                _row(
+                  context,
+                  'Hora',
+                  controller.appointmentDateTime != null
+                  ? DateFormat('HH:mm').format(controller.appointmentDateTime)
+                  : '-',
+                ),
+                _divider(context),
+
+                _row(
+                  context,
+                  'Peluquería',
+                  groomer != null ? groomer['name'] : 'No seleccionado',
+                ),
+                _divider(context),
+
+                _row(
+                  context,
+                  'Modalidad',
+                  isMobile ? 'A domicilio' : 'En clínica',
+                ),
+                _divider(context),
+
+                /// 💰 PRECIO DINÁMICO REAL
+                Obx(() {
+                  if (isLoadingPrice.value) {
+                    return _row(context, 'Pago mínimo', 'Calculando...');
+                  }
+
+                  return _row(
                     context,
-                    'Mascota',
-                    controller.selectedPet?['name'] ?? '',
-                  ),
-                  _divider(context),
-
-                  _row(
-                    context,
-                    'Servicio',
-                    controller.appointmentType ?? '',
-                  ),
-                  _divider(context),
-
-                  _row(
-                    context,
-                    'Fecha',
-                    DateFormat('EEEE, dd MMM yyyy')
-                        .format(controller.appointmentDateTime),
-                  ),
-                  _divider(context),
-
-                  _row(
-                    context,
-                    'Hora',
-                    DateFormat("HH:mm")
-                        .format(controller.appointmentDateTime),
-                  ),
-                  _divider(context),
-
-                  _row(
-                    context,
-                    'Peluquería',
-                    groomer != null ? groomer['name'] : 'No seleccionado',
-                  ),
-                  _divider(context),
-
-                  _row(
-                    context,
-                    'Modalidad',
-                    isMobile ? 'A domicilio' : 'En clínica',
-                  ),
-                  _divider(context),
-
-                  /// 💰 PRECIO DINÁMICO REAL
-                  Obx(() {
-                    if (isLoadingPrice.value) {
-                      return _row(context, 'Pago mínimo', 'Calculando...');
-                    }
-
-                    return _row(
-                      context,
-                      'Pago mínimo',
-                      "${currency.value} ${reservationFee.value}",
-                      isHighlight: true,
-                    );
-                  }),
-                ],
-              ),
+                    'Pago mínimo',
+                    "${currency.value} ${reservationFee.value}",
+                    isHighlight: true,
+                  );
+                }),
+              ],
             ),
+          ),
 
             VerticalSpacing.lg(context),
 
@@ -237,9 +241,62 @@ Widget reviewAndPayPage(
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    print("💳 PAGAR CITA GROOMING");
-                    Get.to(() => const GroomSuccessPageScreen());
+                  onPressed: () async {
+                    // show processing
+                    showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
+                    try {
+                      final created = await controller.createGroomAppointment(context);
+                      if (!created) {
+                        Navigator.of(context).pop();
+                        return;
+                      }
+
+                      bool paidOk = false;
+                      final apptId = controller.appointmentId;
+                      if (apptId != null) {
+                        paidOk = await GroomAppointmentsService.markAppointmentPaid(apptId);
+                      } else {
+                        try {
+                          final myList = await GroomAppointmentsService.getMyAppointments();
+                          final match = myList.firstWhere(
+                            (a) =>
+                                a["pet_id"] == controller.selectedPetId &&
+                                a["groomer_id"].toString() == controller.selectedGroomerID &&
+                                (a["appointment_datetime"] == controller.appointmentDateTime?.toIso8601String() ||
+                                    a["appointment_datetime"] == controller.appointmentDateTime),
+                            orElse: () => <String, dynamic>{},
+                          );
+                          if (match.isNotEmpty) {
+                            final foundId = match["id"] ?? match["appointment_id"] ?? match["id"];
+                            if (foundId != null) {
+                              paidOk = await GroomAppointmentsService.markAppointmentPaid(foundId);
+                            }
+                          }
+                        } catch (e) {
+                          print("DBG unable to auto-find groom appointment id after create: $e");
+                        }
+                      }
+
+                      Navigator.of(context).pop(); // close processing
+
+                      if (paidOk) {
+                        controller.isReadOnly.value = true;
+                        try {
+                          final notifsCtrl = Get.find<NotificationsController>();
+                          await notifsCtrl.loadNotifications();
+                        } catch (e) {
+                          print("WARN: reload notifs failed -> $e");
+                        }
+                      }
+
+                      Get.to(() => const GroomSuccessPageScreen());
+                    } catch (e) {
+                      Navigator.of(context).pop();
+                      print("ERROR GROOM PAY FLOW >>> $e");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Error procesando el pago")),
+                      );
+                    }
                   },
                   child: const Text("Pagar"),
                 ),

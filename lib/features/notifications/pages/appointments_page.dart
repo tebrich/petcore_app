@@ -1,6 +1,4 @@
-﻿// C:\peticare\peticare_app\lib\features\notifications\pages\appointments_page.dart
-
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/date_formatter.dart';
@@ -11,7 +9,7 @@ import 'package:peticare/features/notifications/controllers/notifications_contro
 import 'package:peticare/features/vet_appointments/presentation/controllers/add_new_vet_appointment_page_controller.dart';
 import 'package:peticare/features/vet_appointments/presentation/widgets/add_new_appointment/review_page.dart';
 
-// grooming imports (alias)
+// 👇 import de grooming (alias para no chocar nombres)
 import 'package:peticare/features/groom_appointments/presentation/controllers/add_new_groom_appointment_page_controller.dart';
 import 'package:peticare/features/groom_appointments/presentation/widgets/add_new_appointment/review_page.dart'
     as groom_review;
@@ -44,50 +42,52 @@ class AppointmentsPage extends StatelessWidget {
           controller.notificationsList.map<Map<String, dynamic>>((e) {
         return {
           ...Map<String, dynamic>.from(e),
-          "date": e["created_at"] != null
-              ? DateTime.tryParse(e["created_at"].toString()) ?? DateTime.now()
-              : DateTime.now(),
+          "date": DateTime.parse(e["created_at"]),
           "status": e["status"] ?? "pending",
           "title": e["title"],
           "message": e["message"],
           "appointment_id": e["appointment_id"],
-          "service_type": e["service_type"], // vet / grooming
+          "service_type": e["service_type"],   // 👈 vet / grooming
         };
       }).toList();
 
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
 
+      // Solo citas relevantes (no alertas genéricas)
       final filtered = appointments.where((a) {
         final st = (a["service_type"] ?? "").toString();
         return st == "vet" || st == "grooming";
       }).toList();
 
       List<Map<String, dynamic>> todaysAppointments = filtered.where((a) {
-        final d = a['date'] as DateTime;
-        return d.year == today.year && d.month == today.month && d.day == today.day;
+        final d = a['date'];
+        return d.year == today.year &&
+            d.month == today.month &&
+            d.day == today.day;
       }).toList();
 
       List<Map<String, dynamic>> yesterdaysAppointments = filtered.where((a) {
-        final d = a['date'] as DateTime;
+        final d = a['date'];
         final alertDate = DateTime(d.year, d.month, d.day);
         return today.difference(alertDate).inDays == 1;
       }).toList();
 
       List<Map<String, dynamic>> lastweeksAppointments = filtered.where((a) {
-        final d = a['date'] as DateTime;
+        final d = a['date'];
         final alertDate = DateTime(d.year, d.month, d.day);
         final diff = today.difference(alertDate).inDays;
         return diff > 1 && diff < 8;
       }).toList();
 
       List<Map<String, dynamic>> olderAppointments = filtered.where((a) {
-        final d = a['date'] as DateTime;
+        final d = a['date'];
         final alertDate = DateTime(d.year, d.month, d.day);
         final diff = today.difference(alertDate).inDays;
         return diff > 7;
       }).toList();
 
+      // Orden
       todaysAppointments.sort((a, b) => -a['date'].compareTo(b['date']));
       yesterdaysAppointments.sort((a, b) => -a['date'].compareTo(b['date']));
       lastweeksAppointments.sort((a, b) => -a['date'].compareTo(b['date']));
@@ -128,20 +128,22 @@ class AppointmentsPage extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 8),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: list.length,
           itemBuilder: (context, index) {
-            final alert = list[index] as Map<String, dynamic>;
-            final id = (alert['appointment_id'] ?? "").toString();
-            final title = alert['title'] ?? "Cita";
-            final message = alert['message'] ?? "Detalle de cita";
-            final date = alert['date'] as DateTime;
-            final status = alert['status'] as String? ?? "pending";
-            final serviceType = (alert['service_type'] ?? "").toString();
-            return _alertTile(context, id, title, message, date, status, serviceType);
+            final alert = list[index];
+
+            return _alertTile(
+              context,
+              (alert['appointment_id'] ?? "").toString(),
+              alert['title'] ?? "Cita",
+              alert['message'] ?? "Detalle de cita",
+              alert['date'],
+              alert['status'],
+              (alert['service_type'] ?? "").toString(),
+            );
           },
         ),
       ],
@@ -182,157 +184,193 @@ class AppointmentsPage extends StatelessWidget {
         statusText = "Pendiente";
     }
 
-    // determine paid from notifications list (safe)
-    final notificationsController = Get.find<NotificationsController>();
-    final fullItem = notificationsController.notificationsList.firstWhere(
-      (e) => (e["appointment_id"] ?? e["id"]).toString() == id,
-      orElse: () => {},
-    );
-    final paid = (fullItem != null && fullItem.isNotEmpty)
-        ? ((fullItem['paid'] == true) || (fullItem['paid']?.toString().toLowerCase() == 'true'))
-        : false;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Material(
         elevation: 2,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
         child: InkWell(
-          borderRadius: BorderRadius.circular(15),
           onTap: () {
-            // re-evaluate paid at tap time
-            final notificationsController = Get.find<NotificationsController>();
-            final fullItemLocal = notificationsController.notificationsList.firstWhere(
-              (e) {
-                final apptId = (e['appointment_id'] ?? e['vet_appointment_id'] ?? e['groom_appointment_id'] ?? e['id']).toString();
-                final svc = (e['service_type'] ?? '').toString().toLowerCase();
-                if (apptId != id) return false;
-                // si el tile pasó serviceType, match por tipo (vet/grooming)
-                if ((serviceType ?? '').isNotEmpty) {
-                  return svc == serviceType.toLowerCase();
-                }
-                return true;
-              },
-              orElse: () => {},
-            );
-            final paidNow = notificationsController.notificationsList.any((n) {
-              final appt = (n['appointment_id'] ?? n['vet_appointment_id'] ?? n['groom_appointment_id'] ?? n['id']).toString();
-              if (appt != id) return false;
-              final t = (n['title'] ?? '').toString().toLowerCase();
-              final m = (n['message'] ?? '').toString().toLowerCase();
-              return (n['paid'] == true) || t.contains('pagad') || m.contains('pagad');
-            });
-
-            // debug
-            print("DEBUG TAP id=$id paidNow=$paidNow");
-
-            if (paidNow) {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Cita pagada'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Servicio: ${fullItemLocal['appointment_type'] ?? '-'}'),
-                      Text('Mascota: ${fullItemLocal['pet_name'] ?? fullItemLocal['pet_id'] ?? '-'}'),
-                      Text('Fecha: ${fullItemLocal['appointment_datetime'] ?? '-'}'),
-                      const SizedBox(height: 8),
-                      Text('Estado: ${getStatusLabel(fullItemLocal['status'] ?? '')}'),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
-                  ],
-                ),
-              );
-              return;
-            }
-
-            // si no está pagada, seguir flujo normal
             final appointmentId = id;
-            final currentStatus = (status ?? "pending").toLowerCase().trim();
+            final currentStatus = status ?? "pending";
 
-            final allowed = currentStatus == "accepted" || currentStatus == "rescheduled";
+            print("CLICK >>> $appointmentId");
+            print("STATUS >>> $currentStatus");
+            print("SERVICE_TYPE >>> $serviceType");
+
+            if (appointmentId.isEmpty) return;
+
+            // Solo permitir entrar a review si está aceptada o reprogramada
+            final allowed = currentStatus.toLowerCase().trim() == "accepted" ||
+                currentStatus.toLowerCase().trim() == "rescheduled";
+
             if (!allowed) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("Aún no fue confirmada"),
-                  duration: Duration(seconds: 2),
-                  behavior: SnackBarBehavior.floating,
+                content: Text("Aún no fue confirmada"),
+                duration: Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            return;
+          }
+
+          final notificationsController = Get.find<NotificationsController>();
+
+          final svc = serviceType.toLowerCase().trim();
+
+          List<Map<String, dynamic>> matches = notificationsController.notificationsList
+              .where((e) {
+                final sameService =
+                    (e["service_type"] ?? "").toString().toLowerCase().trim() == svc;
+
+                final sameId =
+                    e["appointment_id"]?.toString() == appointmentId;
+
+                return sameService && sameId;
+              })
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList();
+
+          // 🔥 fallback (por seguridad)
+          if (matches.isEmpty) {
+            matches = notificationsController.notificationsList
+                .where((e) =>
+                    e["appointment_id"]?.toString() == appointmentId)
+                .map((e) => Map<String, dynamic>.from(e))
+                .toList();
+          }
+
+          if (matches.isEmpty) {
+            print("ERROR: item no encontrado");
+            return;
+          }
+
+          // usamos el primero (ya filtrado correctamente)
+          final fullItem = matches.first;
+
+          // CHECK: si ya fue pagada, mostrar diálogo con detalles y NO navegar
+          // 🔥 DETECTAR SI YA ESTÁ PAGADO (ROBUSTO)
+          bool paidNow = false;
+
+          for (var n in matches) {
+            if (n['paid'] == true) {
+              paidNow = true;
+              break;
+            }
+
+            final t = (n['title'] ?? '').toString().toLowerCase();
+            final m = (n['message'] ?? '').toString().toLowerCase();
+
+            if (t.contains('pagad') || m.contains('pagad')) {
+              paidNow = true;
+              break;
+            }
+          }
+
+          if (paidNow) {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: const Text('Cita ya pagada'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Mascota: ${fullItem['pet_name'] ?? '-'}'),
+                    Text('Servicio: ${fullItem['appointment_type'] ?? '-'}'),
+                    Text('Fecha: ${fullItem['appointment_datetime'] ?? '-'}'),
+                    const SizedBox(height: 8),
+                    const Text('Esta cita ya fue pagada y no puede modificarse.'),
+                  ],
                 ),
-              );
-              return;
-            }
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cerrar'),
+                  ),
+                ],
+              ),
+            );
+            return;
+          }
 
-            final st = (fullItemLocal["service_type"] ?? serviceType ?? "vet").toString();
+          // 🔥 RUTEAR SEGÚN TIPO (no pagada)
+          final st = (fullItem["service_type"] ?? "vet").toString();
 
-            if (st == "vet") {
-              AddNewVetAppointmentPageController controller;
-              try {
-                controller = Get.find();
-              } catch (e) {
-                controller = Get.put(AddNewVetAppointmentPageController());
-              }
-              controller.setFromNotificationItem(fullItemLocal);
-              controller.isReadOnly.value = (fullItemLocal['paid'] == true);
-              Get.to(() => Scaffold(body: reviewAndPayPage(MediaQuery.of(context).size, controller)));
-            } else {
-              final controller = AddNewGroomAppointmentPageController();
-              controller.setFromNotificationItem(fullItemLocal);
-              controller.onInit();
-              controller.isReadOnly.value = (fullItemLocal['paid'] == true);
-              Get.to(() => Scaffold(body: groom_review.reviewAndPayPage(MediaQuery.of(context).size, controller)));
-            }
-          },
+          if (st == "vet") {
+            final controller = AddNewVetAppointmentPageController();
 
+            // 🔥 SETEO DIRECTO (SIN DEPENDER DE MÉTODO)
+            controller.appointmentId = fullItem["appointment_id"];
+            controller.selectedPetId = fullItem["pet_id"];
+            controller.selectedPetName = fullItem["pet_name"];
+            controller.selectedVetID = fullItem["vet_id"];
+            controller.appointmentType = fullItem["appointment_type"];
+
+            final rawDate = fullItem["appointment_datetime"];
+            controller.appointmentDateTime = rawDate != null
+                ? DateTime.tryParse(rawDate.toString())
+                : null;
+
+            print("🔥 DEBUG FLOW >>> appointmentId = ${controller.appointmentId}");
+
+            Get.to(() => Scaffold(
+                  body: reviewAndPayPage(
+                    MediaQuery.of(context).size,
+                    controller,
+                  ),
+                ));
+          
+          } else if (st == "grooming") {
+            final controller = AddNewGroomAppointmentPageController();
+
+            controller.selectedPet = {
+              "id": fullItem["pet_id"],
+              "name": fullItem["pet_name"],
+            };
+            controller.selectedPetId = fullItem["pet_id"];
+            controller.appointmentType = fullItem["appointment_type"];
+            controller.appointmentDateTime =
+                DateTime.parse(fullItem["appointment_datetime"]);
+            controller.selectedGroomerID =
+                fullItem["groomer_id"]?.toString();
+
+            Get.to(() => Scaffold(
+                  body: groom_review.reviewAndPayPage(
+                    MediaQuery.of(context).size,
+                    controller,
+                  ),
+                ));
+          }
+        },
+
+          borderRadius: const BorderRadius.all(Radius.circular(15)),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             decoration: BoxDecoration(
               color: AppPalette.surfaces(context).withValues(alpha: .5),
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: const BorderRadius.all(Radius.circular(15)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // STATUS pill + optional PAGADO badge
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        statusText,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                        ),
-                      ),
+                /// STATUS
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    statusText,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
                     ),
-                    const SizedBox(width: 8),
-                    if (paid)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.withOpacity(0.25)),
-                        ),
-                        child: Text(
-                          'PAGADO',
-                          style: TextStyle(
-                            color: Colors.red.shade700,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
 
                 VerticalSpacing.sm(context),

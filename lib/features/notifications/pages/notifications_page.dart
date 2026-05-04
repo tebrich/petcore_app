@@ -8,27 +8,6 @@ import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/notifications/pages/alerts_page.dart';
 import 'package:peticare/features/notifications/pages/appointments_page.dart';
 
-/// A stateful widget that displays the main Notifications screen.
-///
-/// This page consists of an `AppBar` with a title and a sub-menu for
-/// switching between "Alerts" and "Appointments" categories. The main content
-/// is a `PageView` that displays the corresponding page based on the selected
-/// category.
-///
-/// The `AppBar` includes:
-/// - An `AnimatedIconButton` for navigating back.
-/// - A title "Notifications".
-/// - A sub-menu built using the `_subMenuBuilder` method, which allows the
-///   user to select either "Alerts" or "Appointments".
-///
-/// The `PageView` displays either the `AlertsPage` or the `AppointmentsPage`,
-/// and its state is managed by a `PageController`. The `isAlertsPage` boolean
-/// determines which page is currently visible.
-///
-/// The `initState` method initializes the `PageController` and sets
-/// `isAlertsPage` to true, indicating that the "Alerts" page is initially
-/// selected.
-
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
 
@@ -36,11 +15,6 @@ class NotificationsPage extends StatefulWidget {
   State<NotificationsPage> createState() => _NotificationsPageState();
 }
 
-/// The state for the [NotificationsPage] widget.
-///
-/// This class manages the state of the `PageView` and the sub-menu,
-/// including the current page index and the `isAlertsPage` boolean that
-/// determines which category is selected.
 class _NotificationsPageState extends State<NotificationsPage> {
   late PageController pageController;
   late bool isAlertsPage;
@@ -50,6 +24,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
     super.initState();
     pageController = PageController(initialPage: 0);
     isAlertsPage = true;
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -71,10 +51,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   iconSize: 24,
                   onClick: () => Get.back(),
                 ),
-
-                /// Some Spacing
                 const SizedBox(width: 16.0),
-
                 Text(
                   'Notificaciones',
                   style: AppTextStyles.headingMedium.copyWith(
@@ -85,8 +62,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 ),
               ],
             ),
-
-            /// Space after title
             VerticalSpacing.lg(context),
             _subMenuBuilder(screenSize),
           ],
@@ -105,14 +80,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  /// A private helper widget that builds the sub-menu for switching between
-  /// "Alerts" and "Appointments".
-  ///
-  /// This widget consists of two `Expanded` widgets, each containing a
-  /// `GestureDetector` and an `AnimatedContainer`. Tapping on a category
-  /// animates the `PageView` to the corresponding page and updates the
-  /// `isAlertsPage` boolean.
-  /// [screenSize] - The size of the screen
   Widget _subMenuBuilder(Size screenSize) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: screenSize.width * .05),
@@ -121,10 +88,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
           Expanded(
             child: GestureDetector(
               onTap: () {
-                pageController.previousPage(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.linear,
-                );
+                if (pageController.hasClients) {
+                  pageController.previousPage(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.linear,
+                  );
+                } else {
+                  pageController.jumpToPage(0);
+                }
                 setState(() {
                   isAlertsPage = true;
                 });
@@ -151,17 +122,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ),
           ),
-
-          /// Minor Horizontal Spacing
           const SizedBox(width: 16.0),
-
           Expanded(
             child: GestureDetector(
               onTap: () {
-                pageController.nextPage(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.linear,
-                );
+                if (pageController.hasClients) {
+                  pageController.nextPage(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.linear,
+                  );
+                } else {
+                  pageController.jumpToPage(1);
+                }
                 setState(() {
                   isAlertsPage = false;
                 });

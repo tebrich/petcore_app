@@ -5,6 +5,8 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:peticare/features/groom_appointments/data/services/groom_appointments_service.dart';
 import 'package:peticare/features/shopping/presentation/pages/shopping_page.dart';
+import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:peticare/features/notifications/controllers/notifications_controller.dart';
 
 class AddNewGroomAppointmentPageController extends GetxController {
   // ================================
@@ -124,20 +126,64 @@ class AddNewGroomAppointmentPageController extends GetxController {
   /// Inicializa campos del controller desde un mapa de notificación (fullItem)
   void setFromNotificationItem(Map<String, dynamic> fullItem) {
     try {
-      appointmentId = fullItem['appointment_id'] ?? fullItem['id'];
-      selectedPet = {
-        "id": fullItem["pet_id"],
-        "name": fullItem["pet_name"],
-      };
-      selectedPetId = fullItem['pet_id'] ?? selectedPetId;
+      if (fullItem == null || fullItem.isEmpty) {
+        print("WARN setFromNotificationItem: fullItem vacío, skip");
+        return;
+      }
+
+      // appointment id puede venir en varios campos
+      appointmentId = fullItem['appointment_id'] ??
+          fullItem['groom_appointment_id'] ??
+          fullItem['vet_appointment_id'] ??
+          fullItem['id'];
+
+      // mascota (si viene)
+      if (fullItem.containsKey('pet_id') || fullItem.containsKey('pet_name')) {
+        selectedPet = {
+          "id": fullItem["pet_id"],
+          "name": fullItem["pet_name"] ?? "",
+        };
+        selectedPetId = fullItem['pet_id'] ?? selectedPetId;
+      }
+
+      // tipo de servicio
       appointmentType = fullItem['appointment_type'] ?? appointmentType;
-      final rawDt = fullItem['appointment_datetime'];
-      appointmentDateTime = rawDt != null ? (DateTime.tryParse(rawDt.toString()) ?? appointmentDateTime) : appointmentDateTime;
-      final paid = (fullItem['paid'] == true) || (fullItem['paid']?.toString().toLowerCase() == 'true');
+
+      // groomer/vet id (si viene)
+      selectedGroomerID = (fullItem['groomer_id'] ?? fullItem['clinic_id'])?.toString();
+
+      // fecha/horario seguro (puede ser nullable)
+      final rawDt = fullItem['appointment_datetime'] ??
+          fullItem['appointment_datetime_raw'] ??
+          fullItem['date'] ??
+          fullItem['created_at'];
+
+      // default seguro
+      final DateTime defaultDt = DateTime.now().add(const Duration(days: 3)).copyWith(
+        hour: 9,
+        minute: 30,
+        second: 0,
+        millisecond: 0,
+        microsecond: 0,
+      );
+
+      if (rawDt != null) {
+        final parsed = DateTime.tryParse(rawDt.toString());
+        appointmentDateTime = parsed ?? defaultDt;
+      } else {
+        // asignar siempre un valor por defecto (no usar appointmentDateTime antes de inicializar)
+        appointmentDateTime = defaultDt;
+      }
+
+      // paid -> readOnly
+      final paid = (fullItem['paid'] == true) ||
+          (fullItem['paid']?.toString().toLowerCase() == 'true');
       isReadOnly.value = paid;
+
       update();
-    } catch (e) {
+    } catch (e, s) {
       print("ERROR setFromNotificationItem (groom) >>> $e");
+      print(s);
     }
   }
 
@@ -230,17 +276,28 @@ class AddNewGroomAppointmentPageController extends GetxController {
   void nextPage() {
     if (!canContinue()) return;
 
-    pageController.nextPage(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-    );
+    if (pageController.hasClients) {
+      pageController.nextPage(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      // fallback: actualizar índice sin animación
+      updatePage(currentPage + 1);
+    }
   }
 
   void previousPage() {
-    pageController.previousPage(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-    );
+    if (pageController.hasClients) {
+      pageController.previousPage(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      // fallback: actualizar índice sin animación (evita negativos)
+      final newIndex = currentPage > 0 ? currentPage - 1 : 0;
+      updatePage(newIndex);
+    }
   }
 
   Future<void> updatePage(int index) async {
@@ -257,6 +314,8 @@ class AddNewGroomAppointmentPageController extends GetxController {
 
     pageController = PageController()
       ..addListener(() {
+        // protección: sólo leer page si el PageController tiene clients
+        if (!pageController.hasClients) return;
         final page = (pageController.page ?? 0).round();
         if (page != currentPage) {
           currentPage = page;
@@ -312,10 +371,57 @@ class AddNewGroomAppointmentPageController extends GetxController {
     update();
   }
 
-  // ================================
-  // CREATE GROOM APPOINTMENT (REAL)
-  // ================================
   Future<bool> createGroomAppointment(BuildContext context) async {
+    // Si venimos desde notificación y ya tenemos appointmentId -> intentar pagar esa cita
+    if (appointmentId != null) {
+      try {
+        final paid = await GroomAppointmentsService.markAppointmentPaid(appointmentId!);
+        if (paid) {
+          isReadOnly.value = true;
+          try {
+            final notifsCtrl = Get.find<NotificationsController>();
+            await notifsCtrl.loadNotifications(); // recargar notificaciones
+          } catch (e) {
+            print("WARN: reload notifs failed -> $e");
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Pago registrado correctamente")),
+          );
+          return true;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("No se pudo registrar el pago")),
+          );
+          return false;
+        }
+      } catch (e) {
+        print("ERROR paying existing groom appointment >>> $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error procesando el pago")),
+        );
+        return false;
+      }
+    }
+    
+    // Autocomplete pet id si solo tenemos el nombre (desde notificación)
+    if (selectedPetId == null && selectedPet != null && selectedPet!['name'] != null) {
+      final name = (selectedPet!['name'] ?? '').toString().toLowerCase();
+      final match = groomersList; // not used; try pets from controller/dashboard
+      try {
+        final dash = Get.find<DashboardController>();
+        final dashMatch = dash.petsList.firstWhere(
+          (p) => (p["name"] ?? "").toString().toLowerCase() == name,
+          orElse: () => null,
+        );
+        if (dashMatch != null) {
+          selectedPetId = dashMatch["id"];
+          print("DBG auto-fill selectedPetId from DashboardController -> $selectedPetId");
+        }
+      } catch (e) {
+        // no dashboard available, ignore
+      }
+    }
+
     print("========== DEBUG CITA GROOM ==========");
     print("PET: $selectedPetId");
     print("GROOMER: $selectedGroomerID");
@@ -337,7 +443,6 @@ class AddNewGroomAppointmentPageController extends GetxController {
 
       final userIdStr = await storage.read(key: 'user_id');
       final userId = int.tryParse(userIdStr ?? '');
-
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Usuario no autenticado")),
@@ -356,13 +461,14 @@ class AddNewGroomAppointmentPageController extends GetxController {
       );
 
       if (response != null) {
+        // guardar id para uso posterior (notificación / pago)
+        appointmentId = response["id"] ?? appointmentId;
 
-        print("💬 MOSTRANDO POPUP GROOMING");   // 👈 agrega esto
         Get.defaultDialog(
           title: "✅ Cita enviada",
           middleText: "Tu solicitud de grooming fue enviada correctamente.\n\n"
               "Podrás ver el estado en:\n"
-              "🔔 Alertas o 📅 Mis citas.\n\n"
+              " Alertas o Mis citas.\n\n"
               "Te notificaremos cuando sea confirmada.",
           textConfirm: "Ir a Shopping",
           confirmTextColor: Colors.white,

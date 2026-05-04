@@ -31,8 +31,14 @@ Widget reviewAndPayPage(
     );
 
     try {
+      print("🧠 REVIEW appointmentId >>> ${controller.appointmentId}");
       print("DBG REVIEW BEFORE PAY -> selectedPetId=${controller.selectedPetId} selectedPetName=${controller.selectedPetName}");
-      final created = await controller.createAppointment(ctx);
+      bool created = true;
+
+      // 🔥 SOLO crear si NO viene de notificación
+      if (controller.appointmentId == null) {
+        created = await controller.createAppointment(ctx);
+      }
 
       print("DBG CREATE APPT RESULT -> $created");
 
@@ -125,24 +131,23 @@ Widget reviewAndPayPage(
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
 
-            Builder(
-              builder: (_) {
-                print("VETS LIST >>> ${controller.vetsList}");
-                print("SELECTED VET ID >>> ${controller.selectedVetID}");
-                return const SizedBox();
-              },
-            ),
+            Obx(() {
+              final vlist = controller.vetsList;
+              print("VETS LIST >>> $vlist");
+              print("SELECTED VET ID >>> ${controller.selectedVetID}");
+              return const SizedBox();
+            }),
 
             Obx(() {
-              final vetName = controller.selectedVetID != null
-                  ? (controller.vetsList
-                          .firstWhere(
-                            (vet) => vet["id"] == controller.selectedVetID,
-                            orElse: () => {},
-                          )["name"] ??
-                      "Veterinaria")
-                  : "-";
-
+              final vlist = controller.vetsList;
+              String vetName = "-";
+              if (controller.selectedVetID != null && vlist.isNotEmpty) {
+                final found = vlist.firstWhere(
+                  (vet) => vet["id"] == controller.selectedVetID,
+                  orElse: () => <String, dynamic>{},
+                );
+                vetName = (found is Map && found.isNotEmpty) ? (found['name']?.toString() ?? 'Veterinaria') : 'Veterinaria';
+              }
               return Text(vetName);
             }),
 

@@ -155,6 +155,7 @@ class AddNewVetAppointmentPageController extends GetxController {
 
   /// Inicializa campos del controller desde un mapa de notificación (fullItem)
   void setFromNotificationItem(Map<String, dynamic> fullItem) {
+    print("DEBUG VetController setFromNotificationItem fullItem >>> $fullItem");
     try {
       appointmentId = fullItem['appointment_id'] ?? fullItem['id'];
       selectedPetId = fullItem['pet_id'] ?? selectedPetId;
