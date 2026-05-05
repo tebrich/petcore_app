@@ -229,23 +229,33 @@ class AppointmentsPage extends StatelessWidget {
           }
 
           // CHECK: si ya fue pagada, mostrar diálogo con detalles y NO navegar
-          final paid = (fullItem['paid'] == true) ||
-              (fullItem['paid']?.toString().toLowerCase() == 'true');
+          // 🔥 DETECTAR SI LA CITA YA ESTÁ PAGADA (ROBUSTO)
 
-          if (paid) {
+          final matches = notificationsController.notificationsList.where((n) {
+            return (n["appointment_id"]?.toString() == appointmentId) &&
+                   (n["service_type"] ?? "").toString().toLowerCase().trim() == serviceType.toLowerCase().trim();
+          }).toList();
+
+          bool paidNow = matches.any((n) {
+            return n['paid'] == true ||
+                   (n['title'] ?? '').toString().toLowerCase().contains('pagad') ||
+                   (n['message'] ?? '').toString().toLowerCase().contains('pagad');
+          });
+
+          if (paidNow) {
             showDialog(
               context: context,
               builder: (_) => AlertDialog(
-                title: const Text('Cita pagada'),
+                title: const Text('Cita ya pagada'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text('Mascota: ${fullItem['pet_name'] ?? '-'}'),
                     Text('Servicio: ${fullItem['appointment_type'] ?? '-'}'),
-                    Text('Mascota: ${fullItem['pet_name'] ?? fullItem['pet_id'] ?? '-'}'),
                     Text('Fecha: ${fullItem['appointment_datetime'] ?? '-'}'),
                     const SizedBox(height: 8),
-                    Text('Estado: ${getStatusLabel(fullItem['status'] ?? '')}'),
+                    const Text('Esta cita ya fue pagada y no puede modificarse.'),
                   ],
                 ),
                 actions: [
@@ -256,7 +266,7 @@ class AppointmentsPage extends StatelessWidget {
                 ],
               ),
             );
-            return;
+            return; // 🔥 BLOQUEO TOTAL
           }
 
           // 🔥 RUTEAR SEGÚN TIPO (no pagada)
