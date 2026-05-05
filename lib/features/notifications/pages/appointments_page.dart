@@ -217,71 +217,35 @@ class AppointmentsPage extends StatelessWidget {
 
           final notificationsController = Get.find<NotificationsController>();
 
-          final svc = serviceType.toLowerCase().trim();
+          final fullItem =
+              notificationsController.notificationsList.firstWhere(
+            (e) => e["appointment_id"].toString() == appointmentId,
+            orElse: () => {},
+          );
 
-          List<Map<String, dynamic>> matches = notificationsController.notificationsList
-              .where((e) {
-                final sameService =
-                    (e["service_type"] ?? "").toString().toLowerCase().trim() == svc;
-
-                final sameId =
-                    e["appointment_id"]?.toString() == appointmentId;
-
-                return sameService && sameId;
-              })
-              .map((e) => Map<String, dynamic>.from(e))
-              .toList();
-
-          // 🔥 fallback (por seguridad)
-          if (matches.isEmpty) {
-            matches = notificationsController.notificationsList
-                .where((e) =>
-                    e["appointment_id"]?.toString() == appointmentId)
-                .map((e) => Map<String, dynamic>.from(e))
-                .toList();
-          }
-
-          if (matches.isEmpty) {
-            print("ERROR: item no encontrado");
+          if (fullItem.isEmpty) {
+            print("ERROR: item vacío");
             return;
           }
 
-          // usamos el primero (ya filtrado correctamente)
-          final fullItem = matches.first;
-
           // CHECK: si ya fue pagada, mostrar diálogo con detalles y NO navegar
-          // 🔥 DETECTAR SI YA ESTÁ PAGADO (ROBUSTO)
-          bool paidNow = false;
+          final paid = (fullItem['paid'] == true) ||
+              (fullItem['paid']?.toString().toLowerCase() == 'true');
 
-          for (var n in matches) {
-            if (n['paid'] == true) {
-              paidNow = true;
-              break;
-            }
-
-            final t = (n['title'] ?? '').toString().toLowerCase();
-            final m = (n['message'] ?? '').toString().toLowerCase();
-
-            if (t.contains('pagad') || m.contains('pagad')) {
-              paidNow = true;
-              break;
-            }
-          }
-
-          if (paidNow) {
+          if (paid) {
             showDialog(
               context: context,
               builder: (_) => AlertDialog(
-                title: const Text('Cita ya pagada'),
+                title: const Text('Cita pagada'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Mascota: ${fullItem['pet_name'] ?? '-'}'),
                     Text('Servicio: ${fullItem['appointment_type'] ?? '-'}'),
+                    Text('Mascota: ${fullItem['pet_name'] ?? fullItem['pet_id'] ?? '-'}'),
                     Text('Fecha: ${fullItem['appointment_datetime'] ?? '-'}'),
                     const SizedBox(height: 8),
-                    const Text('Esta cita ya fue pagada y no puede modificarse.'),
+                    Text('Estado: ${getStatusLabel(fullItem['status'] ?? '')}'),
                   ],
                 ),
                 actions: [
@@ -301,19 +265,12 @@ class AppointmentsPage extends StatelessWidget {
           if (st == "vet") {
             final controller = AddNewVetAppointmentPageController();
 
-            // 🔥 SETEO DIRECTO (SIN DEPENDER DE MÉTODO)
-            controller.appointmentId = fullItem["appointment_id"];
-            controller.selectedPetId = fullItem["pet_id"];
             controller.selectedPetName = fullItem["pet_name"];
             controller.selectedVetID = fullItem["vet_id"];
             controller.appointmentType = fullItem["appointment_type"];
-
-            final rawDate = fullItem["appointment_datetime"];
-            controller.appointmentDateTime = rawDate != null
-                ? DateTime.tryParse(rawDate.toString())
-                : null;
-
-            print("🔥 DEBUG FLOW >>> appointmentId = ${controller.appointmentId}");
+            controller.appointmentId = fullItem["appointment_id"];
+            controller.appointmentDateTime =
+                DateTime.parse(fullItem["appointment_datetime"]);
 
             Get.to(() => Scaffold(
                   body: reviewAndPayPage(
@@ -321,7 +278,6 @@ class AppointmentsPage extends StatelessWidget {
                     controller,
                   ),
                 ));
-          
           } else if (st == "grooming") {
             final controller = AddNewGroomAppointmentPageController();
 
@@ -331,6 +287,7 @@ class AppointmentsPage extends StatelessWidget {
             };
             controller.selectedPetId = fullItem["pet_id"];
             controller.appointmentType = fullItem["appointment_type"];
+            controller.appointmentId = fullItem["appointment_id"];
             controller.appointmentDateTime =
                 DateTime.parse(fullItem["appointment_datetime"]);
             controller.selectedGroomerID =

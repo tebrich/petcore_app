@@ -245,7 +245,14 @@ Widget reviewAndPayPage(
                     // show processing
                     showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
                     try {
-                      final created = await controller.createGroomAppointment(context);
+                      print("🧠 GROOM REVIEW appointmentId >>> ${controller.appointmentId}");
+
+                      bool created = true;
+
+                      // 🔥 SOLO crear si NO viene de notificación
+                      if (controller.appointmentId == null) {
+                        created = await controller.createGroomAppointment(context);
+                      }
                       if (!created) {
                         Navigator.of(context).pop();
                         return;
