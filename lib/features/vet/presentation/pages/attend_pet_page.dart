@@ -186,7 +186,10 @@ class AttendPetPage extends StatelessWidget {
                         final dt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
                         final note = motifCtrl.text;
 
-                        final success = await controller.createFollowUpAppointment(dt, appointmentType: "vaccine", note: note);
+                        final success = await controller.createFollowUp(
+                          dt,
+                          note: note,
+                        );
                         if (success) {
                           Get.showSnackbar(const GetSnackBar(message: "Próxima visita propuesta creada", duration: Duration(seconds: 2)));
                         }

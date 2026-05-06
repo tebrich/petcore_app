@@ -136,30 +136,36 @@ class AttendPetController extends GetxController {
   }
 
   /// Crea una cita de seguimiento (vacuna / control) para la mascota.
-  /// No envía vet_id para que el backend lo infiera del token del vet.
-  Future<bool> createFollowUpAppointment(DateTime dt, {String appointmentType = "follow_up", String? note}) async {
+  //////////////////////////////////////////////////////////////
+  /// 🔥 CREATE FOLLOW UP (CORRECTO)
+  //////////////////////////////////////////////////////////////
+  Future<bool> createFollowUp(DateTime dt, {String? note}) async {
     try {
       final payload = {
-        "user_id": pet.value['user_id'],
         "pet_id": petId,
-        "appointment_type": appointmentType,
-        "appointment_datetime": dt.toIso8601String(),
-        "add_to_calendar": true,
-        "add_reminder": true,
-        "notes": note,
+        "scheduled_at": dt.toIso8601String(),
+        "note": note,
+        "status": "pending",
       }..removeWhere((k, v) => v == null);
 
-      final response = await http.post("/vet-appointments/", payload, headers: await _getHeaders());
-      print("CREATE APPT RESPONSE: ${response.statusCode} ${response.body}");
+      final response = await http.post(
+        "/follow-ups/",
+        payload,
+        headers: await _getHeaders(),
+      );
+
+      print("FOLLOW UP STATUS: ${response.statusCode}");
+      print("FOLLOW UP BODY: ${response.body}");
+
       if (response.statusCode == 201 || response.statusCode == 200) {
-        print("Cita programada para ${dt.toLocal()}");
+        print("Follow up creado para ${dt.toLocal()}");
         return true;
       } else {
-        print("createFollowUpAppointment error: ${response.statusCode} ${response.body}");
+        print("createFollowUp error: ${response.statusCode} ${response.body}");
         return false;
       }
     } catch (e) {
-      print("Exception createFollowUpAppointment: $e");
+      print("Exception createFollowUp: $e");
       return false;
     }
   }

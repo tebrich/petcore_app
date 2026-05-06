@@ -20,6 +20,13 @@ Widget reviewAndPayPage(
 ) {
   final storage = const FlutterSecureStorage();
 
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (controller.groomersList.isEmpty) {
+      print("📡 FORZANDO LOAD GROOMERS DESDE REVIEW");
+      controller.fetchGroomers();
+    }
+  });
+
   /// 🔥 STATE GLOBAL (NO RECREAR)
   final RxInt reservationFee = 0.obs;
   final RxBool isLoadingPrice = true.obs;
@@ -29,6 +36,9 @@ Widget reviewAndPayPage(
   final groomer = controller.groomersList.firstWhereOrNull(
     (g) => g['id'].toString() == controller.selectedGroomerID,
   );
+
+  final groomerName =
+      groomer != null ? (groomer['name'] ?? 'Peluquería') : 'Peluquería';
 
   final bool isMobile = controller.isMobileGrooming ?? false;
 
@@ -145,7 +155,7 @@ Widget reviewAndPayPage(
                 _row(
                   context,
                   'Peluquería',
-                  groomer != null ? groomer['name'] : 'No seleccionado',
+                  groomerName,
                 ),
                 _divider(context),
 

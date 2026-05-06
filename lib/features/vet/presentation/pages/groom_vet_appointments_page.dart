@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peticare/features/vet/presentation/controllers/groom_vet_appointments_controller.dart';
+import 'package:peticare/features/vet/presentation/pages/attend_pet_page.dart';
 
 class GroomVetAppointmentsPage extends StatelessWidget {
   const GroomVetAppointmentsPage({super.key});
@@ -146,19 +147,46 @@ Widget _buildActionButtons(Map<String, dynamic> appointment) {
 
   /// 🟢 ACCEPTED → atender (opcional)
   if (status == "accepted") {
+    final paid = (appointment['paid'] == true) ||
+        (appointment['paid']?.toString().toLowerCase() == 'true');
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
+          if (!paid) {
+            showDialog(
+              context: Get.context!,
+              builder: (_) => AlertDialog(
+                title: const Text("Cita no pagada"),
+                content: Text(
+                  "La cita de ${appointment['pet_name'] ?? '-'} aún no fue pagada.",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(Get.context!),
+                    child: const Text("Cerrar"),
+                  ),
+                ],
+              ),
+            );
+            return;
+          }
+
+          // 🔥 SOLO SI PAGADA
           print("Atender grooming ${appointment['id']}");
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          Get.to(() => AttendPetPage(
+                petId: appointment['pet_id'],
+                appointmentId: appointment['id'],
+              ));
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: paid ? Colors.green : Colors.grey,
+          ),
+          child: const Text("Atender"),
         ),
-        child: const Text("Atender"),
-      ),
-    );
-  }
+      );
+    }
 
   /// 🔴 REJECTED / EXPIRED / RESCHEDULED
   return const SizedBox();

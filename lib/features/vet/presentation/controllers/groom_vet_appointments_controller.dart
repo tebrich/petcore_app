@@ -1,5 +1,6 @@
 ﻿import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:peticare/features/vet/presentation/pages/attend_pet_page.dart';
 
 class GroomVetAppointmentsController extends GetxController {
   var isLoading = true.obs;
@@ -124,6 +125,44 @@ class GroomVetAppointmentsController extends GetxController {
       print("GROOM Error reschedule: $e");
     }
   }
+
+  //////////////////////////////////////////////////////////////
+  /// 🔥 ATTEND GROOM (AGREGAR AQUÍ)
+  //////////////////////////////////////////////////////////////
+  Future<bool> attendAndOpen(int appointmentId, int? petId) async {
+    try {
+      print("GROOM ATTEND $appointmentId");
+
+      final response = await http.post(
+        "/groom-appointments/$appointmentId/attend",
+        {},
+        headers: await _getHeaders(),
+      );
+
+      print("GROOM ATTEND STATUS: ${response.statusCode}");
+      print("GROOM ATTEND BODY: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchAppointments();
+
+        if (petId != null) {
+          Get.to(() => AttendPetPage(
+                petId: petId,
+                appointmentId: appointmentId,
+              ));
+        }
+
+        return true;
+      } else {
+        print("GROOM Error attend: ${response.statusCode} ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("GROOM Exception attend: $e");
+      return false;
+    }
+  }
+
 
   Future<Map<String, String>> _getHeaders() async {
     final token =

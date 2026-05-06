@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peticare/features/vet/presentation/controllers/vet_appointments_controller.dart';
+import 'package:peticare/features/vet/presentation/pages/attend_pet_page.dart';
 
 class VetAppointmentsPage extends StatelessWidget {
   const VetAppointmentsPage({super.key});
@@ -134,22 +135,45 @@ Widget _buildActionButtons(Map<String, dynamic> appointment) {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () async {
+          final paid = (appointment['paid'] == true) ||
+              (appointment['paid']?.toString().toLowerCase() == 'true');
+
+          if (!paid) {
+            showDialog(
+              context: Get.context!,
+              builder: (_) => AlertDialog(
+                title: const Text("Cita no pagada"),
+                content: Text(
+                  "La cita de ${appointment['pet_name'] ?? '-'} aún no fue pagada.",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(Get.context!).pop(),
+                    child: const Text("Cerrar"),
+                  ),
+                ],
+              ),
+            );
+            return;
+          }
+
           final int appointmentId = appointment['id'] as int;
-          // pet_id may be present in the appointment map; pass null if missing
-          final int? petId = appointment.containsKey('pet_id') ? (appointment['pet_id'] as int?) : null;
+          final int? petId = appointment['pet_id'] as int?;
 
           final controller = Get.find<VetAppointmentsController>();
           final success = await controller.attendAndOpen(appointmentId, petId);
 
           if (!success) {
-            // fallback behavior: show simple dialog (safe without overlay issues)
             showDialog(
               context: Get.context!,
               builder: (_) => AlertDialog(
                 title: const Text("Error"),
-                content: const Text("No se pudo iniciar la atención. Revisa logs."),
+                content: const Text("No se pudo iniciar la atención."),
                 actions: [
-                  TextButton(onPressed: () => Navigator.of(Get.context!).pop(), child: const Text("OK")),
+                  TextButton(
+                    onPressed: () => Navigator.of(Get.context!).pop(),
+                    child: const Text("Cerrar"),
+                  ),
                 ],
               ),
             );

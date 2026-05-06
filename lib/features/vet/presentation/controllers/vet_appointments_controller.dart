@@ -115,9 +115,9 @@ class VetAppointmentsController extends GetxController {
     }
   }
 
-  ////////////////////////////////////////////////////////////////
-  /// 🔥 ATTEND + NAVIGATE TO FICHA (NEW)
-  ////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////
+  /// 🔥 ATTEND + NAVIGATE TO FICHA (FIXED)
+  //////////////////////////////////////////////////////////////
   Future<bool> attendAndOpen(int appointmentId, int? petId) async {
     try {
       print("ATTEND $appointmentId");
@@ -133,9 +133,14 @@ class VetAppointmentsController extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         await fetchAppointments();
+
         if (petId != null) {
-          Get.to(() => AttendPetPage(petId: petId, appointmentId: appointmentId));
+          Get.to(() => AttendPetPage(
+                petId: petId,
+                appointmentId: appointmentId,
+              ));
         }
+
         return true;
       } else {
         print("Error attend: ${response.statusCode} ${response.body}");
@@ -146,7 +151,7 @@ class VetAppointmentsController extends GetxController {
       return false;
     }
   }
-
+  
   ////////////////////////////////////////////////////////////////
   /// Helpers
   ////////////////////////////////////////////////////////////////
