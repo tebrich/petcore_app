@@ -2,6 +2,7 @@
 import 'package:peticare/core/utils/pet_avatars_list.dart';
 import 'package:flutter/material.dart';
 import 'package:peticare/services/user_service.dart';
+import 'package:peticare/features/dashboard/data/services/follow_ups_service.dart';
 
 class DashboardController extends GetxController {
   final GetConnect _api = GetConnect();
@@ -12,6 +13,7 @@ class DashboardController extends GetxController {
   var remindersList = [].obs;
   var isLoading = false.obs;
   var reminderTypes = [].obs;
+  var followUps = [].obs;
 
   @override
   void onInit() {
@@ -89,6 +91,8 @@ class DashboardController extends GetxController {
       /// =========================
       await loadReminderTypes();
 
+      await loadFollowUps(); // 🔥 AQUÍ SÍ
+
     } catch (e) {
       print("ERROR DASHBOARD: $e");
     } finally {
@@ -129,6 +133,28 @@ class DashboardController extends GetxController {
       }
     } catch (e) {
       print("ERROR REMINDER TYPES: $e");
+    }
+  }
+
+  Future<void> loadFollowUps() async {
+    try {
+      if (userId.value == 0) {
+        print("No userId yet for followUps");
+        return;
+      }
+
+      final data = await FollowUpsService().getMyFollowUps(userId.value);
+
+      followUps.value = data.where((f) {
+        final dt = DateTime.tryParse(f['scheduled_at'] ?? '');
+        return dt != null &&
+            dt.isAfter(DateTime.now()) &&
+            f['status'] == 'proposed';
+      }).toList();
+
+      print("FOLLOW UPS LOADED: ${followUps.length}");
+    } catch (e) {
+      print("ERROR loadFollowUps: $e");
     }
   }
 }

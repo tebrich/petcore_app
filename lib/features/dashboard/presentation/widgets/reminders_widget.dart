@@ -1,9 +1,12 @@
-import 'dart:math';
+﻿import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
+import 'package:get/get.dart';
+import 'package:peticare/features/vet_appointments/presentation/controllers/add_new_vet_appointment_page_controller.dart';
+import 'package:peticare/features/vet_appointments/presentation/widgets/add_new_appointment/welcoming_first_page.dart';
 
 /// A widget function that builds the "Upcoming Events" section for the dashboard.
 ///
@@ -69,6 +72,27 @@ Widget activityTile(
   final petName = reminderDetails['pet_name'] as String?; // puede ser null
 
   return ListTile(
+    onTap: () {
+      final item = reminderDetails;
+
+      // 🔥 FOLLOW-UP CLICK
+      if (item['type'] == 'follow_up') {
+        final f = item['raw'];
+
+        final controller = Get.put(AddNewVetAppointmentPageController());
+
+        controller.selectedPetId = f['pet_id'];
+        controller.appointmentDateTime =
+            DateTime.tryParse(f['scheduled_at']);
+
+        print("🚀 FOLLOW UP CLICK → petId: ${f['pet_id']}");
+
+        Get.toNamed('/NewVetAppointment');
+
+        return;
+      }
+    },
+
     contentPadding: EdgeInsets.zero,
     minTileHeight: 45,
     dense: true,
@@ -114,15 +138,15 @@ Widget activityTile(
               fontSize: 11,
             ),
           ),
-      ],
-    ),
-    trailing: Text(
-      reminderDetails['date'],
-      style: AppTextStyles.bodyRegular.copyWith(
-        color: AppPalette.secondaryText(context),
-        fontSize: 12.5,
+        ],
       ),
-    ),
-  );
-}
+      trailing: Text(
+        reminderDetails['date'],
+        style: AppTextStyles.bodyRegular.copyWith(
+          color: AppPalette.secondaryText(context),
+          fontSize: 12.5,
+        ),
+      ),
+    );
+  }
 

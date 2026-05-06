@@ -133,7 +133,7 @@ class DashboardPage extends StatelessWidget {
           }).toList();
 
           // 3) Eventos desde follow-ups (propuestas del vet)
-          final followUpEvents = notifController.followUpsList.where((f) {
+          final followUpEvents = controller.followUps.where((f) {
             final dtStr = f['scheduled_at'];
             if (dtStr == null) return false;
             DateTime dt;
