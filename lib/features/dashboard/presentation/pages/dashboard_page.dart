@@ -80,18 +80,37 @@ class DashboardPage extends StatelessWidget {
           final myApptEvents = notifController.myAppointmentsList.where((a) {
             final dtStr = a['appointment_datetime'];
             if (dtStr == null) return false;
+
             DateTime dt;
             try {
               dt = DateTime.parse(dtStr.toString());
             } catch (_) {
               return false;
             }
+
             final date = DateTime(dt.year, dt.month, dt.day);
             return date.isAtSameMomentAs(today) || date.isAfter(today);
+
           }).map<Map<String, dynamic>>((a) {
             final dt = DateTime.parse(a['appointment_datetime']);
-            final dateLabel = "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}";
-            final timeLabel = "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+
+            final dateLabel =
+                "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}";
+
+            final timeLabel =
+                "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+
+            // 🔥 FIX — RESOLVER NOMBRE DE MASCOTA
+            final petId = a['pet_id'];
+
+            final pet = controller.petsList.firstWhere(
+              (p) => p['id'] == petId,
+              orElse: () => {},
+            );
+
+            final petName = a['pet_name'] ??
+              (pet.isNotEmpty ? pet['name'] : 'Mascota');
+
             return {
               'source': 'my_appointment',
               'type': 'appointment',
@@ -99,7 +118,7 @@ class DashboardPage extends StatelessWidget {
               'time': timeLabel,
               'date': dateLabel,
               'icon': 'assets/illustrations/vet_appointment.svg',
-              'pet_name': a['pet_name'] ?? 'Mascota',
+              'pet_name': petName, // 🔥 AQUÍ ESTÁ LA CORRECCIÓN
               'raw': a,
             };
           }).toList();
@@ -133,30 +152,35 @@ class DashboardPage extends StatelessWidget {
           }).toList();
 
           // 3) Eventos desde follow-ups (propuestas del vet)
-          final followUpEvents = controller.followUps.where((f) {
-            final dtStr = f['scheduled_at'];
-            if (dtStr == null) return false;
-            DateTime dt;
-            try {
-              dt = DateTime.parse(dtStr.toString());
-            } catch (_) {
-              return false;
-            }
-            final date = DateTime(dt.year, dt.month, dt.day);
-            return date.isAtSameMomentAs(today) || date.isAfter(today);
-          }).map<Map<String, dynamic>>((f) {
-            final dt = DateTime.parse(f['scheduled_at']);
-            final dateLabel = "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}";
-            final timeLabel = "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+          final followUpEvents = controller.followUps.map((f) {
+            final petId = f['pet_id'];
+
+            final pet = controller.petsList.firstWhere(
+              (p) => p['id'] == petId,
+              orElse: () => {},
+            );
+
+            final petName = pet.isNotEmpty ? pet['name'] : 'Mascota';
+
+            final dt = DateTime.tryParse(f['scheduled_at'] ?? '');
+
             return {
-              'source': 'follow_up',
-              'type': 'follow_up',
-              'title': f['note'] ?? 'Próxima visita propuesta',
-              'time': timeLabel,
-              'date': dateLabel,
-              'icon': 'assets/illustrations/vet_appointment.svg',
-              'pet_name': '',
-              'raw': f,
+              "title": (f['note'] != null && f['note'].toString().isNotEmpty)
+                  ? f['note']
+                  : "Control médico", // 🔥 fallback
+
+              "time": dt != null
+                  ? "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}"
+                  : '-',
+
+              "date": dt != null
+                  ? "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}"
+                  : '-',
+
+              "pet_name": petName,
+              "icon": "assets/illustrations/vet_check.svg",
+              "type": "follow_up",
+              "raw": f,
             };
           }).toList();
 
