@@ -163,6 +163,35 @@ class GroomVetAppointmentsController extends GetxController {
     }
   }
 
+  //////////////////////////////////////////////////////////////
+  // 🔥 CREATE FOLLOW-UP GROOM
+  //////////////////////////////////////////////////////////////
+  Future<bool> createFollowUp({
+    required int petId,
+    required DateTime scheduledAt,
+    String? note,
+  }) async {
+    try {
+      final response = await http.post(
+        "/follow-ups/",
+        {
+          "pet_id": petId,
+          "scheduled_at": scheduledAt.toIso8601String(),
+          "note": note,
+          "service_type": "grooming", // 🔥 CLAVE
+        },
+        headers: await _getHeaders(),
+      );
+
+      print("GROOM FOLLOW UP STATUS: ${response.statusCode}");
+      print("GROOM FOLLOW UP BODY: ${response.body}");
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("GROOM FOLLOW UP ERROR: $e");
+      return false;
+    }
+  }
 
   Future<Map<String, String>> _getHeaders() async {
     final token =

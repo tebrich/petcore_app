@@ -34,11 +34,17 @@ Widget reviewAndPayPage(
 
   /// 🔥 GROOMER SEGURO
   final groomer = controller.groomersList.firstWhereOrNull(
-    (g) => g['id'].toString() == controller.selectedGroomerID,
+    (g) => g['id'] == int.tryParse(controller.selectedGroomerID ?? ''),
   );
 
-  final groomerName =
-      groomer != null ? (groomer['name'] ?? 'Peluquería') : 'Peluquería';
+  String groomerName = 'Peluquería';
+
+  if (groomer != null && groomer['name'] != null) {
+    groomerName = groomer['name'];
+  } else if (controller.selectedGroomerName != null &&
+             controller.selectedGroomerName!.isNotEmpty) {
+    groomerName = controller.selectedGroomerName!;
+  }
 
   final bool isMobile = controller.isMobileGrooming ?? false;
 

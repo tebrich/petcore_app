@@ -35,6 +35,8 @@ class AddNewGroomAppointmentPageController extends GetxController {
 
   String? selectedGroomerID;
 
+  String? selectedGroomerName;
+
   bool addToCalendar = true;
   bool addReminder = true;
 
@@ -87,11 +89,25 @@ class AddNewGroomAppointmentPageController extends GetxController {
   void updateSelectedGroomerID(String? id) {
     selectedGroomerID = id;
 
+    // 🔥 NUEVO: GUARDAR NOMBRE DEL GROOMER
     if (id != null) {
+      final groomer = groomersList.firstWhereOrNull(
+        (g) => g['id'].toString() == id,
+      );
+
+      if (groomer != null) {
+        selectedGroomerName = groomer['name'];
+
+        print("✅ GROOMER NAME SET: $selectedGroomerName");
+      } else {
+        print("⚠️ Groomer no encontrado en lista");
+      }
+
+      // 🔥 PRECIO (YA LO TENÍAS)
       fetchGroomingPrice(
         clinicId: int.parse(id),
-        serviceName: "bath", // TODO: luego dinámico
-        petSize: "medium",   // TODO: luego automático desde pet
+        serviceName: "bath",
+        petSize: "medium",
         isMobile: isMobileGrooming ?? false,
       );
     }

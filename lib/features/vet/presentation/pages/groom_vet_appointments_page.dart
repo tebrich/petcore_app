@@ -2,6 +2,7 @@
 import 'package:get/get.dart';
 import 'package:peticare/features/vet/presentation/controllers/groom_vet_appointments_controller.dart';
 import 'package:peticare/features/vet/presentation/pages/attend_pet_page.dart';
+import 'package:peticare/features/groom/presentation/pages/attend_groom_page.dart';
 
 class GroomVetAppointmentsPage extends StatelessWidget {
   const GroomVetAppointmentsPage({super.key});
@@ -175,10 +176,10 @@ Widget _buildActionButtons(Map<String, dynamic> appointment) {
 
           // 🔥 SOLO SI PAGADA
           print("Atender grooming ${appointment['id']}");
-          Get.to(() => AttendPetPage(
-                petId: appointment['pet_id'],
-                appointmentId: appointment['id'],
-              ));
+          Get.to(() => AttendGroomPage(
+            petId: appointment['pet_id'],
+            appointmentId: appointment['id'],
+          ));
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: paid ? Colors.green : Colors.grey,

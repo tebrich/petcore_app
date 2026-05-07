@@ -46,12 +46,13 @@ import 'package:peticare/features/vet_appointments/presentation/pages/review_pag
 import 'package:peticare/features/vet/presentation/pages/groom_vet_appointments_page.dart';
 import 'package:peticare/features/vet/presentation/pages/vet_panel_page.dart';
 import 'package:peticare/features/vet/presentation/pages/vet_home_page.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await GetStorage.init();
-
+  await initializeDateFormatting('es_ES', null);
   Get.put(PostSignupPageController());
   Get.put(NotificationsController());
 
@@ -253,11 +254,6 @@ class MyApp extends StatelessWidget {
                 GetPage(
                   name: '/VetHome',
                   page: () => const VetHomePage(),
-                ),
-                
-                GetPage(
-                  name: '/NewVetAppointment',
-                  page: () => AddNewVetAppoitnmentPage(),
                 ),
               ],
             );

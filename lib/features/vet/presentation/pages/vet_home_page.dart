@@ -7,6 +7,9 @@ import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'vet_panel_page.dart';
 import 'vet_appointments_page.dart';
 import 'groom_vet_appointments_page.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:peticare/features/vet/presentation/pages/calendar_page.dart';
 
 class VetHomePage extends StatelessWidget {
   const VetHomePage({super.key});
@@ -15,7 +18,27 @@ class VetHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(title: const Text('Panel Veterinario')),
+      appBar: AppBar(
+        title: const Text('Panel Veterinario'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              final box = GetStorage();
+              const secureStorage = FlutterSecureStorage();
+
+              // 🔥 LIMPIAR SESIÓN
+              await box.erase();
+              await secureStorage.delete(key: 'access_token');
+
+              print("🔒 LOGOUT OK");
+
+              // 🔥 REDIRECCIÓN LIMPIA
+              Get.offAllNamed('/Signin');
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: size.width * .06, vertical: 18),
         child: Column(
@@ -94,8 +117,7 @@ class VetHomePage extends StatelessWidget {
               label: 'Calendario',
               subtitle: 'Vista calendario (ocupación)',
               onTap: () {
-                // placeholder navigation: implement calendar page later
-                Get.snackbar('Próximamente', 'Calendario pronto a implementarse');
+                Get.to(() => CalendarPage());
               },
             ),
 

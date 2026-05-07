@@ -43,114 +43,119 @@ class GroomSuccessPageScreen extends StatelessWidget {
 Widget successPage(Size screenSize) {
   return LayoutBuilder(
     builder: (context, constraints) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          /// ESPACIO SUPERIOR
-          const Spacer(flex: 1),
-
-          /// TÍTULO
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
-            child: Text(
-              "¡Cita confirmada!",
-              style: AppTextStyles.headingLarge.copyWith(
-                color: AppPalette.textOnSecondaryBg(context),
-                fontSize: constraints.maxHeight > 580 ? 35 : 32,
-              ),
-              textAlign: TextAlign.center,
-            ),
+      return SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: constraints.maxHeight,
           ),
+          child: IntrinsicHeight(
+            child: Column(
+              children: [
 
-          /// ESPACIO
-          VerticalSpacing.lg(context),
+                const Spacer(flex: 1), // 🔥 IMPORTANTE ARRIBA
 
-          /// ILUSTRACIÓN ANIMADA
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SvgPicture.asset(
-                'assets/illustrations/background_shape.svg',
-                height: constraints.maxHeight <= 580
-                    ? constraints.maxHeight * 0.65
-                    : 350,
-                colorFilter: ColorFilter.mode(
-                  AppPalette.surfaces(context),
-                  BlendMode.srcATop,
+                /// TÍTULO
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
+                  child: Text(
+                    "¡Cita confirmada!",
+                    style: AppTextStyles.headingLarge.copyWith(
+                      color: AppPalette.textOnSecondaryBg(context),
+                      fontSize: constraints.maxHeight > 580 ? 35 : 32,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-              FloatingAnimation(
-                type: FloatingType.wave,
-                duration: const Duration(seconds: 8),
-                floatStrength: 2.5,
-                curve: Curves.linear,
-                child: Stack(
+
+                VerticalSpacing.lg(context),
+
+                /// ILUSTRACIÓN
+                Stack(
                   alignment: Alignment.center,
-                  clipBehavior: Clip.none,
                   children: [
                     SvgPicture.asset(
                       'assets/illustrations/background_shape.svg',
                       height: constraints.maxHeight <= 580
-                          ? constraints.maxHeight * 0.5
-                          : 275,
+                          ? constraints.maxHeight * 0.65
+                          : 350,
                       colorFilter: ColorFilter.mode(
-                        AppPalette.primary.withValues(alpha: 0.5),
+                        AppPalette.surfaces(context),
                         BlendMode.srcATop,
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 25),
-                      child: SvgPicture.asset(
-                        'assets/illustrations/happy_pet_chekmark.svg',
-                        height: constraints.maxHeight <= 580
-                            ? constraints.maxHeight * .375
-                            : 200,
+                    FloatingAnimation(
+                      type: FloatingType.wave,
+                      duration: const Duration(seconds: 8),
+                      floatStrength: 2.5,
+                      curve: Curves.linear,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/illustrations/background_shape.svg',
+                            height: constraints.maxHeight <= 580
+                                ? constraints.maxHeight * 0.5
+                                : 275,
+                            colorFilter: ColorFilter.mode(
+                              AppPalette.primary.withValues(alpha: 0.5),
+                              BlendMode.srcATop,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 25),
+                            child: SvgPicture.asset(
+                              'assets/illustrations/happy_pet_chekmark.svg',
+                              height: constraints.maxHeight <= 580
+                                  ? constraints.maxHeight * .375
+                                  : 200,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
 
-          /// ESPACIO
-          VerticalSpacing.xl(context),
+                VerticalSpacing.xl(context),
 
-          /// MENSAJE
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
-            child: Text(
-              "Tu pago fue procesado correctamente.\n\n"
-              "Podrás ver el detalle de tu cita en:\n"
-              "📅 Mis citas.\n\n"
-              "Te enviaremos recordatorios según tus configuraciones.",
-              style: AppTextStyles.bodyRegular.copyWith(
-                fontWeight: FontWeight.w500,
-                color: AppPalette.primaryText(context),
-                fontSize: constraints.maxHeight <= 580 ? 16 : 18,
-              ),
-              textAlign: TextAlign.center,
+                /// MENSAJE
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05),
+                  child: Text(
+                    "Tu pago fue procesado correctamente.\n\n"
+                    "Podrás ver el detalle de tu cita en:\n"
+                    "📅 Mis citas.\n\n"
+                    "Te enviaremos recordatorios según tus configuraciones.",
+                    style: AppTextStyles.bodyRegular.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: AppPalette.primaryText(context),
+                      fontSize: constraints.maxHeight <= 580 ? 16 : 18,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+
+                VerticalSpacing.lg(context),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.15),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.offAllNamed('/HomePage');
+                      },
+                      child: const Text('Ir al Dashboard'),
+                    ),
+                  ),
+                ),
+
+                const Spacer(flex: 1), // 🔥 IMPORTANTE ABAJO
+              ],
             ),
           ),
-
-          VerticalSpacing.lg(context),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.15),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.offAllNamed('/HomePage');
-                },
-                child: const Text('Ir al Dashboard'),
-              ),
-            ),
-          ),
-
-          /// ESPACIO FINAL
-          const Spacer(flex: 1),
-        ],
+        ),
       );
     },
   );
