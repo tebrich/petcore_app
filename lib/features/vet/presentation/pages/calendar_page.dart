@@ -27,13 +27,18 @@ class CalendarPage extends StatelessWidget {
               locale: 'es_ES',
               firstDay: DateTime.utc(2020),
               lastDay: DateTime.utc(2030),
-              focusedDay: controller.selectedDay.value,
+              focusedDay: controller.focusedDay.value,
 
               selectedDayPredicate: (day) =>
                   isSameDay(controller.selectedDay.value, day),
 
               onDaySelected: (selectedDay, focusedDay) {
                 controller.selectedDay.value = selectedDay;
+                controller.focusedDay.value = focusedDay;
+              },
+
+              onPageChanged: (focusedDay) {
+                controller.focusedDay.value = focusedDay;
               },
 
               eventLoader: (day) {
@@ -87,7 +92,7 @@ class CalendarPage extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: event['type'] == 'vet'
-                              ? Colors.blue
+                              ? Colors.red
                               : Colors.green,
                         ),
                       );

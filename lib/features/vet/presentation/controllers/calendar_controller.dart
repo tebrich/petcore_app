@@ -1,38 +1,56 @@
 ﻿import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:get/get_connect.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class CalendarController extends GetxController {
   final GetConnect http = GetConnect();
 
   var events = <DateTime, List<Map<String, dynamic>>>{}.obs;
   var selectedDay = DateTime.now().obs;
+  var focusedDay = DateTime.now().obs;
+
+  final String baseUrl = "http://192.168.40.54:8000/api/v1";
 
   @override
   void onInit() {
     super.onInit();
+    http.baseUrl = baseUrl;
     loadAppointments();
+  }
+
+  Future<Map<String, String>> _getHeaders() async {
+    final token = await const FlutterSecureStorage().read(key: 'access_token');
+
+    return {
+      "Authorization": "Bearer $token",
+      "Content-Type": "application/json",
+    };
   }
 
   Future<void> loadAppointments() async {
     try {
-      final vetRes = await http.get("/vet-appointments/vet");
-      final groomRes = await http.get("/groom-appointments/vet");
+      final headers = await _getHeaders();
+
+      final vetRes = await http.get("/vet-appointments/vet", headers: headers);
+      final groomRes = await http.get("/groom-appointments/vet", headers: headers);
+
+      print("VET STATUS: ${vetRes.statusCode}");
+      print("GROOM STATUS: ${groomRes.statusCode}");
 
       final all = [
-        ...(vetRes.body ?? []),
-        ...(groomRes.body ?? []),
+        if (vetRes.statusCode == 200) ...(vetRes.body ?? []),
+        if (groomRes.statusCode == 200) ...(groomRes.body ?? []),
       ];
 
-      Map<DateTime, List<Map<String, dynamic>>> temp = {};
+      final Map<DateTime, List<Map<String, dynamic>>> temp = {};
 
       for (var e in all) {
-        final dt = DateTime.parse(e['appointment_datetime']);
+        final dt = DateTime.parse(e['appointment_datetime'].toString());
+
         final day = DateTime(dt.year, dt.month, dt.day);
 
-        if (!temp.containsKey(day)) {
-          temp[day] = [];
-        }
+        temp.putIfAbsent(day, () => []);
 
         temp[day]!.add({
           "time": dt,
@@ -44,13 +62,25 @@ class CalendarController extends GetxController {
       events.value = temp;
 
       print("📅 EVENTS LOADED: ${events.length}");
+
+      /// 🔥 AUTO SELECCIÓN DE DÍA CON EVENTO
+      if (temp.isNotEmpty) {
+        final firstDay = temp.keys.first;
+
+        selectedDay.value = firstDay;
+        focusedDay.value = firstDay;
+
+        print("📍 AUTO SELECT DAY: $firstDay");
+      }
     } catch (e) {
       print("ERROR CALENDAR: $e");
     }
   }
 
   List<Map<String, dynamic>> getEventsForDay(DateTime day) {
-    final d = DateTime(day.year, day.month, day.day);
-    return events[d] ?? [];
+    return events.entries
+        .where((entry) => isSameDay(entry.key, day))
+        .expand((entry) => entry.value)
+        .toList();
   }
 }

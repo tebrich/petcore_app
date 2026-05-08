@@ -10,6 +10,7 @@ import 'groom_vet_appointments_page.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:peticare/features/vet/presentation/pages/calendar_page.dart';
+import 'package:peticare/features/vet/presentation/pages/search_pet_page.dart';
 
 class VetHomePage extends StatelessWidget {
   const VetHomePage({super.key});
@@ -107,6 +108,16 @@ class VetHomePage extends StatelessWidget {
               label: 'Citas Peluquería',
               subtitle: 'Ver y gestionar citas de peluquería',
               onTap: () => Get.to(() => const GroomVetAppointmentsPage()),
+            ),
+
+            VerticalSpacing.md(context),
+
+            _menuButton(
+              context,
+              icon: Icons.search,
+              label: 'Buscar Datos del Cliente',
+              subtitle: 'Buscar por nombre de mascota',
+              onTap: () => Get.to(() => const SearchPetPage()),
             ),
 
             VerticalSpacing.md(context),
