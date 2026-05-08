@@ -101,7 +101,7 @@ Widget petWidget(
                                 ? 2
                                 : petDetails['energy'] == 2
                                     ? 5
-                                    : 0,
+                                    : 1,
                           ),
                           floatStrength: petDetails['energy'] == 3
                               ? 0.5

@@ -4,10 +4,11 @@ import 'package:get/get.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
-import 'package:peticare/dummy_data/dummy_data.dart';
 import 'package:peticare/features/pets/presentation/pages/pet_details_page.dart';
 import 'package:peticare/features/pets/presentation/widgets/pets_page/pet_widget.dart';
 import 'package:peticare/features/pets/presentation/widgets/pets_page/tips_widget.dart';
+import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:peticare/features/pets/presentation/widgets/pets_page/tips_info_widget.dart';
 
 /// The main page for displaying a user's list of registered pets. 🐾
 ///
@@ -26,6 +27,7 @@ class PetsPage extends StatelessWidget {
   /// Builds the main UI for the "My Pets" page.
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
+    final DashboardController controller = Get.find();
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -71,6 +73,10 @@ class PetsPage extends StatelessWidget {
               /// A horizontally scrollable widget displaying helpful pet care tips.
               TipsWidget(),
 
+              VerticalSpacing.lg(context),
+
+              TipsInfoWidget(),
+
               /// Vertical spacing to separate the tips from the pet list.
               VerticalSpacing.xl(context),
 
@@ -80,39 +86,53 @@ class PetsPage extends StatelessWidget {
               /// for each pet, enabling a smooth transition to the details page.
               /// The `NeverScrollableScrollPhysics` is used because the parent
               /// is already a `SingleChildScrollView`.
-              ListView.builder(
-                shrinkWrap: true,
-                scrollDirection: Axis.vertical,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.width * 0.05,
-                ),
-                itemCount: DummyData.petsList(context).length,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 15),
+              Obx(
+                () => ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenSize.width * 0.05,
+                  ),
 
-                  /// An animated container that transitions to the `PetDetailsPage`.
-                  ///
-                  /// This provides a seamless "material motion" transition where the
-                  /// `petWidget` appears to grow into the `PetDetailsPage`.
-                  child: OpenContainer(
-                    clipBehavior: Clip.none,
-                    openElevation: 0,
-                    closedElevation: 0,
-                    openColor: AppPalette.background(context),
-                    closedColor: AppPalette.background(context),
-                    transitionDuration: const Duration(milliseconds: 500),
-                    useRootNavigator: true,
-                    closedShape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    closedBuilder: (context, action) => petWidget(
-                       context,
-                       screenSize,
-                       DummyData.petsList(context)[index],
-                    ),
-                    openBuilder: (context, action) => PetDetailsPage(
-                      petDetails: DummyData.petsList(context)[index],
+                  itemCount: controller.petsList.length,
+
+                  itemBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+
+                    child: OpenContainer(
+                      clipBehavior: Clip.none,
+                      openElevation: 0,
+                      closedElevation: 0,
+                      openColor: AppPalette.background(context),
+                      closedColor: AppPalette.background(context),
+                      transitionDuration: const Duration(milliseconds: 500),
+                      useRootNavigator: true,
+
+                      closedShape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      ),
+
+                      closedBuilder: (context, action) => petWidget(
+                        context,
+                        screenSize,
+                        {
+                          "avatar": controller.petsList[index]["avatar"],
+                          "name": controller.petsList[index]["name"],
+                          "energy": controller.petsList[index]["energy"],
+
+                          // 🔥 IMPORTANTE
+                          "type": controller.petsList[index]["species"],
+                          "race": controller.petsList[index]["breed"],
+
+                          "age": controller.petsList[index]["age"],
+                          "gender": controller.petsList[index]["gender"],
+                        },
+                      ),
+
+                      openBuilder: (context, action) => PetDetailsPage(
+                        petDetails: controller.petsList[index],
+                      ),
                     ),
                   ),
                 ),

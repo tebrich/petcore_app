@@ -77,6 +77,8 @@ class DashboardController extends GetxController {
             "gender": pet["gender"] ?? "",
             "energy": pet["energy_level_id"] ?? 1,
             "avatar": avatarFn,
+            "species": pet["species_name"] ?? "",
+            "breed": pet["breed_name"] ?? "",
           };
         }).toList();
       }

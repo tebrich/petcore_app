@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:peticare/core/constants/tips.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
+import 'package:get/get.dart';
+import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
 
 /// A widget that displays an animated, auto-scrolling carousel of helpful tips. 💡
 ///
@@ -32,6 +33,8 @@ class _TipsWidgetState extends State<TipsWidget>
   /// Notifies listeners when the index of the visible tip changes.
   final indexNotifier = ValueNotifier<int>(0);
 
+  final DashboardController controller = Get.find();
+
   /// Drives the scale-in and scale-out animation.
   late AnimationController animationController;
 
@@ -54,7 +57,7 @@ class _TipsWidgetState extends State<TipsWidget>
           /// When the scale-out animation completes, it updates the tip index
           /// and reverses the animation to scale back in with the new content.
           if (animationController.isCompleted) {
-            if (indexNotifier.value < Constants.tipsList.length - 1) {
+            if (indexNotifier.value < controller.petsList.length - 1) {
               indexNotifier.value++;
             } else {
               indexNotifier.value = 0;
@@ -101,6 +104,9 @@ class _TipsWidgetState extends State<TipsWidget>
   /// `AnimatedBuilder` to apply the `Transform.scale` animation.
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
+    if (controller.petsList.isEmpty) {
+      return const SizedBox();
+    }
     return Center(
       child: ValueListenableBuilder(
         valueListenable: indexNotifier,
@@ -110,7 +116,10 @@ class _TipsWidgetState extends State<TipsWidget>
             builder: (context, child) {
               return Transform.scale(
                 scale: scalingAnimation.value,
-                child: _tipWidget(screenSize, Constants.tipsList[index]),
+                child: _tipWidget(
+                  screenSize,
+                  controller.petsList[index],
+                ),
               );
             },
           );
@@ -203,7 +212,7 @@ class _TipsWidgetState extends State<TipsWidget>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  '(Consejos útiles)',
+                  '(Mis Mascotas)',
                   style: AppTextStyles.bodyRegular.copyWith(
                     color: AppPalette.secondary(context),
                     fontSize: 15,
@@ -212,16 +221,70 @@ class _TipsWidgetState extends State<TipsWidget>
                   textAlign: TextAlign.center,
                 ),
 
-                /// Title Spacing
                 VerticalSpacing.sm(context),
-                Text(
-                  tipDetails['tip'],
-                  style: AppTextStyles.playfulTag.copyWith(
-                    color: AppPalette.background(context),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
+
+                Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 32,
+                      backgroundColor: Colors.white,
+                      child: tipDetails["avatar"] != null
+                          ? tipDetails["avatar"](
+                              50.0,
+                              50.0,
+                              Colors.black,
+                            )
+                          : const Icon(Icons.pets),
+                    ),
+
+                    VerticalSpacing.sm(context),
+
+                    Text(
+                      tipDetails["name"] ?? "",
+                      style: AppTextStyles.playfulTag.copyWith(
+                        color: AppPalette.background(context),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    VerticalSpacing.sm(context),
+
+                    /// ⚡ Energía
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        tipDetails["energy"] ?? 1,
+                        (i) => const Icon(
+                          Icons.bolt,
+                          color: Colors.amber,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+
+                    VerticalSpacing.sm(context),
+
+                    Text(
+                      "${tipDetails["species"]} - ${tipDetails["breed"]}",
+                      style: AppTextStyles.bodyRegular.copyWith(
+                        color: Colors.white,
+                        fontSize: 13,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    VerticalSpacing.sm(context),
+
+                    Text(
+                      "${tipDetails["age"]} años • ${tipDetails["gender"]}",
+                      style: AppTextStyles.bodyRegular.copyWith(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ],
             ),
