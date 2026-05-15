@@ -92,7 +92,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         bottom: Radius.circular(screenSize.width * 0.3),
                       ),
                       child: Container(
-                        color: Colors.white,
+                        color: const Color(0xFFF8F9FB),
                         height: screenSize.height < 600
                             ? 300
                             : screenSize.height * 0.5,
@@ -102,7 +102,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                               ? 300
                               : screenSize.height * 0.5,
                           width: screenSize.width,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           alignment: Alignment.center,
 
                           /// Displays an animated loading indicator while the image is being fetched.

@@ -60,7 +60,7 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
             ),
           ),
           Text(
-            "Feeding",
+            "Alimentos",
             style: AppTextStyles.ctaBold.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -131,7 +131,7 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
             ),
           ),
           Text(
-            "Toys",
+            "Juguetes",
             style: AppTextStyles.ctaBold.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -200,7 +200,7 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
             ),
           ),
           Text(
-            "Health",
+            "Salud",
             style: AppTextStyles.ctaBold.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -268,7 +268,7 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
             ),
           ),
           Text(
-            "Grooming",
+            "Pelu",
             style: AppTextStyles.ctaBold.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -306,6 +306,101 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
         );
       },
     ),
+
+    AnimatedIconButton(
+
+      iconData: FontAwesomeIcons.plus,
+
+      foregroundColor: AppPalette.softBlue.withValues(
+        alpha: Theme.brightnessOf(context)
+                == Brightness.dark
+            ? 0.7
+            : 0.5,
+      ),
+
+      radius: BorderRadius.all(
+        Radius.circular(20),
+      ),
+
+      child: Column(
+
+        mainAxisSize: MainAxisSize.min,
+
+        crossAxisAlignment:
+            CrossAxisAlignment.center,
+
+        children: [
+
+          Container(
+
+            height: 61,
+            width: 61,
+
+            alignment: Alignment.center,
+
+            decoration: BoxDecoration(
+
+              color: AppPalette.softBlue
+                  .withValues(
+                alpha: Theme.brightnessOf(
+                            context)
+                        == Brightness.dark
+                    ? 0.7
+                    : 0.4,
+              ),
+
+              borderRadius:
+                  BorderRadius.all(
+                Radius.circular(25),
+              ),
+            ),
+
+            margin: EdgeInsets.only(
+              bottom: 5,
+            ),
+
+            child: Icon(
+              Icons.checkroom,
+              size: 34,
+              color: Colors.white,
+            ),
+          ),
+
+          Text(
+
+            "Accesorios",
+
+            style: AppTextStyles.ctaBold
+                .copyWith(
+
+              fontSize: 12,
+
+              fontWeight:
+                  FontWeight.w500,
+
+              color: AppPalette
+                  .textOnSecondaryBg(
+                      context),
+            ),
+
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+
+      onClick: () {
+
+        Get.to(
+
+          () => ProductsListPage(
+
+            title: 'Accesorios',
+
+            listOfProducts: [],
+          ),
+        );
+      },
+    ),
   ];
 
   /// A `LayoutBuilder` is used to create a responsive layout. It checks the
@@ -330,10 +425,14 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
                     ? screenSize.width * 0.05
                     : 0,
               ),
-              child: Row(
-                mainAxisAlignment: constraints.maxWidth >= 360
-                    ? MainAxisAlignment.spaceAround
-                    : MainAxisAlignment.center,
+              child: Wrap(
+
+                alignment: WrapAlignment.spaceAround,
+
+                spacing: 16,
+
+                runSpacing: 18,
+
                 children: subMenuWidgets,
               ),
             );

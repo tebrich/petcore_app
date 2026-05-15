@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +9,7 @@ import 'package:peticare/dummy_data/dummy_data.dart';
 import 'package:peticare/features/shopping/domain/entities/product_entity.dart';
 import 'package:peticare/features/shopping/presentation/pages/product_details_page.dart';
 import 'package:peticare/features/shopping/presentation/widgets/cart_loading_widget.dart';
+import 'package:peticare/features/shopping/presentation/controller/shop_controller.dart';
 
 /// Builds a horizontally scrolling list of "Popular Products". 🌟
 ///
@@ -19,36 +20,73 @@ import 'package:peticare/features/shopping/presentation/widgets/cart_loading_wid
 /// [Args]:
 ///   - `context`: The build context for accessing theme and other resources.
 Widget popularProductListWidgetBuilder(BuildContext context) {
+
+final ShopController controller =
+    Get.put(ShopController());
+
+  return Obx(() {
+
+  if (controller.isLoading.value) {
+
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
   return SizedBox(
     height: 165,
     child: ListView.builder(
       scrollDirection: Axis.horizontal,
-      itemCount: popularProductsList.length,
+      itemCount: controller.products.length,
       itemBuilder: (context, index) => Center(
         child: Container(
           margin: EdgeInsets.only(
-            left: index == 0 ? MediaQuery.of(context).size.width * 0.05 : 0,
+            left: index == 0
+                ? MediaQuery.of(context).size.width * 0.05
+                : 0,
             right: 16.0,
           ),
           height: 155,
           width: 90,
           child: _productWidgetBuilder(
+
             context,
+
             ProductEntity(
-              id: popularProductsList[index].id,
-              category: popularProductsList[index].category,
-              name: popularProductsList[index].name,
-              price: popularProductsList[index].price,
-              picsUrls: popularProductsList[index].picsUrls,
-              quantity: popularProductsList[index].quantity,
-              promoPrice: popularProductsList[index].promoPrice,
-              description: popularProductsList[index].description,
+
+              id:
+                  controller.products[index]["id"]
+                      .toString(),
+
+              name:
+                  controller.products[index]["name"],
+
+              category:
+                  controller.products[index]["category"],
+
+              price:
+                  controller.products[index]["price"]
+                      .toDouble(),
+
+              picsUrls: [
+
+                controller.products[index]["image"]
+
+              ],
+
+              quantity: 1,
+
+              description:
+                  controller.products[index]["name"],
+
+              promoPrice: null,
             ),
           ),
         ),
       ),
     ),
   );
+});
 }
 
 /// Builds the UI for a single product card within the popular products list.
@@ -109,7 +147,7 @@ Widget _productWidgetBuilder(
                         productDetails.picsUrls[0],
                         height: double.infinity,
                         width: double.infinity,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         alignment: Alignment.center,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
@@ -328,109 +366,3 @@ Widget _productWidgetBuilder(
 /// This list is hardcoded for demonstration purposes, pulling specific items
 /// from the `DummyData` source. In a real-world application, this data would
 /// be fetched dynamically from a backend API (e.g., an endpoint like `/api/products/popular`).
-final List<ProductEntity> popularProductsList = [
-  ProductEntity(
-    id: DummyData.listOfFood[4]['id'],
-    category: DummyData.listOfFood[4]['type'],
-    name: DummyData.listOfFood[4]['name'],
-    price: DummyData.listOfFood[4]['price'],
-    picsUrls: [DummyData.listOfFood[4]['image']],
-    quantity: DummyData.listOfFood[4]['quantity'],
-    description: DummyData.listOfFood[4]['description'],
-    promoPrice: Random().nextBool()
-        ? (DummyData.listOfFood[4]['price'] *
-              ((Random().nextInt(4) + 1.0) / 10))
-        : null,
-  ),
-  ProductEntity(
-    id: DummyData.listOfGrommingProducts[5]['id'],
-    category: DummyData.listOfGrommingProducts[5]['type'],
-    name: DummyData.listOfGrommingProducts[5]['name'],
-    price: DummyData.listOfGrommingProducts[5]['price'],
-    picsUrls: [DummyData.listOfGrommingProducts[5]['image']],
-    quantity: DummyData.listOfGrommingProducts[5]['quantity'],
-    description: DummyData.listOfGrommingProducts[5]['description'],
-    promoPrice: Random().nextBool()
-        ? (DummyData.listOfGrommingProducts[5]['price'] *
-              ((Random().nextInt(4) + 1.0) / 10))
-        : null,
-  ),
-  ProductEntity(
-    id: DummyData.listOfMedecines[4]['id'],
-    category: DummyData.listOfMedecines[4]['type'],
-    name: DummyData.listOfMedecines[4]['name'],
-    price: DummyData.listOfMedecines[4]['price'],
-    picsUrls: [DummyData.listOfMedecines[4]['image']],
-    quantity: DummyData.listOfMedecines[4]['quantity'],
-    description: DummyData.listOfMedecines[4]['description'],
-    promoPrice: Random().nextBool()
-        ? (DummyData.listOfMedecines[4]['price'] *
-              ((Random().nextInt(4) + 1.0) / 10))
-        : null,
-  ),
-  ProductEntity(
-    id: DummyData.listOfFood[9]['id'],
-    category: DummyData.listOfFood[9]['type'],
-    name: DummyData.listOfFood[9]['name'],
-    price: DummyData.listOfFood[9]['price'],
-    picsUrls: [DummyData.listOfFood[9]['image']],
-    quantity: DummyData.listOfFood[9]['quantity'],
-    description: DummyData.listOfFood[9]['description'],
-    promoPrice: Random().nextBool()
-        ? (DummyData.listOfFood[9]['price'] *
-              ((Random().nextInt(4) + 1.0) / 10))
-        : null,
-  ),
-  ProductEntity(
-    id: DummyData.listOfGrommingProducts[10]['id'],
-    category: DummyData.listOfGrommingProducts[10]['type'],
-    name: DummyData.listOfGrommingProducts[10]['name'],
-    price: DummyData.listOfGrommingProducts[10]['price'],
-    picsUrls: [DummyData.listOfGrommingProducts[10]['image']],
-    quantity: DummyData.listOfGrommingProducts[10]['quantity'],
-    description: DummyData.listOfGrommingProducts[10]['description'],
-    promoPrice: Random().nextBool()
-        ? (DummyData.listOfGrommingProducts[10]['price'] *
-              ((Random().nextInt(4) + 1.0) / 10))
-        : null,
-  ),
-  ProductEntity(
-    id: DummyData.listOfMedecines[8]['id'],
-    category: DummyData.listOfMedecines[8]['type'],
-    name: DummyData.listOfMedecines[8]['name'],
-    price: DummyData.listOfMedecines[8]['price'],
-    picsUrls: [DummyData.listOfMedecines[8]['image']],
-    quantity: DummyData.listOfMedecines[8]['quantity'],
-    description: DummyData.listOfMedecines[8]['description'],
-    promoPrice: Random().nextBool()
-        ? (DummyData.listOfMedecines[8]['price'] *
-              ((Random().nextInt(4) + 1.0) / 10))
-        : null,
-  ),
-  ProductEntity(
-    id: DummyData.listOfFood[14]['id'],
-    category: DummyData.listOfFood[14]['type'],
-    name: DummyData.listOfFood[14]['name'],
-    price: DummyData.listOfFood[14]['price'],
-    picsUrls: [DummyData.listOfFood[14]['image']],
-    quantity: DummyData.listOfFood[14]['quantity'],
-    description: DummyData.listOfFood[14]['description'],
-    promoPrice: Random().nextBool()
-        ? (DummyData.listOfFood[14]['price'] *
-              ((Random().nextInt(4) + 1.0) / 10))
-        : null,
-  ),
-  ProductEntity(
-    id: DummyData.listOfGrommingProducts[14]['id'],
-    category: DummyData.listOfGrommingProducts[14]['type'],
-    name: DummyData.listOfGrommingProducts[14]['name'],
-    price: DummyData.listOfGrommingProducts[14]['price'],
-    picsUrls: [DummyData.listOfGrommingProducts[14]['image']],
-    quantity: DummyData.listOfGrommingProducts[14]['quantity'],
-    description: DummyData.listOfGrommingProducts[14]['description'],
-    promoPrice: Random().nextBool()
-        ? (DummyData.listOfGrommingProducts[14]['price'] *
-              ((Random().nextInt(4) + 1.0) / 10))
-        : null,
-  ),
-];

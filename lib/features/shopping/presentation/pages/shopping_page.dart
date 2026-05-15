@@ -136,7 +136,7 @@ class ShoppingPage extends StatelessWidget {
                         TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Peticare Shopping',
+                              text: 'PetCore Shop',
                               style: AppTextStyles.bodyMedium.copyWith(
                                 color: AppPalette.textOnSecondaryBg(context),
                                 fontSize: 27,
@@ -145,7 +145,7 @@ class ShoppingPage extends StatelessWidget {
                             ),
                             TextSpan(
                               text:
-                                  "\nAll your pet care essentials in one place!",
+                                  "\nTodo para tu mascota en un solo lugar!",
                               style: AppTextStyles.bodyRegular.copyWith(
                                 color: AppPalette.disabled(context),
                                 fontSize: 14,
@@ -285,7 +285,7 @@ class ShoppingPage extends StatelessWidget {
                       fillColor: AppPalette.surfaces(
                         context,
                       ).withValues(alpha: .5),
-                      hintText: 'Search for products',
+                      hintText: 'Buscar productos',
                       prefixIcon: Icon(
                         FontAwesomeIcons.magnifyingGlass,
                         size: 16,
@@ -315,7 +315,7 @@ class ShoppingPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Popular Products',
+                      'Productos Populares',
                       style: AppTextStyles.headingMedium.copyWith(
                         fontSize: 18,
                         color: AppPalette.textOnSecondaryBg(context),
@@ -324,7 +324,7 @@ class ShoppingPage extends StatelessWidget {
                     ),
 
                     AnimatedTextButton(
-                      text: 'See All',
+                      text: 'Ver todos',
                       onClick: () {
                         // TODO: Implement navigation to a full list of popular products.
                       },
