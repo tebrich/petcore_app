@@ -1,42 +1,98 @@
 ﻿import 'package:get/get.dart';
 
 import '../../data/services/shop_service.dart';
+import '../../domain/entities/product_entity.dart';
 
 class ShopController extends GetxController {
 
   final ShopService _service = ShopService();
 
-  var products = [].obs;
+  /// FEATURED PRODUCTS
+  var featuredProducts = <ProductEntity>[].obs;
 
-  var isLoading = false.obs;
+  /// ALL PRODUCTS
+  var allProducts = <ProductEntity>[].obs;
+
+  /// LOADING STATES
+  var isLoadingFeatured = false.obs;
+
+  var isLoadingAll = false.obs;
 
   @override
   void onInit() {
 
     super.onInit();
 
-    loadProducts();
+    loadFeaturedProducts();
+
+    loadAllProducts();
   }
 
-  Future<void> loadProducts() async {
+  // =====================================================
+  // LOAD FEATURED PRODUCTS
+  // =====================================================
+
+  Future<void> loadFeaturedProducts() async {
 
     try {
 
-      isLoading.value = true;
+      isLoadingFeatured.value = true;
 
-      final data = await _service.getProducts();
+      final data =
+          await _service.getFeaturedProducts();
 
-      products.value = data;
+      featuredProducts.value = data
+          .map<ProductEntity>(
+            (item) =>
+                ProductEntity.fromJson(item),
+          )
+          .toList();
 
-      print("SHOP PRODUCTS >>> ${products.length}");
+      print(
+        "FEATURED PRODUCTS >>> ${featuredProducts.length}",
+      );
 
     } catch (e) {
 
-      print("SHOP ERROR: $e");
+      print("FEATURED SHOP ERROR: $e");
 
     } finally {
 
-      isLoading.value = false;
+      isLoadingFeatured.value = false;
+    }
+  }
+
+  // =====================================================
+  // LOAD ALL PRODUCTS
+  // =====================================================
+
+  Future<void> loadAllProducts() async {
+
+    try {
+
+      isLoadingAll.value = true;
+
+      final data =
+          await _service.getAllProducts();
+
+      allProducts.value = data
+          .map<ProductEntity>(
+            (item) =>
+                ProductEntity.fromJson(item),
+          )
+          .toList();
+
+      print(
+        "ALL PRODUCTS >>> ${allProducts.length}",
+      );
+
+    } catch (e) {
+
+      print("ALL PRODUCTS ERROR: $e");
+
+    } finally {
+
+      isLoadingAll.value = false;
     }
   }
 }

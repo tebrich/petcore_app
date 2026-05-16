@@ -66,20 +66,39 @@ class ProductEntity {
   /// `ProductModel` class in the data layer, which then converts to a
   /// `ProductEntity`. The `promoPrice` is also randomly generated here for
   /// demonstration purposes and should be part of the actual data in a real app.
-  static ProductEntity fromJson(Map<String, dynamic> data) {
-    return ProductEntity(
-      id: data['id'],
-      category: data['type'],
-      name: data['name'],
-      price: data['price'],
-      picsUrls: [data['image']],
-      quantity: data['quantity'],
-      description: data['description'],
+  static ProductEntity fromJson(
+    Map<String, dynamic> data,
+  ) {
 
-      /// The promo price is randomly generated for demonstration purposes.
-      promoPrice: Random().nextBool()
-          ? (data['price'] * ((Random().nextInt(4) + 1.0) / 10))
-          : null,
+    return ProductEntity(
+
+      id: data['id'].toString(),
+
+      category:
+          data['category'] ?? 'food',
+
+      name:
+          data['name'] ?? '',
+
+      price:
+          (data['price'] ?? 0).toDouble(),
+
+      picsUrls: [
+
+        data['image'] ?? ''
+
+      ],
+
+      quantity:
+          data['stock'] ?? 0,
+
+      description:
+          data['brand'] ?? '',
+
+      promoPrice:
+          data['promo_price'] != null
+              ? (data['promo_price']).toDouble()
+              : null,
     );
   }
 }

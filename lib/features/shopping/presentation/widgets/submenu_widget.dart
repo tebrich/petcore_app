@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -7,9 +5,9 @@ import 'package:get/get.dart';
 import 'package:peticare/core/commn/presentation/widgets/animated_icon_button.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
-import 'package:peticare/dummy_data/dummy_data.dart';
 import 'package:peticare/features/shopping/domain/entities/product_entity.dart';
 import 'package:peticare/features/shopping/presentation/pages/products_list_page.dart';
+import 'package:peticare/features/shopping/presentation/controller/shop_controller.dart';
 
 /// Builds a responsive submenu for browsing product categories. 🐾
 ///
@@ -29,6 +27,8 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
   /// A hardcoded list of `AnimatedIconButton` widgets, one for each product category.
   /// Each button is configured with a unique icon, color, and `onClick` action.
   List<Widget> subMenuWidgets = [
+  final ShopController controller =
+      Get.find<ShopController>();
     AnimatedIconButton(
       iconData: FontAwesomeIcons.plus,
       foregroundColor: AppPalette.dunflowerGold.withValues(
@@ -268,7 +268,7 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
             ),
           ),
           Text(
-            "Pelu",
+            "Peluquería",
             style: AppTextStyles.ctaBold.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w500,

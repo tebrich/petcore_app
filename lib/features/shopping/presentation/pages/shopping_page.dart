@@ -11,6 +11,9 @@ import 'package:peticare/features/shopping/presentation/widgets/popular_products
 import 'package:peticare/features/shopping/presentation/widgets/promos_sections.dart';
 import 'package:peticare/features/shopping/presentation/widgets/promotion_banner_widget.dart';
 import 'package:peticare/features/shopping/presentation/widgets/submenu_widget.dart';
+import 'package:peticare/features/shopping/presentation/controller/shop_controller.dart';
+
+import 'package:peticare/features/shopping/presentation/pages/products_list_page.dart';
 
 /// The main entry point for the shopping feature of the application. 🛍️
 ///
@@ -30,6 +33,8 @@ class ShoppingPage extends StatelessWidget {
   @override
   /// Builds the main UI for the shopping page.
   Widget build(BuildContext context) {
+    final ShopController controller =
+        Get.put(ShopController());
     Size screenSize = MediaQuery.of(context).size;
 
     /*
@@ -326,7 +331,17 @@ class ShoppingPage extends StatelessWidget {
                     AnimatedTextButton(
                       text: 'Ver todos',
                       onClick: () {
-                        // TODO: Implement navigation to a full list of popular products.
+
+                        Get.to(
+
+                          () => ProductsListPage(
+
+                            title: 'Todos los Productos',
+
+                            listOfProducts:
+                                controller.allProducts,
+                          ),
+                        );
                       },
                     ),
                   ],

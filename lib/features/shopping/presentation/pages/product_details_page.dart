@@ -46,6 +46,30 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   /// A boolean to track if the product is marked as a favorite.
   bool isFavoris = false;
 
+  late PageController pageController;
+
+  int currentPage = 0;
+
+  // ===========================================================================
+    // ♻️ LIFECYCLE
+    // ===========================================================================
+
+    @override
+    void initState() {
+
+      super.initState();
+
+      pageController = PageController();
+    }
+
+    @override
+    void dispose() {
+
+      pageController.dispose();
+
+      super.dispose();
+    }
+
   // ===========================================================================
   // ⚙️ Business Logic & State Management
   // ===========================================================================
@@ -88,7 +112,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     /// A container with a curved bottom border that holds the product image.
                     // TODO: Implement a PageView here to allow swiping between multiple product images.
                     ClipRRect(
-                      borderRadius: BorderRadiusGeometry.vertical(
+                      borderRadius: BorderRadius.vertical(
                         bottom: Radius.circular(screenSize.width * 0.3),
                       ),
                       child: Container(
@@ -96,80 +120,61 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         height: screenSize.height < 600
                             ? 300
                             : screenSize.height * 0.5,
-                        child: Image.network(
-                          widget.productDetails.picsUrls[0],
-                          height: screenSize.height < 600
-                              ? 300
-                              : screenSize.height * 0.5,
-                          width: screenSize.width,
-                          fit: BoxFit.contain,
-                          alignment: Alignment.center,
+                        child: PageView.builder(
 
-                          /// Displays an animated loading indicator while the image is being fetched.
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
+                          controller: pageController,
+
+                          itemCount: widget.productDetails.picsUrls.length,
+
+                          onPageChanged: (index) {
+
+                            setState(() {
+
+                              currentPage = index;
+
+                            });
+
+                          },
+
+                          itemBuilder: (context, index) {
+
+                            return Image.network(
+
+                              widget.productDetails.picsUrls[index],
+
                               height: screenSize.height < 600
                                   ? 300
                                   : screenSize.height * 0.5,
+
+                              width: screenSize.width,
+
+                              fit: BoxFit.contain,
+
                               alignment: Alignment.center,
-                              child: AnimatedCartLoading(
-                                logoSize: Size(150, 150),
-                                rightOutsideLineColor:
-                                    AppPalette.textOnSecondaryBg(context),
-                                rightOutsideLineStrokeWidth: 1.25,
-                                roadLineColor: AppPalette.primaryText(context),
-                                roadStrokeWidth: 3,
-                                color: AppPalette.textOnSecondaryBg(context),
-                                strokeWidth: 1.75,
-                              ),
+
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+
+                                if (loadingProgress == null) {
+                                  return child;
+                                }
+
+                                return Container(
+                                  alignment: Alignment.center,
+                                  child: CircularProgressIndicator(),
+                                );
+                              },
+
+                              errorBuilder:
+                                  (context, error, stackTrace) {
+
+                                return Container(
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.error),
+                                );
+                              },
                             );
                           },
-
-                          /// Displays a user-friendly error message if the image fails to load.
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                height: screenSize.height < 600
-                                    ? 300
-                                    : screenSize.height * 0.5,
-                                width: screenSize.width,
-                                alignment: Alignment.center,
-                                color: AppPalette.disabled(
-                                  context,
-                                ).withValues(alpha: 0.2),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenSize.width * .05,
-                                  vertical: 16,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.error,
-                                      size: 60,
-                                      color: AppPalette.secondaryText(context),
-                                    ),
-
-                                    const SizedBox(height: 8.0),
-
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        'Image failed to load',
-                                        style: AppTextStyles.bodyRegular
-                                            .copyWith(
-                                              color: AppPalette.secondaryText(
-                                                context,
-                                              ),
-                                              fontSize: 16,
-                                            ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                         ),
                       ),
                     ),
@@ -179,7 +184,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       bottom: -24.0,
                       child: AnimatedSmoothIndicator(
                         // TODO: This should be connected to the PageController of the PageView.
-                        activeIndex: 0,
+                        activeIndex: currentPage,
                         count: widget.productDetails.picsUrls.length,
                         effect: ExpandingDotsEffect(
                           expansionFactor: 2,
@@ -208,8 +213,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                         // TODO: This should be connected to a controller to persist the favorite state.
                         onClick: () {
+
                           setState(() {
+
                             isFavoris = !isFavoris;
+
                           });
                         },
                       ),
@@ -237,7 +245,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         iconData: Icons.arrow_back_ios_new_rounded,
 
                         // TODO: Implement logic to go to the previous page in the PageView.
-                        onClick: () {},
+                        onClick: () {
+
+                          if (currentPage > 0) {
+
+                            pageController.previousPage(
+
+                              duration: const Duration(
+                                milliseconds: 300,
+                              ),
+
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
                       ),
                     ),
 
@@ -250,7 +271,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         iconData: Icons.arrow_forward_ios_rounded,
 
                         // TODO: Implement logic to go to the next page in the PageView.
-                        onClick: () {},
+                        onClick: () {
+
+                          if (
+                            currentPage <
+                            widget.productDetails.picsUrls.length - 1
+                          ) {
+
+                            pageController.nextPage(
+
+                              duration: const Duration(
+                                milliseconds: 300,
+                              ),
+
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
                       ),
                     ),
                   ],

@@ -5,6 +5,7 @@ import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/features/shopping/domain/entities/product_entity.dart';
 import 'package:peticare/features/shopping/presentation/pages/product_details_page.dart';
 import 'package:peticare/features/shopping/presentation/widgets/cart_loading_widget.dart';
+import 'package:peticare/core/utils/price_formatter.dart';
 
 /// Builds a widget for a single product item in a grid layout. 📱
 ///
@@ -224,59 +225,26 @@ Widget productGridElementWidget(
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: FittedBox(
+
                       fit: BoxFit.scaleDown,
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "\$",
-                              style: AppTextStyles.ctaBold.copyWith(
-                                fontSize: productDetails.promoPrice == null
-                                    ? 16
-                                    : 9,
-                                color: AppPalette.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: productDetails.price.toStringAsFixed(2),
-                              style: AppTextStyles.ctaBold.copyWith(
-                                decoration: productDetails.promoPrice == null
-                                    ? TextDecoration.none
-                                    : TextDecoration.lineThrough,
-                                fontSize: productDetails.promoPrice == null
-                                    ? 19
-                                    : 12,
-                                color: productDetails.promoPrice == null
-                                    ? AppPalette.primaryText(context)
-                                    : AppPalette.textOnSecondaryBg(context),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            if (productDetails.promoPrice != null)
-                              TextSpan(
-                                text: " \$",
-                                style: AppTextStyles.ctaBold.copyWith(
-                                  fontSize: 16,
-                                  color: AppPalette.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            TextSpan(
-                              text: productDetails.promoPrice?.toStringAsFixed(
-                                2,
-                              ),
-                              style: AppTextStyles.ctaBold.copyWith(
-                                fontSize: 19,
-                                color: AppPalette.primary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
+
+                      child: Text(
+
+                        PriceFormatter.formatGs(
+
+                          productDetails.promoPrice ??
+
+                          productDetails.price,
                         ),
-                        textAlign: TextAlign.start,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+
+                        style: AppTextStyles.ctaBold.copyWith(
+
+                          fontSize: 19,
+
+                          color: AppPalette.primaryText(context),
+
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

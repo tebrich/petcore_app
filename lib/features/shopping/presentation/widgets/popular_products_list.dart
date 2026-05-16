@@ -5,11 +5,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
-import 'package:peticare/dummy_data/dummy_data.dart';
 import 'package:peticare/features/shopping/domain/entities/product_entity.dart';
 import 'package:peticare/features/shopping/presentation/pages/product_details_page.dart';
 import 'package:peticare/features/shopping/presentation/widgets/cart_loading_widget.dart';
 import 'package:peticare/features/shopping/presentation/controller/shop_controller.dart';
+import 'package:peticare/core/utils/price_formatter.dart';
 
 /// Builds a horizontally scrolling list of "Popular Products". 🌟
 ///
@@ -26,7 +26,7 @@ final ShopController controller =
 
   return Obx(() {
 
-  if (controller.isLoading.value) {
+  if (controller.isLoadingFeatured.value) {
 
     return const Center(
       child: CircularProgressIndicator(),
@@ -37,7 +37,7 @@ final ShopController controller =
     height: 165,
     child: ListView.builder(
       scrollDirection: Axis.horizontal,
-      itemCount: controller.products.length,
+      itemCount: controller.featuredProducts.length,
       itemBuilder: (context, index) => Center(
         child: Container(
           margin: EdgeInsets.only(
@@ -52,35 +52,7 @@ final ShopController controller =
 
             context,
 
-            ProductEntity(
-
-              id:
-                  controller.products[index]["id"]
-                      .toString(),
-
-              name:
-                  controller.products[index]["name"],
-
-              category:
-                  controller.products[index]["category"],
-
-              price:
-                  controller.products[index]["price"]
-                      .toDouble(),
-
-              picsUrls: [
-
-                controller.products[index]["image"]
-
-              ],
-
-              quantity: 1,
-
-              description:
-                  controller.products[index]["name"],
-
-              promoPrice: null,
-            ),
+            controller.featuredProducts[index]
           ),
         ),
       ),
@@ -282,59 +254,34 @@ Widget _productWidgetBuilder(
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                    padding: const EdgeInsets.fromLTRB(
+                      8.0,
+                      0.0,
+                      8.0,
+                      0.0,
+                    ),
+
                     child: FittedBox(
+
                       fit: BoxFit.scaleDown,
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "\$",
-                              style: AppTextStyles.ctaBold.copyWith(
-                                fontSize: productDetails.promoPrice == null
-                                    ? 16
-                                    : 9,
-                                color: AppPalette.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: productDetails.price.toStringAsFixed(2),
-                              style: AppTextStyles.ctaBold.copyWith(
-                                decoration: productDetails.promoPrice == null
-                                    ? TextDecoration.none
-                                    : TextDecoration.lineThrough,
-                                fontSize: productDetails.promoPrice == null
-                                    ? 19
-                                    : 12,
-                                color: AppPalette.textOnSecondaryBg(context),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            if (productDetails.promoPrice != null)
-                              TextSpan(
-                                text: " \$",
-                                style: AppTextStyles.ctaBold.copyWith(
-                                  fontSize: 16,
-                                  color: AppPalette.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            TextSpan(
-                              text: productDetails.promoPrice?.toStringAsFixed(
-                                2,
-                              ),
-                              style: AppTextStyles.ctaBold.copyWith(
-                                fontSize: 19,
-                                color: AppPalette.primary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
+
+                      child: Text(
+
+                        PriceFormatter.formatGs(
+
+                          productDetails.promoPrice ??
+
+                          productDetails.price,
                         ),
-                        textAlign: TextAlign.start,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+
+                        style: AppTextStyles.ctaBold.copyWith(
+
+                          fontSize: 18,
+
+                          color: AppPalette.primary,
+
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
