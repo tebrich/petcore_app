@@ -47,6 +47,7 @@ import 'package:peticare/features/vet/presentation/pages/groom_vet_appointments_
 import 'package:peticare/features/vet/presentation/pages/vet_panel_page.dart';
 import 'package:peticare/features/vet/presentation/pages/vet_home_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:peticare/features/shopping/presentation/controller/cart_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +56,7 @@ void main() async {
   await initializeDateFormatting('es_ES', null);
   Get.put(PostSignupPageController());
   Get.put(NotificationsController());
+  Get.put(CartController(),permanent: true);
 
   runApp(const MyApp());
 }

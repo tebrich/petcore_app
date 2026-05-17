@@ -11,6 +11,7 @@ import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/shopping/presentation/controller/cart_controller.dart';
 import 'package:peticare/features/shopping/presentation/widgets/product_image_builder.dart';
+import 'package:peticare/core/utils/price_formatter.dart';
 
 /// A page that displays the contents of the user's shopping cart. 🛒
 ///
@@ -73,7 +74,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return GetBuilder<CartController>(
-      init: CartController(),
+
       builder: (cartController) => Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -118,7 +119,14 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
                   ),
 
             /// The bottom sheet that shows the total and checkout button.
-            _bottomSheetWidgetBuilder(screenSize, cartController),
+            cartController.cartContent.isEmpty
+
+                ? SizedBox()
+
+                : _bottomSheetWidgetBuilder(
+                    screenSize,
+                    cartController,
+                  ),
           ],
         ),
       ),
@@ -194,7 +202,9 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
                       const Spacer(),
                       Text(
                         // TODO: Replace hardcoded tax/fee with dynamic data from the controller.
-                        '\$${(cartController.cartTotal + 2.0).toStringAsFixed(2)}',
+                        PriceFormatter.formatGs(
+                          cartController.cartTotal.toDouble(),
+                        ),
                         style: AppTextStyles.ctaBold.copyWith(
                           fontSize: 17,
                           color: AppPalette.primaryText(context),
@@ -381,91 +391,33 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
             mainAxisSize: MainAxisSize.max,
             children: [
               /// Displays the product price, handling promotional prices with a strikethrough.
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "\$",
-                      style: AppTextStyles.ctaBold.copyWith(
-                        fontSize:
-                            cartController
-                                    .cartContent[index]
-                                    .keys
-                                    .first
-                                    .promoPrice ==
-                                null
-                            ? 15
-                            : 9,
-                        color:
-                            cartController
-                                    .cartContent[index]
-                                    .keys
-                                    .first
-                                    .promoPrice ==
-                                null
-                            ? AppPalette.primary
-                            : AppPalette.textOnSecondaryBg(context),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                      text: cartController.cartContent[index].keys.first.price
-                          .toStringAsFixed(2),
-                      style: AppTextStyles.ctaBold.copyWith(
-                        decoration:
-                            cartController
-                                    .cartContent[index]
-                                    .keys
-                                    .first
-                                    .promoPrice ==
-                                null
-                            ? TextDecoration.none
-                            : TextDecoration.lineThrough,
-                        fontSize:
-                            cartController
-                                    .cartContent[index]
-                                    .keys
-                                    .first
-                                    .promoPrice ==
-                                null
-                            ? 17
-                            : 12,
-                        color: AppPalette.textOnSecondaryBg(context),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (cartController
-                            .cartContent[index]
-                            .keys
-                            .first
-                            .promoPrice !=
-                        null)
-                      TextSpan(
-                        text: "\n\$",
-                        style: AppTextStyles.ctaBold.copyWith(
-                          fontSize: 15,
-                          color: AppPalette.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    TextSpan(
-                      text: cartController
+              Text(
+
+                PriceFormatter.formatGs(
+
+                  (cartController
                           .cartContent[index]
                           .keys
                           .first
-                          .promoPrice
-                          ?.toStringAsFixed(2),
-                      style: AppTextStyles.ctaBold.copyWith(
-                        fontSize: 17,
-                        color: AppPalette.primary,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
+                          .promoPrice ??
+
+                      cartController
+                          .cartContent[index]
+                          .keys
+                          .first
+                          .price)
+
+                      .toDouble(),
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+
+                style: AppTextStyles.ctaBold.copyWith(
+
+                  fontSize: 17,
+
+                  color: AppPalette.primary,
+
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               const Spacer(),

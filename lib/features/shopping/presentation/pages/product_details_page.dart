@@ -8,6 +8,9 @@ import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/shopping/domain/entities/product_entity.dart';
 import 'package:peticare/features/shopping/presentation/widgets/cart_loading_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:get/get.dart';
+
+import 'package:peticare/features/shopping/presentation/controller/cart_controller.dart';
 
 /// A page that displays detailed information about a single product. 📱
 ///
@@ -36,6 +39,8 @@ class ProductDetailsPage extends StatefulWidget {
 ///
 /// Manages the UI state, including the selected quantity and favorite status.
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
+    final CartController cartController =
+        Get.find<CartController>();
   // ===========================================================================
   // 🚀 State Variables
   // ===========================================================================
@@ -598,7 +603,25 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   size: Size(screenSize.width * 0.9, 45),
                   radius: BorderRadius.all(Radius.circular(10)),
                   foregroundColor: AppPalette.background(context),
-                  onClick: () {},
+                  onClick: () {
+
+                    cartController.addToCart(
+
+                      widget.productDetails,
+
+                      selectedQte,
+                    );
+
+                    Get.snackbar(
+
+                      'Carrito',
+
+                      'Producto agregado correctamente',
+
+                      snackPosition:
+                          SnackPosition.BOTTOM,
+                    );
+                  },
 
                   // TODO: Implement "Add to Cart" logic, likely by calling a CartController.
                   child: Row(

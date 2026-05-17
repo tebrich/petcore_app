@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:peticare/dummy_data/dummy_data.dart';
 import 'package:peticare/features/shopping/domain/entities/product_entity.dart';
 
 /// Manages the state and business logic for the user's shopping cart. 🛒
@@ -23,14 +22,10 @@ class CartController extends GetxController {
   /// **Note:** A more robust implementation might use a custom `CartItem` class
   /// (e.g., `class CartItem { final ProductEntity product; int quantity; }`)
   /// instead of a `Map` to improve type safety and code readability.
-  List<Map<ProductEntity, int>> cartContent = [
-    {ProductEntity.fromJson(DummyData.listOfGrommingProducts[3]): 1},
-    {ProductEntity.fromJson(DummyData.listOfFood[6]): 2},
-    {ProductEntity.fromJson(DummyData.listOfMedecines[7]): 1},
-  ];
+  List<Map<ProductEntity, int>> cartContent = [];
 
   /// The total calculated price of all items in the cart.
-  late double cartTotal;
+  double cartTotal = 0.0;
 
   // ===========================================================================
   // ⚙️ Business Logic & State Management
@@ -54,18 +49,77 @@ class CartController extends GetxController {
   /// Otherwise, it decrements the quantity. After any change, it recalculates
   /// the cart total and notifies listeners.
   void decreaseProductQTE(int itemIndex) {
-    final currentQuantity = cartContent[itemIndex].values.first;
+
+    final currentQuantity =
+        cartContent[itemIndex]
+            .values
+            .first;
+
     if (currentQuantity > 1) {
+
       cartContent[itemIndex] = {
-        cartContent[itemIndex].keys.first: currentQuantity - 1,
+
+        cartContent[itemIndex]
+            .keys
+            .first:
+
+        currentQuantity - 1,
       };
+
     } else {
-      // If quantity is 1, remove the item instead of going to 0.
+
       removeProductFromCart(itemIndex);
     }
+
     _recalculateTotal();
+
     update();
   }
+
+  void addToCart(
+
+    ProductEntity product,
+
+    int quantity,
+  ) {
+
+    final existingIndex = cartContent.indexWhere(
+
+      (item) =>
+
+          item.keys.first.id == product.id,
+    );
+
+    // PRODUCT ALREADY EXISTS
+    if (existingIndex != -1) {
+
+      final currentQuantity =
+          cartContent[existingIndex]
+              .values
+              .first;
+
+      cartContent[existingIndex] = {
+
+        product:
+
+            currentQuantity + quantity,
+      };
+
+    } else {
+
+      // NEW PRODUCT
+      cartContent.add({
+
+        product: quantity,
+      });
+    }
+
+    _recalculateTotal();
+
+    update();
+  }
+
+
 
   /// Calculates the total price of all items in the cart.
   ///

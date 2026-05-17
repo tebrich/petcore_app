@@ -23,12 +23,16 @@ import 'package:peticare/features/shopping/presentation/controller/shop_controll
 /// [Args]:
 ///   - `context`: The build context for accessing theme and other resources.
 ///   - `screenSize`: The dimensions of the screen, used for layout calculations.
-Widget subMenuWidget(BuildContext context, Size screenSize) {
-  /// A hardcoded list of `AnimatedIconButton` widgets, one for each product category.
-  /// Each button is configured with a unique icon, color, and `onClick` action.
-  List<Widget> subMenuWidgets = [
+Widget subMenuWidget(
+  BuildContext context,
+  Size screenSize,
+) {
+
   final ShopController controller =
       Get.find<ShopController>();
+
+  List<Widget> subMenuWidgets = [
+
     AnimatedIconButton(
       iconData: FontAwesomeIcons.plus,
       foregroundColor: AppPalette.dunflowerGold.withValues(
@@ -74,28 +78,28 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
       /// The action to perform on tap. Navigates to a `ProductsListPage`
       /// filtered for the "Feeding" category.
       onClick: () {
-        Get.to(
-          () => ProductsListPage(
-            title: 'Food Products',
-            listOfProducts: List.generate(
-              DummyData.listOfFood.length,
-              (index) => ProductEntity(
-                id: DummyData.listOfFood[index]['id'],
-                category: DummyData.listOfFood[index]['type'],
-                name: DummyData.listOfFood[index]['name'],
-                price: DummyData.listOfFood[index]['price'],
-                quantity: DummyData.listOfFood[index]['quantity'],
-                picsUrls: [DummyData.listOfFood[index]['image']],
-                description: DummyData.listOfFood[index]['description'],
 
-                /// TODO: The promo price is randomly generated. In a real app,
-                /// this should come from the data source.
-                promoPrice: Random().nextBool()
-                    ? (DummyData.listOfFood[index]['price'] *
-                          ((Random().nextInt(4) + 1.0) / 10))
-                    : null,
-              ),
-            ),
+        Get.to(
+
+          () => ProductsListPage(
+
+            title: 'Alimentos',
+
+            listOfProducts:
+
+                controller.allProducts
+
+                    .where(
+
+                      (product) =>
+
+                          product.category
+                              .toLowerCase()
+
+                              == 'food',
+                    )
+
+                    .toList(),
           ),
         );
       },
@@ -145,25 +149,28 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
       /// The action to perform on tap. Navigates to a `ProductsListPage`
       /// filtered for the "Toys" category.
       onClick: () {
+
         Get.to(
+
           () => ProductsListPage(
-            title: 'Toys',
-            listOfProducts: List.generate(
-              DummyData.listOfToys.length,
-              (index) => ProductEntity(
-                id: DummyData.listOfToys[index]['id'],
-                category: DummyData.listOfToys[index]['type'],
-                name: DummyData.listOfToys[index]['name'],
-                price: DummyData.listOfToys[index]['price'],
-                picsUrls: [DummyData.listOfToys[index]['image']],
-                quantity: DummyData.listOfToys[index]['quantity'],
-                description: DummyData.listOfToys[index]['description'],
-                promoPrice: Random().nextBool()
-                    ? (DummyData.listOfToys[index]['price'] *
-                          ((Random().nextInt(4) + 1.0) / 10))
-                    : null,
-              ),
-            ),
+
+            title: 'Juguetes',
+
+            listOfProducts:
+
+                controller.allProducts
+
+                    .where(
+
+                      (product) =>
+
+                          product.category
+                              .toLowerCase()
+
+                              == 'toys',
+                    )
+
+                    .toList(),
           ),
         );
       },
@@ -214,25 +221,28 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
       /// The action to perform on tap. Navigates to a `ProductsListPage`
       /// filtered for the "Health" category.
       onClick: () {
+
         Get.to(
+
           () => ProductsListPage(
-            title: 'Health Products',
-            listOfProducts: List.generate(
-              DummyData.listOfMedecines.length,
-              (index) => ProductEntity(
-                id: DummyData.listOfMedecines[index]['id'],
-                category: DummyData.listOfMedecines[index]['type'],
-                name: DummyData.listOfMedecines[index]['name'],
-                price: DummyData.listOfMedecines[index]['price'],
-                picsUrls: [DummyData.listOfMedecines[index]['image']],
-                quantity: DummyData.listOfMedecines[index]['quantity'],
-                description: DummyData.listOfMedecines[index]['description'],
-                promoPrice: Random().nextBool()
-                    ? (DummyData.listOfMedecines[index]['price'] *
-                          ((Random().nextInt(4) + 1.0) / 10))
-                    : null,
-              ),
-            ),
+
+            title: 'Salud',
+
+            listOfProducts:
+
+                controller.allProducts
+
+                    .where(
+
+                      (product) =>
+
+                          product.category
+                              .toLowerCase()
+
+                              == 'health',
+                    )
+
+                    .toList(),
           ),
         );
       },
@@ -282,26 +292,28 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
       /// The action to perform on tap. Navigates to a `ProductsListPage`
       /// filtered for the "Grooming" category.
       onClick: () {
+
         Get.to(
+
           () => ProductsListPage(
-            title: 'Grooming Products',
-            listOfProducts: List.generate(
-              DummyData.listOfGrommingProducts.length,
-              (index) => ProductEntity(
-                id: DummyData.listOfGrommingProducts[index]['id'],
-                category: DummyData.listOfGrommingProducts[index]['type'],
-                name: DummyData.listOfGrommingProducts[index]['name'],
-                price: DummyData.listOfGrommingProducts[index]['price'],
-                picsUrls: [DummyData.listOfGrommingProducts[index]['image']],
-                quantity: DummyData.listOfGrommingProducts[index]['quantity'],
-                description:
-                    DummyData.listOfGrommingProducts[index]['description'],
-                promoPrice: Random().nextBool()
-                    ? (DummyData.listOfGrommingProducts[index]['price'] *
-                          ((Random().nextInt(4) + 1.0) / 10))
-                    : null,
-              ),
-            ),
+
+            title: 'Peluquería',
+
+            listOfProducts:
+
+                controller.allProducts
+
+                    .where(
+
+                      (product) =>
+
+                          product.category
+                              .toLowerCase()
+
+                              == 'grooming',
+                    )
+
+                    .toList(),
           ),
         );
       },
@@ -396,7 +408,21 @@ Widget subMenuWidget(BuildContext context, Size screenSize) {
 
             title: 'Accesorios',
 
-            listOfProducts: [],
+            listOfProducts:
+
+                controller.allProducts
+
+                    .where(
+
+                      (product) =>
+
+                          product.category
+                              .toLowerCase()
+
+                              == 'accessories',
+                    )
+
+                    .toList(),
           ),
         );
       },
