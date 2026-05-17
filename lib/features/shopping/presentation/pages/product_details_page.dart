@@ -11,6 +11,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:get/get.dart';
 
 import 'package:peticare/features/shopping/presentation/controller/cart_controller.dart';
+import 'package:peticare/core/utils/price_formatter.dart';
 
 /// A page that displays detailed information about a single product. 📱
 ///
@@ -307,7 +308,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   horizontal: screenSize.width * .05,
                 ),
                 child: Text(
-                  '#${widget.productDetails.category}',
+                  '#${translateCategory(
+                      widget.productDetails.category,
+                  )}',
                   style: AppTextStyles.playfulTag.copyWith(
                     color: AppPalette.primary,
                     fontSize: 11,
@@ -364,199 +367,38 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   horizontal: screenSize.width * .05,
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center,
+
                   children: [
-                    /// A rich text widget to display the price, handling both
-                    /// regular and promotional pricing with different styles.
+
                     FittedBox(
+
                       fit: BoxFit.scaleDown,
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "\$",
-                              style: AppTextStyles.ctaBold.copyWith(
-                                fontSize:
-                                    widget.productDetails.promoPrice == null
-                                    ? 24
-                                    : 16,
-                                color: widget.productDetails.promoPrice == null
-                                    ? AppPalette.primary
-                                    : AppPalette.textOnSecondaryBg(context),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: widget.productDetails.price.toStringAsFixed(
-                                2,
-                              ),
-                              style: AppTextStyles.ctaBold.copyWith(
-                                decoration:
-                                    widget.productDetails.promoPrice == null
-                                    ? TextDecoration.none
-                                    : TextDecoration.lineThrough,
-                                fontSize:
-                                    widget.productDetails.promoPrice == null
-                                    ? 24
-                                    : 18,
-                                color: widget.productDetails.promoPrice == null
-                                    ? AppPalette.primaryText(context)
-                                    : AppPalette.textOnSecondaryBg(context),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            if (widget.productDetails.promoPrice != null)
-                              TextSpan(
-                                text: " \$",
-                                style: AppTextStyles.ctaBold.copyWith(
-                                  fontSize: 24,
-                                  color: AppPalette.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            TextSpan(
-                              text: widget.productDetails.promoPrice
-                                  ?.toStringAsFixed(2),
-                              style: AppTextStyles.ctaBold.copyWith(
-                                fontSize: 28,
-                                color: AppPalette.primary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
+
+                      child: Text(
+
+                        PriceFormatter.formatGs(
+
+                          widget.productDetails.promoPrice ??
+
+                          widget.productDetails.price,
                         ),
-                        textAlign: TextAlign.start,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+
+                        style: AppTextStyles.ctaBold.copyWith(
+
+                          fontSize: 24,
+
+                          color: AppPalette.primary,
+
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-
-                    /// Minor Spacing
-                    const SizedBox(width: 16),
-
-                    /// Conditionally displays either an "OUT OF STOCK" message or the quantity selector.
-                    widget.productDetails.quantity == 0
-                        ? SizedBox(
-                            width: 110,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                transform: Matrix4.rotationZ(-0.1),
-                                transformAlignment: Alignment.center,
-                                padding: const EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  border: Border.all(
-                                    color: AppPalette.dDanger,
-                                    width: 2,
-                                  ),
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(5),
-                                  ),
-                                ),
-                                child: Text(
-                                  "OUT OF STOCK",
-                                  style: AppTextStyles.playfulTag.copyWith(
-                                    color: AppPalette.dDanger,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : Container(
-                            width: 110,
-                            height: 30,
-                            clipBehavior: Clip.hardEdge,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppPalette.primary),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: IconButton(
-                                    style: IconButton.styleFrom(
-                                      backgroundColor: AppPalette.primary
-                                          .withValues(
-                                            alpha:
-                                                Theme.brightnessOf(context) ==
-                                                    Brightness.dark
-                                                ? 0.45
-                                                : 0.25,
-                                          ),
-                                      foregroundColor: AppPalette.primary,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                      ),
-                                    ),
-                                    iconSize: 15,
-                                    icon: const Icon(FontAwesomeIcons.minus),
-                                    onPressed: decreaseSelectedQte,
-                                  ),
-                                ),
-                                VerticalDivider(
-                                  color: AppPalette.primary,
-                                  width: 1,
-                                  thickness: 1,
-                                ),
-
-                                /// Minor spacing
-                                const SizedBox(width: 4.0),
-
-                                Expanded(
-                                  child: Text(
-                                    selectedQte.toString(),
-                                    style: AppTextStyles.bodyRegular.copyWith(
-                                      color: AppPalette.primaryText(context),
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-
-                                /// Minor spacing
-                                const SizedBox(width: 4.0),
-                                VerticalDivider(
-                                  color: AppPalette.primary,
-                                  width: 1,
-                                  thickness: 1,
-                                ),
-                                SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: IconButton(
-                                    style: IconButton.styleFrom(
-                                      backgroundColor: AppPalette.primary
-                                          .withValues(
-                                            alpha:
-                                                Theme.brightnessOf(context) ==
-                                                    Brightness.dark
-                                                ? 0.45
-                                                : 0.25,
-                                          ),
-                                      foregroundColor: AppPalette.primary,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                      ),
-                                    ),
-                                    iconSize: 15,
-                                    icon: const Icon(FontAwesomeIcons.plus),
-                                    onPressed: increaseSelectedQte,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                   ],
                 ),
               ),
@@ -570,7 +412,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   horizontal: screenSize.width * 0.05,
                 ),
                 child: Text(
-                  "Description:",
+                  "Descripción:",
                   style: AppTextStyles.headingMedium.copyWith(
                     color: AppPalette.disabled(context),
                     fontSize: 13,
@@ -609,7 +451,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                       widget.productDetails,
 
-                      selectedQte,
+                      1,
                     );
 
                     Get.snackbar(
@@ -631,7 +473,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
-                          "ADD TO CART",
+                          "Agregar al carrito",
                           style: AppTextStyles.buttonText.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -652,7 +494,33 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
     );
   }
+  String translateCategory(
+    String category,
+  ) {
 
+    switch (
+      category.toLowerCase()
+    ) {
+
+      case 'food':
+        return 'Alimentos';
+
+      case 'toys':
+        return 'Juguetes';
+
+      case 'health':
+        return 'Salud';
+
+      case 'grooming':
+        return 'Peluquería';
+
+      case 'accessories':
+        return 'Accesorios';
+
+      default:
+        return category;
+    }
+  }
   /// Calculates the discount percentage based on the original and promotional prices.
   double calcPromoPercentage() {
     if (widget.productDetails.promoPrice == null ||

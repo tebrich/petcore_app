@@ -205,7 +205,9 @@ Widget productGridElementWidget(
                               .withValues(alpha: 0.25),
                     ),
                     child: Text(
-                      productDetails.category,
+                      translateCategory(
+                        productDetails.category,
+                      ),
                       style: AppTextStyles.playfulTag.copyWith(
                         fontSize: 10,
                         color:
@@ -272,4 +274,31 @@ Widget productGridElementWidget(
       ),
     ],
   );
+}
+String translateCategory(
+  String category,
+) {
+
+  switch (
+    category.toLowerCase()
+  ) {
+
+    case 'food':
+      return 'Alimentos';
+
+    case 'toys':
+      return 'Juguetes';
+
+    case 'health':
+      return 'Salud';
+
+    case 'grooming':
+      return 'Peluquería';
+
+    case 'accessories':
+      return 'Accesorios';
+
+    default:
+      return category;
+  }
 }

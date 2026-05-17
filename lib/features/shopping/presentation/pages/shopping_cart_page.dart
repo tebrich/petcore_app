@@ -81,7 +81,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
           scrolledUnderElevation: 4,
           automaticallyImplyLeading: true,
           title: Text(
-            'My Cart',
+            'MI carrito',
             style: AppTextStyles.playfulTag.copyWith(
               color: AppPalette.primaryText(context),
               fontSize: 18,
@@ -217,7 +217,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
                   /// The primary call-to-action button, which navigates to the checkout page.
                   /// It is disabled if the cart is empty.
                   AnimatedElevatedButton(
-                    text: 'CHECK OUT',
+                    text: 'Finaliza compra',
                     textStyle: AppTextStyles.buttonText.copyWith(
                       color: AppPalette.primaryText(context),
                       fontSize: 14,
@@ -277,9 +277,18 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
                 ),
                 const SizedBox(height: 2.0),
                 Text(
-                  /// Product category.
-                  cartController.cartContent[index].keys.first.category,
+
+                  translateCategory(
+
+                    cartController
+                        .cartContent[index]
+                        .keys
+                        .first
+                        .category,
+                  ),
+
                   textAlign: TextAlign.start,
+
                   style: AppTextStyles.playfulTag.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -534,5 +543,32 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
         ],
       ),
     );
+  }
+}
+String translateCategory(
+  String category,
+) {
+
+  switch (
+    category.toLowerCase()
+  ) {
+
+    case 'food':
+      return 'Alimentos';
+
+    case 'toys':
+      return 'Juguetes';
+
+    case 'health':
+      return 'Salud';
+
+    case 'grooming':
+      return 'Peluquería';
+
+    case 'accessories':
+      return 'Accesorios';
+
+    default:
+      return category;
   }
 }
