@@ -510,14 +510,14 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
               TextSpan(
                 children: [
                   TextSpan(
-                    text: "Your cart is empty",
+                    text: "Su carrito esta vacío",
                     style: AppTextStyles.headingMedium.copyWith(
                       color: AppPalette.textOnSecondaryBg(context),
                       fontSize: 20,
                     ),
                   ),
                   TextSpan(
-                    text: "\nLooks like you haven't made your choice yet.",
+                    text: "\nAún no has agregado productos a tu carrito.",
                     style: AppTextStyles.bodyRegular.copyWith(
                       color: AppPalette.secondaryText(context),
                       fontSize: 14,
@@ -534,7 +534,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
           VerticalSpacing.md(context),
           AnimatedElevatedButton(
             size: Size(screenSize.width * .8, 45),
-            text: 'SHOP NOW',
+            text: 'COMPRAR AHORA',
             onClick: Get.back,
           ),
 

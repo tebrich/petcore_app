@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:peticare/dummy_data/dummy_data.dart';
 import 'package:peticare/features/shopping/domain/entities/product_entity.dart';
+import 'package:peticare/features/shopping/presentation/controller/shop_controller.dart';
 
 /// Manages the state and logic for the product search page. 🔍
 ///
@@ -39,26 +39,12 @@ class ProductSearchController extends GetxController {
 
   /// Initializes [listOfAllProducts] by combining and shuffling products from dummy data.
   void initAllProducts() {
-    listOfAllProducts = [
-      ...List.generate(
-        DummyData.listOfMedecines.length,
-        (index) => ProductEntity.fromJson(DummyData.listOfMedecines[index]),
-      ),
-      ...List.generate(
-        DummyData.listOfFood.length,
-        (index) => ProductEntity.fromJson(DummyData.listOfFood[index]),
-      ),
-      ...List.generate(
-        DummyData.listOfToys.length,
-        (index) => ProductEntity.fromJson(DummyData.listOfToys[index]),
-      ),
-      ...List.generate(
-        DummyData.listOfGrommingProducts.length,
-        (index) =>
-            ProductEntity.fromJson(DummyData.listOfGrommingProducts[index]),
-      ),
-    ];
-    listOfAllProducts.shuffle();
+
+    final ShopController shopController =
+        Get.find<ShopController>();
+
+    listOfAllProducts =
+        shopController.allProducts;
   }
 
   /// Clears the search field, resets the search results, and updates the UI.

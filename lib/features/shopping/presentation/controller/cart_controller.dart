@@ -27,6 +27,25 @@ class CartController extends GetxController {
   /// The total calculated price of all items in the cart.
   double cartTotal = 0.0;
 
+  double deliveryFee = 15000.0;
+
+  double get checkoutTotal {
+
+    return cartTotal + deliveryFee;
+  }
+
+  int get totalItems {
+
+    int total = 0;
+
+    for (var item in cartContent) {
+
+      total += item.values.first;
+    }
+
+    return total;
+  }
+
   // ===========================================================================
   // ⚙️ Business Logic & State Management
   // ===========================================================================
@@ -161,5 +180,14 @@ class CartController extends GetxController {
   void onInit() {
     super.onInit();
     cartTotal = _calcCartTotal();
+  }
+
+  void clearCart() {
+
+    cartContent.clear();
+
+    cartTotal = 0.0;
+
+    update();
   }
 }

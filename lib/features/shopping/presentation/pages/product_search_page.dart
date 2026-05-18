@@ -129,7 +129,7 @@ class ProductSearchPage extends StatelessWidget {
                         ),
                         TextSpan(
                           text:
-                              "\nSorry, no products match your search criteria",
+                              "\nNo encontramos productos para tu búsqueda",
                           style: AppTextStyles.bodyRegular.copyWith(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -137,7 +137,7 @@ class ProductSearchPage extends StatelessWidget {
                         ),
                         TextSpan(
                           text:
-                              "\nPlease try a different search term or browse our categories for more options.",
+                              "\nIntenta con otra palabra o revisa nuestras categorías disponibles.",
                           style: AppTextStyles.bodyRegular.copyWith(
                             color: AppPalette.disabled(context),
                             fontSize: 10,

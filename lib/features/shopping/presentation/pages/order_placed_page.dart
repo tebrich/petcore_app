@@ -6,6 +6,7 @@ import 'package:peticare/core/commn/presentation/widgets/floating_aniamation.dar
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
+import 'package:peticare/features/shopping/presentation/pages/shopping_page.dart';
 
 /// A confirmation page displayed after a user successfully places an order. 🎉
 ///
@@ -160,7 +161,9 @@ class OrderPlacedPage extends StatelessWidget {
           ),
           size: Size(screenSize.width * 0.8, 40),
           radius: BorderRadius.all(Radius.circular(15)),
-          onClick: () => Get.close(3),
+          onClick: () => Get.offAll(
+            () => const ShoppingPage(),
+          ),
         ),
       ),
     );

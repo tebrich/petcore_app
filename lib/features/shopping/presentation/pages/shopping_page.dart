@@ -14,6 +14,7 @@ import 'package:peticare/features/shopping/presentation/widgets/submenu_widget.d
 import 'package:peticare/features/shopping/presentation/controller/shop_controller.dart';
 
 import 'package:peticare/features/shopping/presentation/pages/products_list_page.dart';
+import 'package:peticare/features/shopping/presentation/controller/cart_controller.dart';
 
 /// The main entry point for the shopping feature of the application. 🛍️
 ///
@@ -35,6 +36,9 @@ class ShoppingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final ShopController controller =
         Get.put(ShopController());
+
+    final CartController cartController =
+        Get.put(CartController());
     Size screenSize = MediaQuery.of(context).size;
 
     /*
@@ -191,12 +195,22 @@ class ShoppingPage extends StatelessWidget {
                               ),
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
-                                child: Text(
-                                  // TODO: Replace with dynamic data from CartController.
-                                  "3",
-                                  style: AppTextStyles.playfulTag.copyWith(
-                                    fontSize: 12,
-                                    color: AppPalette.lBackground,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+
+                                  child: GetBuilder<CartController>(
+                                    builder: (_) {
+
+                                      return Text(
+
+                                        cartController.totalItems.toString(),
+
+                                        style: AppTextStyles.playfulTag.copyWith(
+                                          fontSize: 12,
+                                          color: AppPalette.lBackground,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ),

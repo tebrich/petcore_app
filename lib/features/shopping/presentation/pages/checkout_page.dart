@@ -9,6 +9,10 @@ import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/dummy_data/dummy_data.dart';
 import 'package:peticare/features/shopping/presentation/pages/order_placed_page.dart';
+import 'package:peticare/features/shopping/presentation/controller/cart_controller.dart';
+import 'package:peticare/utils/price_formatter.dart';
+import 'package:peticare/features/shopping/data/services/order_service.dart';
+
 
 /// The checkout page where users finalize their order. 💳
 ///
@@ -30,6 +34,7 @@ class CheckoutPage extends StatefulWidget {
 ///
 /// Manages the state for the promo code input and the selected payment method.
 class _CheckoutPageState extends State<CheckoutPage> {
+final CartController cartController = Get.find<CartController>();
   // ===========================================================================
   // 🚀 State Variables & Controllers
   // ===========================================================================
@@ -104,14 +109,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ],
         ),
       ),
-      bottomNavigationBar: _bottomSheetWidgetBuilder(
-        // TODO: Replace hardcoded values with dynamic data from a cart controller.
-        screenSize,
-        subTotal: 13.27,
-        deliveryFee: 4.6,
-        promoPercentage: 10,
+      bottomNavigationBar: GetBuilder<CartController>(
+        builder: (_) {
+
+          return _bottomSheetWidgetBuilder(
+
+            screenSize,
+
+            subTotal: cartController.cartTotal,
+
+            deliveryFee: 15000,
+
+            promoPercentage: 0,
+          );
+        },
       ),
-    );
+   );
   }
 
   /// Builds the section that displays the user's shipping address.
@@ -768,7 +781,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                   const Spacer(),
                   Text(
-                    '\$${subTotal.toStringAsFixed(2)}',
+                    PriceFormatter.formatGs(subTotal),
                     style: AppTextStyles.ctaBold.copyWith(
                       fontSize: 12,
                       color: AppPalette.textOnSecondaryBg(context),
@@ -790,7 +803,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: Row(
                 children: [
                   Text(
-                    'Delivery Fee',
+                    'Costo de envío',
                     style: AppTextStyles.bodyRegular.copyWith(
                       color: AppPalette.primaryText(context),
                       fontSize: 12,
@@ -798,7 +811,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                   const Spacer(),
                   Text(
-                    '\$${deliveryFee.toStringAsFixed(2)}',
+                    PriceFormatter.formatGs(deliveryFee),
                     style: AppTextStyles.ctaBold.copyWith(
                       fontSize: 12,
                       color: AppPalette.textOnSecondaryBg(context),
@@ -820,7 +833,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: Row(
                 children: [
                   Text(
-                    'Discount',
+                    'Descuento',
                     style: AppTextStyles.bodyRegular.copyWith(
                       color: AppPalette.primaryText(context),
                       fontSize: 12,
@@ -840,7 +853,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
 
                         TextSpan(
-                          text: ' \$${subTotal * promoPercentage / 100}',
+                          text: ' ${PriceFormatter.formatGs(subTotal * promoPercentage / 100)}',
                           style: AppTextStyles.ctaBold.copyWith(
                             fontSize: 12,
                             color: AppPalette.textOnSecondaryBg(context),
@@ -870,7 +883,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 const Spacer(),
                 Text(
-                  '\$${total.toStringAsFixed(2)}',
+                  PriceFormatter.formatGs(total),
                   style: AppTextStyles.ctaBold.copyWith(
                     fontSize: 16,
                     color: AppPalette.primaryText(context),
@@ -881,7 +894,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
             const Spacer(),
             AnimatedElevatedButton(
-              text: 'CONFIRM',
+              text: 'CONFIRMAR',
               textStyle: AppTextStyles.buttonText.copyWith(
                 color: AppPalette.primaryText(context),
                 fontSize: 14,
@@ -889,10 +902,88 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               size: Size(screenSize.width * 0.8, 40),
               radius: BorderRadius.all(Radius.circular(15)),
-              onClick: () => Get.to(
-                () => OrderPlacedPage(),
-                transition: Transition.rightToLeft,
-              ),
+              onClick: () async {
+
+                // =========================================
+                // BUILD ORDER ITEMS
+                // =========================================
+
+                List<Map<String, dynamic>> items = [];
+
+                for (var cartItem in cartController.cartContent) {
+
+                  final product =
+                      cartItem.keys.first;
+
+                  final quantity =
+                      cartItem.values.first;
+
+                  final unitPrice =
+                      product.promoPrice ??
+                      product.price;
+
+                  items.add({
+
+                    "product_id": product.id,
+
+                    "product_name": product.name,
+
+                    "variant_name": "",
+
+                    "quantity": quantity,
+
+                    "unit_price": unitPrice,
+
+                    "subtotal": unitPrice * quantity,
+                  });
+                }
+
+                // =========================================
+                // BUILD ORDER DATA
+                // =========================================
+
+                final orderData = {
+
+                  "payment_method": paymentMethod,
+
+                  "subtotal": cartController.cartTotal,
+
+                  "delivery_fee": 15000,
+
+                  "discount_amount": 0,
+
+                  "total_amount":
+                      cartController.cartTotal + 15000,
+
+                  "items": items,
+                };
+
+                // =========================================
+                // CREATE ORDER
+                // =========================================
+
+                final response =
+                    await OrderService.createOrder(
+
+                  orderData: orderData,
+                );
+
+                // =========================================
+                // SUCCESS
+                // =========================================
+
+                if (response != null) {
+
+                  cartController.clearCart();
+
+                  Get.off(
+                    () => const OrderPlacedPage(),
+
+                    transition:
+                        Transition.rightToLeft,
+                  );
+                }
+              },
             ),
           ],
         ),
