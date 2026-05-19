@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 ===============================================================================
 
 This page serves as a **template example** for the Help & Support section of 
-the Peticare app. All text, questions, and responses currently included are 
+the PetCore app. All text, questions, and responses currently included are
 **placeholder examples** meant to demonstrate the intended structure, layout, 
 and tone of a functional Help Center interface.
 
@@ -20,7 +20,7 @@ Before using this page in production, you must:
 - Review and verify the accuracy of all information before publishing.
 
 This example is included **solely for demonstration and UI testing purposes** 
-within the Peticare project. It is **not an official support resource** and 
+within the PetCore project. It is **not an official support resource** and
 should not be used as-is in any public release.
 
 ===============================================================================
@@ -211,7 +211,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                     },
                     'Suscripciones y pagos': {
                       'subtitle':
-                          'Administra tu plan Peticare Plus y los detalles de pago.',
+                          'Administra tu plan PetCore Plus y los detalles de pago.',
                       'icon': FontAwesomeIcons.creditCard,
                     },
                   }.entries.map(
@@ -264,7 +264,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                     '¿Cómo edito el registro de salud de mi mascota?':
                         'Ve al perfil de tu mascota → toca Registro de salud → edita o agrega nueva información.',
                     'Mis recordatorios no envían notificaciones.':
-                        'Verifica los permisos de notificaciones en la configuración de tu teléfono y asegúrate de que los recordatorios estén habilitados dentro de Peticare.',
+                        'Verifica los permisos de notificaciones en la configuración de tu teléfono y asegúrate de que los recordatorios estén habilitados dentro de PetCore.',
                     '¿Puedo sincronizar mis datos entre dispositivos?':
                         'Sí, solo inicia sesión en tu cuenta desde otro dispositivo y tus datos se sincronizarán de forma segura',
                     '¿Cómo puedo restablecer mi contraseña?':
@@ -274,7 +274,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                         'Desde el panel principal, toca el botón “+ Agregar mascota”. Completa la información básica de tu mascota — nombre, especie, edad y foto — y guarda. Puedes editar este perfil en cualquier momento desde la pestaña Mascotas.',
 
                     '¿Por qué no recibo alertas de salud o recordatorios?':
-                        'Asegúrate de que las notificaciones estén habilitadas tanto en la configuración de tu dispositivo como dentro de Peticare (Configuración → Notificaciones). Además, verifica que los registros de salud y las fechas de recordatorios de tu mascota estén actualizados.',
+                        'Asegúrate de que las notificaciones estén habilitadas tanto en la configuración de tu dispositivo como dentro de PetCore (Configuración → Notificaciones). Además, verifica que los registros de salud y las fechas de recordatorios de tu mascota estén actualizados.',
                   }.entries.toList().indexed.map((indexed) {
                     final index = indexed.$1;
                     final entry = indexed.$2;
@@ -395,7 +395,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                           'How do I edit my pet’s health record?':
                               'Go to your pet’s profile → tap Health Record → edit or add new info.',
                           'My reminders are not sending notifications.':
-                              'Check notification permissions in your phone settings and ensure reminders are enabled inside Peticare.',
+                              'Check notification permissions in your phone settings and ensure reminders are enabled inside PetCore.',
                           'Can I sync data across devices?':
                               'Yes, simply log into your account on another device — your data will be securely synced.',
                         }.entries.toList().indexed.map((indexed) {
@@ -439,6 +439,65 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                     }),
                   ),
         */
+
+                   Padding(
+                     padding: EdgeInsets.symmetric(
+                       horizontal: screenSize.width * .05,
+                     ),
+                     child: Text(
+                       'Contacto de soporte',
+                       style: AppTextStyles.headingMedium.copyWith(
+                         color: AppPalette.textOnSecondaryBg(context),
+                         fontSize: 20,
+                       ),
+                     ),
+                   ),
+
+                   VerticalSpacing.md(context),
+
+                   ListTile(
+                     leading: Icon(
+                       Icons.email_outlined,
+                       color: AppPalette.primary,
+                     ),
+
+                     title: Text(
+                       'support@pet-core.app',
+                       style: AppTextStyles.bodyMedium.copyWith(
+                         color: AppPalette.textOnSecondaryBg(context),
+                       ),
+                     ),
+
+                     subtitle: Text(
+                       'Soporte por correo electrónico',
+                       style: AppTextStyles.bodyRegular.copyWith(
+                         color: AppPalette.secondaryText(context),
+                         fontSize: 12,
+                       ),
+                     ),
+                   ),
+
+                   ListTile(
+                     leading: Icon(
+                       FontAwesomeIcons.whatsapp,
+                       color: Colors.green,
+                     ),
+
+                     title: Text(
+                       '+595 994 138309',
+                       style: AppTextStyles.bodyMedium.copyWith(
+                         color: AppPalette.textOnSecondaryBg(context),
+                       ),
+                     ),
+
+                     subtitle: Text(
+                       'Atención vía WhatsApp',
+                       style: AppTextStyles.bodyRegular.copyWith(
+                         color: AppPalette.secondaryText(context),
+                         fontSize: 12,
+                       ),
+                     ),
+                   ),
                   /// Bottom Spacing
                   VerticalSpacing.md(context),
                 ],

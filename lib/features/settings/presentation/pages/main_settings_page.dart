@@ -9,7 +9,7 @@ import 'package:peticare/dummy_data/dummy_data.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:peticare/services/user_service.dart';
 import 'package:get_storage/get_storage.dart';
-
+import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
 /// Builds the main settings page, which serves as the central hub for all
 /// user-configurable options. ⚙️
 ///
@@ -31,6 +31,8 @@ class MainSettingsPage extends StatefulWidget {
 class _MainSettingsPageState extends State<MainSettingsPage> {
   String? fullName;
   String? avatarUrl;
+  final DashboardController dashboardController =
+      Get.put(DashboardController());
   bool isLoadingUser = true;
 
   @override
@@ -42,9 +44,15 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
   Future<void> _loadUser() async {
     try {
       final user = await UserService.getMe();
+
       setState(() {
+
         fullName = user['full_name'];
+
         avatarUrl = user['avatar_url'];
+
+
+
         isLoadingUser = false;
       });
     } catch (e) {
@@ -132,7 +140,11 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
                             ),
                             TextSpan(
                               text:
-                                  '\n${'settings_pets_linked'.trParams({'count': '0'})}',
+                                  '\n${'settings_pets_linked'.trParams({'count':
+                                                                            dashboardController
+                                                                                .petsList
+                                                                                .length
+                                                                                .toString()})}',
                               style: AppTextStyles.playfulTag.copyWith(
                                 color: AppPalette.primary,
                               ),
@@ -204,61 +216,6 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
               ),
               'Métodos de Pago',
               () => Get.toNamed('/PaymentMethods'),
-            ),
-
-            /// Minor Section Spacing
-            VerticalSpacing.sm(context),
-            // Security
-            /// Section header for "Security" settings.
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenSize.width * .05),
-              child: Text(
-                'settings_section_security'.tr,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppPalette.disabled(context),
-                  fontSize: 12,
-                ),
-              ),
-            ),
-
-            /// 2FA
-            /// Two-Factor Authentication settings tile.
-            _tile(
-              context,
-              screenSize,
-              AppPalette.secondary(context),
-              SvgPicture.asset('assets/illustrations/lock2.svg', height: 27.5),
-              'Autenticación de dos factores',
-              () => Get.toNamed('/TwoFactorAuthentication'),
-            ),
-
-            /// Login History
-            /// Login History settings tile.
-            _tile(
-              context,
-              screenSize,
-              AppPalette.secondaryText(context),
-
-              SvgPicture.asset(
-                'assets/illustrations/login_history.svg',
-                height: 25,
-              ),
-              'Historial de Inicio de sesión',
-              () => Get.toNamed('/LoginHistory'),
-            ),
-
-            /// Trusted Devices
-            /// Trusted Devices settings tile.
-            _tile(
-              context,
-              screenSize,
-              AppPalette.success(context),
-              SvgPicture.asset(
-                'assets/illustrations/trusted_devices.svg',
-                height: 27.5,
-              ),
-              'Dispositivos de Confianza',
-              () => Get.toNamed('/TrustedDevices'),
             ),
 
             /// Minor Section Spacing
@@ -350,7 +307,19 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
 
               () => Get.toNamed('/LanguageSettings'),
             ),
-
+            /// PetCore AI
+            _tile(
+              context,
+              screenSize,
+              Colors.purpleAccent,
+              Icon(
+                Icons.auto_awesome,
+                color: Colors.white,
+                size: 22,
+              ),
+              'PetCore AI',
+              () => Get.toNamed('/PetCoreAI'),
+            ),
             /// Minor Section Spacing
             VerticalSpacing.sm(context),
             // General

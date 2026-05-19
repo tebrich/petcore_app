@@ -27,36 +27,14 @@ class LanguageSettingsPage extends StatefulWidget {
 /// available languages for the UI.
 class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   /// The currently selected language. Defaults to 'English'.
-  String selectedLanguage = 'English';
+  String selectedLanguage =
+      'Español (Latinoamérica)';
 
   /// A static list of supported languages displayed to the user.
   /// In a real-world scenario, this might be managed by an i18n configuration file.
   final List<String> languagesList = [
-    'Arabic',
-    'Bengali',
-    'English',
-    'French',
-    'German',
-    'Gujarati',
-    'Hindi',
-    'Indonesian',
-    'Italian',
-    'Japanese',
-    'Javanese',
-    'Korean',
-    'Mandarin Chinese',
-    'Marathi',
-    'Persian (Farsi)',
-    'Polish',
-    'Portuguese',
-    'Punjabi',
-    'Russian',
-    'Spanish',
-    'Tamil',
-    'Telugu',
-    'Turkish',
-    'Urdu',
-    'Vietnamese',
+
+    'Español (Latinoamérica)',
   ];
 
   @override
@@ -136,7 +114,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                     horizontal: screenSize.width * .05,
                   ),
                   child: Text(
-                    'language_settings_description'.tr,
+                    'Actualmente PetCore está disponible en español para Latinoamérica.',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppPalette.disabled(context),
                       fontSize: 13,
@@ -160,12 +138,36 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                       color: AppPalette.primary.withValues(alpha: .1),
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                     ),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: languagesList.length,
-                      physics: BouncingScrollPhysics(),
-                      itemBuilder: (context, index) =>
-                          _languageTile(context, index),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: languagesList.length,
+                            physics: BouncingScrollPhysics(),
+                            itemBuilder: (context, index) =>
+                                _languageTile(context, index),
+                          ),
+                        ),
+
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenSize.width * .05,
+                            vertical: 12,
+                          ),
+                          child: Text(
+
+                            'Más idiomas próximamente.',
+
+                            style: AppTextStyles.bodyMedium.copyWith(
+
+                              color: AppPalette.disabled(context),
+
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

@@ -121,7 +121,7 @@ class PrivacySecurityPage extends StatelessWidget {
                       ),
                     ),
                     subtitle: Text(
-                      "En Peticare, entendemos lo importante que es la información de tu mascota. Nos comprometemos a mantener todos los datos —desde los registros de salud hasta los registros de actividad— seguros y utilizados únicamente para mejorar tu experiencia.",
+                      "En PetCore, entendemos lo importante que es la información de tu mascota. Nos comprometemos a mantener todos los datos —desde los registros de salud hasta los registros de actividad— seguros y utilizados únicamente para mejorar tu experiencia.",
                       style: AppTextStyles.bodyRegular.copyWith(
                         color: AppPalette.secondaryText(context),
                         fontSize: 11,
@@ -160,6 +160,7 @@ class PrivacySecurityPage extends StatelessWidget {
                             "Datos básicos de la cuenta (nombre, correo electrónico, información de la mascota)",
                             "Datos de salud y actividad que decides registrar",
                             "Información de uso de la aplicación para mejorar el rendimiento",
+                            "Información relacionada con compras, pedidos y entregas realizadas dentro de la aplicación",
                           ].map(
                             (element) => TextSpan(
                               text: '\n   • $element.',
@@ -255,7 +256,7 @@ class PrivacySecurityPage extends StatelessWidget {
                           ),
                           TextSpan(
                             text:
-                                'y utilizada estrictamente dentro del ecosistema de Peticare.',
+                                'y utilizada estrictamente dentro del ecosistema de PetCore.',
                             style: AppTextStyles.bodyRegular.copyWith(
                               color: AppPalette.secondaryText(context),
                               fontSize: 11,
@@ -302,7 +303,8 @@ class PrivacySecurityPage extends StatelessWidget {
                           ),
                           TextSpan(
                             text:
-                                "utilizando protocolos de seguridad estándar de la industria. El acceso está restringido únicamente a sistemas autorizados, garantizando que tus datos y los de tu mascota se mantengan privados y seguros.",
+                                "utilizando protocolos de seguridad estándar de la industria. El acceso está restringido únicamente a sistemas autorizados, garantizando que tus datos y los de tu mascota se mantengan privados y seguros. Los pagos realizados dentro de PetCore serán procesados a través de proveedores externos seguros y certificados.",
+
                             style: AppTextStyles.bodyRegular.copyWith(
                               color: AppPalette.secondaryText(context),
                               fontSize: 11,
@@ -330,7 +332,7 @@ class PrivacySecurityPage extends StatelessWidget {
                       ),
                     ),
                     subtitle: Text(
-                      "Puedes ver, editar o eliminar tus datos en cualquier momento desde la configuración de tu perfil. Si desinstalas Peticare o eliminas tu cuenta, toda la información personal será eliminada permanentemente de nuestros servidores.",
+                      "Puedes ver, editar o eliminar tus datos en cualquier momento desde la configuración de tu perfil. Si desinstalas PetCore, tu información será procesada conforme a nuestras políticas de retención y seguridad de datos.",
                       style: AppTextStyles.bodyRegular.copyWith(
                         color: AppPalette.secondaryText(context),
                         fontSize: 11,
