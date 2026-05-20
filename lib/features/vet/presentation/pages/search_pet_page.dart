@@ -2,12 +2,21 @@
 import 'package:get/get.dart';
 import 'package:get/get_connect.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'attend_pet_page.dart';
+import 'medical_records_page.dart';
 
 class SearchPetPage extends StatefulWidget {
-  const SearchPetPage({super.key});
+
+  final bool openMedicalHistory;
+
+  const SearchPetPage({
+    super.key,
+    this.openMedicalHistory = false,
+  });
 
   @override
-  State<SearchPetPage> createState() => _SearchPetPageState();
+  State<SearchPetPage> createState() =>
+      _SearchPetPageState();
 }
 
 class _SearchPetPageState extends State<SearchPetPage> {
@@ -85,12 +94,34 @@ class _SearchPetPageState extends State<SearchPetPage> {
 
                         return Card(
                           child: ListTile(
+
+                            onTap: () {
+
+                              if (widget.openMedicalHistory) {
+
+                                Get.to(
+                                      () => MedicalRecordsPage(
+                                    petId: r['pet_id'],
+                                  ),
+                                );
+
+                              } else {
+
+                                Get.to(
+                                      () => AttendPetPage(
+                                    petId: r['pet_id'],
+                                  ),
+                                );
+                              }
+                            },
+
                             leading: const Icon(Icons.pets),
 
                             title: Text(
                               r['pet_name'],
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold),
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
 
                             subtitle: Column(

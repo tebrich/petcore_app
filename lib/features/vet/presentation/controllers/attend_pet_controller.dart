@@ -1,5 +1,6 @@
 ﻿import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:io';
 
 class AttendPetController extends GetxController {
   final int petId;
@@ -166,6 +167,49 @@ class AttendPetController extends GetxController {
       }
     } catch (e) {
       print("Exception createFollowUp: $e");
+      return false;
+    }
+  }
+
+  Future<bool> uploadDocument({
+    required int medicalRecordId,
+    required String filePath,
+  }) async {
+    try {
+
+      final token = await const FlutterSecureStorage()
+          .read(key: 'access_token');
+
+      final form = FormData({
+        'file': MultipartFile(
+                  File(filePath),
+                  filename: filePath.split('/').last,
+                ),
+      });
+
+      final response = await http.post(
+        "/medical-records/$medicalRecordId/files",
+        form,
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      print("UPLOAD RESPONSE: ${response.statusCode}");
+      print("UPLOAD BODY: ${response.body}");
+
+      if (response.statusCode == 201 ||
+          response.statusCode == 200) {
+
+        await fetchMedicalRecords();
+
+        return true;
+      }
+
+      return false;
+
+    } catch (e) {
+      print("Exception uploadDocument: $e");
       return false;
     }
   }

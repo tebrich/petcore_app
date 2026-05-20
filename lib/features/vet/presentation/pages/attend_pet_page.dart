@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/theme/app_pallete.dart';
 import '../controllers/attend_pet_controller.dart';
+import 'package:file_picker/file_picker.dart';
 
 class AttendPetPage extends StatelessWidget {
   final int petId;
@@ -45,41 +46,114 @@ class AttendPetPage extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Avatar: photo_url -> network, else local SVG by avatar_code, else icon
+
+                  // Avatar mascota
                   Obx(() {
+
                     final petMap = controller.pet;
-                    final avatarUrl = petMap['photo_url'] as String?;
-                    final avatarCode = petMap['avatar_code'] as String?;
-                    if (avatarUrl != null && avatarUrl.isNotEmpty) {
-                      return ClipOval(child: Image.network(avatarUrl, width: 80, height: 80, fit: BoxFit.cover));
+
+                    final avatarUrl =
+                        petMap['photo_url'] as String?;
+
+                    final avatarCode =
+                        petMap['avatar_code'] as String?;
+
+                    // FOTO CLOUDINARY
+                    if (avatarUrl != null &&
+                        avatarUrl.isNotEmpty) {
+
+                      return ClipOval(
+                        child: Image.network(
+                          avatarUrl,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      );
                     }
-                    // Temporarily do NOT attempt to load SVG from assets (avoid async load crash)
-                    // Show avatarCode text as placeholder until you add real SVG files.
-                    if (avatarCode != null && avatarCode.isNotEmpty) {
+
+                    // AVATAR SVG LOCAL
+                    if (avatarCode != null &&
+                        avatarCode.isNotEmpty) {
+
+                      final lowerAvatar =
+                          avatarCode.toLowerCase();
+
+                      String assetPath = '';
+
+                      if (lowerAvatar.startsWith('dog')) {
+
+                        assetPath =
+                            'assets/avatars/dogs/$lowerAvatar.svg';
+
+                      } else if (lowerAvatar.startsWith('cat')) {
+
+                        assetPath =
+                            'assets/avatars/cats/$lowerAvatar.svg';
+
+                      } else if (lowerAvatar.startsWith('bird')) {
+
+                        assetPath =
+                            'assets/avatars/birds/$lowerAvatar.svg';
+
+                      } else if (lowerAvatar.startsWith('rabbit')) {
+
+                        assetPath =
+                            'assets/avatars/rabbits/$lowerAvatar.svg';
+
+                      } else if (lowerAvatar.startsWith('fish')) {
+
+                        assetPath =
+                            'assets/avatars/fishs/$lowerAvatar.svg';
+                      }
+
                       return Container(
                         height: 80,
                         width: 80,
-                        decoration: BoxDecoration(shape: BoxShape.circle, color: AppPalette.primary.withOpacity(.1)),
-                        alignment: Alignment.center,
-                        child: Text(avatarCode, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppPalette.primary.withOpacity(.1),
+                        ),
+                        child: SvgPicture.asset(
+                          assetPath,
+                          fit: BoxFit.contain,
+                        ),
                       );
                     }
+
+                    // FALLBACK FINAL
                     return Container(
                       height: 80,
                       width: 80,
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: AppPalette.primary.withOpacity(.1)),
-                      child: const Icon(Icons.pets, size: 40),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppPalette.primary.withOpacity(.1),
+                      ),
+                      child: const Icon(
+                        Icons.pets,
+                        size: 40,
+                      ),
                     );
                   }),
 
                   const SizedBox(width: 12),
+
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
-                        Obx(() => Text(controller.pet['name'] ?? 'Mascota', style: AppTextStyles.headingMedium)),
+
+                        Obx(() => Text(
+                              controller.pet['name'] ??
+                                  'Mascota',
+                              style:
+                                  AppTextStyles.headingMedium,
+                            )),
+
                         const SizedBox(height: 6),
-                        // Removed owner fields as requested
+
                       ],
                     ),
                   ),
@@ -138,20 +212,7 @@ class AttendPetPage extends StatelessWidget {
               // Reordered buttons: Subir examen, Próxima visita, Guardar visita
               Row(
                 children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text("Subir examen / archivo"),
-                      onPressed: () {
-                        Get.dialog(AlertDialog(
-                          title: const Text("Subir examen"),
-                          content: const Text("Aquí podrá seleccionar y subir archivos (implementación en el siguiente paso)."),
-                          actions: [TextButton(onPressed: () => Get.back(), child: const Text("Cerrar"))],
-                        ));
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
+
                   Expanded(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.event_available),
@@ -215,7 +276,15 @@ class AttendPetPage extends StatelessWidget {
                         );
 
                         if (recordId != null) {
-                          Get.showSnackbar(const GetSnackBar(message: "Visita registrada", duration: Duration(seconds: 2)));
+
+                          Get.offAllNamed('/vet-home');
+
+                          Get.showSnackbar(
+                            const GetSnackBar(
+                              message: "Visita registrada correctamente",
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
                         }
                       },
                       child: const Text("Guardar visita"),
@@ -253,16 +322,32 @@ class AttendPetPage extends StatelessWidget {
                             if (r['diagnosis_text'] != null) Text("Diagnóstico: ${r['diagnosis_text']}"),
                             if (r['notes'] != null) Text("Notas: ${r['notes']}"),
                             const SizedBox(height: 8),
-                            if (docs.isNotEmpty) Text("Documentos:", style: AppTextStyles.bodyRegular.copyWith(fontWeight: FontWeight.w600)),
+                            if (docs.isNotEmpty)
+                              Text(
+                                "Documentos:",
+                                style: AppTextStyles.bodyRegular.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+
                             ...docs.map((d) {
                               final url = d['file_url'] as String? ?? '';
                               final name = d['original_name'] ?? d['file_url'];
+
                               return InkWell(
                                 onTap: () async {
                                   if (await canLaunchUrl(Uri.parse(url))) {
-                                    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                                    await launchUrl(
+                                      Uri.parse(url),
+                                      mode: LaunchMode.externalApplication,
+                                    );
                                   } else {
-                                    Get.showSnackbar(const GetSnackBar(message: "No se pudo abrir el documento", duration: Duration(seconds: 2)));
+                                    Get.showSnackbar(
+                                      const GetSnackBar(
+                                        message: "No se pudo abrir el documento",
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
                                   }
                                 },
                                 child: Padding(
@@ -271,7 +356,14 @@ class AttendPetPage extends StatelessWidget {
                                     children: [
                                       const Icon(Icons.picture_as_pdf, size: 18),
                                       const SizedBox(width: 8),
-                                      Expanded(child: Text(name, overflow: TextOverflow.ellipsis)),
+
+                                      Expanded(
+                                        child: Text(
+                                          name,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+
                                       const SizedBox(width: 8),
                                       const Icon(Icons.open_in_new, size: 16),
                                     ],
@@ -279,6 +371,54 @@ class AttendPetPage extends StatelessWidget {
                                 ),
                               );
                             }).toList(),
+
+                            const SizedBox(height: 12),
+
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: OutlinedButton.icon(
+                                onPressed: () async {
+                                  final result = await FilePicker.platform.pickFiles(
+                                    type: FileType.custom,
+                                    allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+                                  );
+
+                                  if (result == null) return;
+
+                                  final filePath = result.files.single.path;
+
+                                  if (filePath == null) return;
+
+                                  final success = await controller.uploadDocument(
+                                    medicalRecordId: r['id'],
+                                    filePath: filePath,
+                                  );
+
+                                  if (success) {
+
+                                    Get.offAllNamed('/vet-home');
+
+                                    Get.showSnackbar(
+                                      const GetSnackBar(
+                                        message: "Documento subido correctamente",
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+
+                                  } else {
+
+                                    Get.showSnackbar(
+                                      const GetSnackBar(
+                                        message: "Error al subir documento",
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                },
+                                icon: const Icon(Icons.upload_file),
+                                label: const Text("Agregar documento"),
+                              ),
+                            ),
                           ],
                         ),
                       ),

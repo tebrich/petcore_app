@@ -7,6 +7,16 @@ import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/post_signup/presentation/controllers/post_signup_page_controller.dart';
 
+
+final Map<String, String> petTypeTranslations = {
+  "Dog": "Perro",
+  "Cat": "Gato",
+  "Rabbit": "Conejo",
+  "Bird": "Ave",
+  "Fish": "Pez",
+  "Other": "Otro",
+};
+
 Widget petTypeSelectionPage(BuildContext context, Size screenSize) {
   final Map<String, String> petTypes = {
     "Dog": 'assets/illustrations/pet_types/dog.svg',
@@ -68,7 +78,7 @@ Widget petTypeSelectionPage(BuildContext context, Size screenSize) {
                                 ? (constraints.maxWidth - 24) / 3
                                 : 100,
 
-                        childText: type,
+                        childText: petTypeTranslations[type] ?? type,
 
                         image: LayoutBuilder(
                           builder: (context, bConstraints) {

@@ -124,6 +124,20 @@ class VetHomePage extends StatelessWidget {
 
             _menuButton(
               context,
+              icon: Icons.folder_shared,
+              label: 'Historial Médico',
+              subtitle: 'Subir exámenes y documentos',
+              onTap: () {
+                Get.to(() => const SearchPetPage(
+                  openMedicalHistory: true,
+                ));
+              },
+            ),
+
+            VerticalSpacing.md(context),
+
+            _menuButton(
+              context,
               icon: Icons.calendar_today_outlined,
               label: 'Calendario',
               subtitle: 'Vista calendario (ocupación)',
