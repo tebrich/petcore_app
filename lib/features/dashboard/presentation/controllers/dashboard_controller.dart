@@ -3,6 +3,9 @@ import 'package:peticare/core/utils/pet_avatars_list.dart';
 import 'package:flutter/material.dart';
 import 'package:peticare/services/user_service.dart';
 import 'package:peticare/features/dashboard/data/services/follow_ups_service.dart';
+import 'package:peticare/services/auth_service.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'dart:convert';
 
 class DashboardController extends GetxController {
   final GetConnect _api = GetConnect();
@@ -14,6 +17,8 @@ class DashboardController extends GetxController {
   var isLoading = false.obs;
   var reminderTypes = [].obs;
   var followUps = [].obs;
+  var pendingReviews = [].obs;
+  var pendingGroomReviews = [].obs;
 
   @override
   void onInit() {
@@ -95,6 +100,10 @@ class DashboardController extends GetxController {
 
       await loadFollowUps(); // 🔥 AQUÍ SÍ
 
+      await loadPendingReviews();
+
+      await loadPendingGroomReviews();
+
     } catch (e) {
       print("ERROR DASHBOARD: $e");
     } finally {
@@ -157,6 +166,324 @@ class DashboardController extends GetxController {
       print("FOLLOW UPS LOADED: ${followUps.length}");
     } catch (e) {
       print("ERROR loadFollowUps: $e");
+    }
+  }
+
+  Future<void> loadPendingReviews() async {
+    try {
+      final token = await AuthService.getToken();
+
+      final res = await _api.get(
+        'http://192.168.40.54:8000/api/v1/vet-reviews/pending',
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      print("PENDING REVIEWS >>> ${res.body}");
+
+      if (res.statusCode == 200 && res.body != null) {
+        pendingReviews.value =
+        List<Map<String, dynamic>>.from(res.body);
+
+        // 🔥 MOSTRAR POPUP SI EXISTE REVIEW PENDIENTE
+        if (pendingReviews.isNotEmpty) {
+          Future.delayed(
+            const Duration(milliseconds: 800),
+                () {
+              showPendingReviewPopup(
+                pendingReviews.first,
+                isGrooming: false,
+              );
+            },
+          );
+        }
+      }
+    } catch (e) {
+      print("ERROR PENDING REVIEWS: $e");
+    }
+  }
+
+  void showPendingReviewPopup(
+      Map<String, dynamic> review, {
+        required bool isGrooming,
+      }) {
+        double selectedRating = 5;
+        final commentController = TextEditingController();
+
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+
+        title: const Text(
+          "🐾 ¿Cómo fue la atención?",
+          textAlign: TextAlign.center,
+        ),
+
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            Text(
+              "${review['pet_name']} fue atendido en:",
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              review['clinic_name'] ?? '',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 20),
+
+            RatingBar.builder(
+              initialRating: 5,
+              minRating: 1,
+              allowHalfRating: false,
+              itemCount: 5,
+              itemSize: 35,
+              itemBuilder: (context, _) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              onRatingUpdate: (rating) {
+                selectedRating = rating;
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            TextField(
+              controller: commentController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: "Comentario opcional...",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        actions: [
+
+          /// 🔥 LUEGO
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: const Text("Ahora no"),
+          ),
+
+          /// 🔥 ENVIAR
+          ElevatedButton(
+            onPressed: () async {
+
+              if (isGrooming) {
+
+                await submitGroomReview(
+                  groomerId: review['groomer_id'],
+                  appointmentId: review['appointment_id'],
+                  rating: selectedRating.toInt(),
+                  comment: commentController.text,
+                );
+
+              } else {
+
+                await submitReview(
+                  clinicId: review['clinic_id'],
+                  appointmentId: review['appointment_id'],
+                  rating: selectedRating.toInt(),
+                  comment: commentController.text,
+                );
+              }
+
+              Get.back();
+            },
+
+            child: const Text("Enviar"),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+  }
+  Future<void> submitReview({
+    required int clinicId,
+    required int appointmentId,
+    required int rating,
+    required String comment,
+  }) async {
+
+    try {
+
+      final token = await AuthService.getToken();
+
+      final body = {
+        "clinic_id": clinicId,
+        "appointment_id": appointmentId,
+        "rating": rating,
+        "review_text": comment,
+      };
+
+      final res = await _api.post(
+        'http://192.168.40.54:8000/api/v1/vet-reviews/',
+        body,
+
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      print("SUBMIT REVIEW STATUS >>> ${res.statusCode}");
+      print("SUBMIT REVIEW BODY >>> ${res.body}");
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+
+        Get.snackbar(
+          "¡Gracias!",
+          "Tu review fue enviada correctamente 🐾",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+
+        pendingReviews.removeWhere(
+              (r) => r['appointment_id'] == appointmentId,
+        );
+
+      } else {
+
+        Get.snackbar(
+          "Error",
+          "No se pudo enviar la review",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+
+    } catch (e) {
+
+      print("ERROR SUBMIT REVIEW: $e");
+
+      Get.snackbar(
+        "Error",
+        "Ocurrió un problema enviando la review",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  Future<void> submitGroomReview({
+    required int groomerId,
+    required int appointmentId,
+    required int rating,
+    required String comment,
+  }) async {
+
+    try {
+
+      final token = await AuthService.getToken();
+
+      final body = {
+        "groomer_id": groomerId,
+        "appointment_id": appointmentId,
+        "rating": rating,
+        "review_text": comment,
+      };
+
+      final res = await _api.post(
+        'http://192.168.40.54:8000/api/v1/groom-reviews/',
+        body,
+
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      );
+
+      print("SUBMIT GROOM REVIEW STATUS >>> ${res.statusCode}");
+      print("SUBMIT GROOM REVIEW BODY >>> ${res.body}");
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+
+        Get.snackbar(
+          "¡Gracias!",
+          "Tu review de grooming fue enviada 🐾",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+
+        pendingGroomReviews.removeWhere(
+              (r) => r['appointment_id'] == appointmentId,
+        );
+
+      } else {
+
+        Get.snackbar(
+          "Error",
+          "No se pudo enviar la review",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+
+    } catch (e) {
+
+      print("ERROR SUBMIT GROOM REVIEW: $e");
+
+      Get.snackbar(
+        "Error",
+        "Ocurrió un problema enviando la review",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+
+  Future<void> loadPendingGroomReviews() async {
+    try {
+
+      final token = await AuthService.getToken();
+
+      final res = await _api.get(
+        'http://192.168.40.54:8000/api/v1/groom-reviews/pending',
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      print("PENDING GROOM REVIEWS >>> ${res.body}");
+
+      if (res.statusCode == 200 && res.body != null) {
+
+        pendingGroomReviews.value =
+        List<Map<String, dynamic>>.from(res.body);
+
+        if (pendingGroomReviews.isNotEmpty) {
+
+          Future.delayed(
+            const Duration(milliseconds: 1200),
+                () {
+
+              showPendingReviewPopup(
+                pendingGroomReviews.first,
+                isGrooming: true,
+              );
+
+            },
+          );
+        }
+      }
+
+    } catch (e) {
+
+      print("ERROR PENDING GROOM REVIEWS: $e");
     }
   }
 }

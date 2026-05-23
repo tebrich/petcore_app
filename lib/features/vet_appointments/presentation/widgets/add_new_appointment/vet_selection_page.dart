@@ -239,7 +239,7 @@ Widget vetSelectionPage(
                                       ),
                                       TextSpan(
                                         text:
-                                            "${vet['rating'] ?? 'N/A'}",
+                                            "${vet['rating'] ?? '0.0'} (${vet['reviews_count'] ?? 0})",
                                         style: AppTextStyles.bodyRegular
                                             .copyWith(
                                           fontSize: 13,
