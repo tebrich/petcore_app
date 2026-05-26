@@ -208,11 +208,14 @@ class DashboardController extends GetxController {
       Map<String, dynamic> review, {
         required bool isGrooming,
       }) {
-        double selectedRating = 5;
-        final commentController = TextEditingController();
+
+    double selectedRating = 5;
+    final commentController = TextEditingController();
 
     Get.dialog(
+
       AlertDialog(
+
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -222,61 +225,75 @@ class DashboardController extends GetxController {
           textAlign: TextAlign.center,
         ),
 
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-
-            Text(
-              "${review['pet_name']} fue atendido en:",
-              textAlign: TextAlign.center,
+        content: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(Get.context!).viewInsets.bottom,
             ),
 
-            const SizedBox(height: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
 
-            Text(
-              review['clinic_name'] ?? '',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 20),
-
-            RatingBar.builder(
-              initialRating: 5,
-              minRating: 1,
-              allowHalfRating: false,
-              itemCount: 5,
-              itemSize: 35,
-              itemBuilder: (context, _) => const Icon(
-                Icons.star,
-                color: Colors.amber,
-              ),
-              onRatingUpdate: (rating) {
-                selectedRating = rating;
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            TextField(
-              controller: commentController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: "Comentario opcional...",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                Text(
+                  "${review['pet_name']} fue atendido en:",
+                  textAlign: TextAlign.center,
                 ),
-              ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  review['clinic_name'] ??
+                  review['groomer_name'] ??
+                      '',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 20),
+
+                RatingBar.builder(
+                  initialRating: 5,
+                  minRating: 1,
+                  allowHalfRating: false,
+                  itemCount: 5,
+                  itemSize: 35,
+
+                  itemBuilder: (context, _) => const Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
+
+                  onRatingUpdate: (rating) {
+                    selectedRating = rating;
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                TextField(
+                  controller: commentController,
+                  maxLines: 3,
+
+                  decoration: InputDecoration(
+                    hintText: "Comentario opcional...",
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
 
         actions: [
 
-          /// 🔥 LUEGO
+          /// 🔥 AHORA NO
           TextButton(
             onPressed: () {
               Get.back();
@@ -286,11 +303,14 @@ class DashboardController extends GetxController {
 
           /// 🔥 ENVIAR
           ElevatedButton(
+
             onPressed: () async {
+
+              bool success = false;
 
               if (isGrooming) {
 
-                await submitGroomReview(
+                success = await submitGroomReview(
                   groomerId: review['groomer_id'],
                   appointmentId: review['appointment_id'],
                   rating: selectedRating.toInt(),
@@ -299,7 +319,7 @@ class DashboardController extends GetxController {
 
               } else {
 
-                await submitReview(
+                success = await submitReview(
                   clinicId: review['clinic_id'],
                   appointmentId: review['appointment_id'],
                   rating: selectedRating.toInt(),
@@ -307,17 +327,25 @@ class DashboardController extends GetxController {
                 );
               }
 
-              Get.back();
+              if (success) {
+                Get.back();
+              }
             },
 
             child: const Text("Enviar"),
           ),
         ],
       ),
+
       barrierDismissible: false,
     );
   }
-  Future<void> submitReview({
+
+  /// ======================================================
+  /// VET REVIEW
+  /// ======================================================
+
+  Future<bool> submitReview({
     required int clinicId,
     required int appointmentId,
     required int rating,
@@ -360,13 +388,17 @@ class DashboardController extends GetxController {
               (r) => r['appointment_id'] == appointmentId,
         );
 
+        return true;
+
       } else {
 
         Get.snackbar(
           "Error",
-          "No se pudo enviar la review",
+          res.body?['detail'] ?? "No se pudo enviar la review",
           snackPosition: SnackPosition.BOTTOM,
         );
+
+        return false;
       }
 
     } catch (e) {
@@ -378,10 +410,16 @@ class DashboardController extends GetxController {
         "Ocurrió un problema enviando la review",
         snackPosition: SnackPosition.BOTTOM,
       );
+
+      return false;
     }
   }
 
-  Future<void> submitGroomReview({
+  /// ======================================================
+  /// GROOM REVIEW
+  /// ======================================================
+
+  Future<bool> submitGroomReview({
     required int groomerId,
     required int appointmentId,
     required int rating,
@@ -424,13 +462,17 @@ class DashboardController extends GetxController {
               (r) => r['appointment_id'] == appointmentId,
         );
 
+        return true;
+
       } else {
 
         Get.snackbar(
           "Error",
-          "No se pudo enviar la review",
+          res.body?['detail'] ?? "No se pudo enviar la review",
           snackPosition: SnackPosition.BOTTOM,
         );
+
+        return false;
       }
 
     } catch (e) {
@@ -442,6 +484,8 @@ class DashboardController extends GetxController {
         "Ocurrió un problema enviando la review",
         snackPosition: SnackPosition.BOTTOM,
       );
+
+      return false;
     }
   }
 

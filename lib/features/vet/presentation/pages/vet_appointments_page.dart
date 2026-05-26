@@ -130,7 +130,10 @@ Widget _buildActionButtons(Map<String, dynamic> appointment) {
   }
 
   /// 🟢 ACCEPTED → atender
-  if (status == "accepted") {
+  if (
+      status == "accepted" ||
+      status == "rescheduled"
+  ) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(

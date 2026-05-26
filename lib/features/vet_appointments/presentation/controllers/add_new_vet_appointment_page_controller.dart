@@ -4,6 +4,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:peticare/features/vet_appointments/data/services/vet_appointments_service.dart';
 import 'package:peticare/features/shopping/presentation/pages/shopping_page.dart';
 import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:peticare/core/commn/presentation/controllers/global_controller.dart';
+import 'package:peticare/core/commn/presentation/pages/home_page.dart';
 
 class AddNewVetAppointmentPageController extends GetxController {
   final storage = const FlutterSecureStorage();
@@ -333,8 +335,26 @@ class AddNewVetAppointmentPageController extends GetxController {
           textConfirm: "Ir a Shopping",
           confirmTextColor: Colors.white,
           onConfirm: () {
+
             Get.back();
-            Get.to(() => const ShoppingPage());
+
+            final globalController =
+            Get.find<GlobalController>();
+
+            globalController.menuSelectedIndex = 2;
+
+            Get.offAll(() => const HomePage());
+
+            Future.delayed(
+              const Duration(milliseconds: 300),
+                  () {
+
+                globalController.pageController.jumpToPage(2);
+
+                globalController.update();
+
+              },
+            );
           },
         );
 

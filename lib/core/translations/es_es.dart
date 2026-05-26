@@ -15,7 +15,7 @@
   // =====================
   // 👋 WELCOME
   // =====================
-  'welcome_title': 'Bienvenido a Peticare',
+  'welcome_title': 'Bienvenido a PETCORE.app',
   'welcome_subtitle': 'Todo el cuidado de tu mascota en un solo lugar',
   'welcome_get_started': 'Comenzar',
   'welcome_sign_in': 'Iniciar sesión',
