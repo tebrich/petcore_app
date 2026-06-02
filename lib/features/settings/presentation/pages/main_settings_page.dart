@@ -204,6 +204,19 @@ class _MainSettingsPageState extends State<MainSettingsPage> {
               () => Get.toNamed('/AccountDetails'),
             ),
 
+            _tile(
+              context,
+              screenSize,
+              Colors.orange,
+              const Icon(
+                Icons.pets,
+                color: Colors.white,
+                size: 22,
+              ),
+              'Mis Mascotas',
+                  () => Get.toNamed('/EditPets'),
+            ),
+
             /// Payment Methods
             /// Payment Methods settings tile.
             _tile(

@@ -202,4 +202,40 @@ class GroomVetAppointmentsController extends GetxController {
       "Content-Type": "application/json",
     };
   }
+
+  //////////////////////////////////////////////////////////////
+  /// 🔥 ATTEND GROOM APPOINTMENT
+  //////////////////////////////////////////////////////////////
+  Future<bool> attendAppointment(int? appointmentId) async {
+
+    if (appointmentId == null) return false;
+
+    try {
+
+      final response = await http.post(
+        "/groom-appointments/$appointmentId/attend",
+        {},
+        headers: await _getHeaders(),
+      );
+
+      print("GROOM ATTEND STATUS: ${response.statusCode}");
+      print("GROOM ATTEND BODY: ${response.body}");
+
+      if (response.statusCode == 200 ||
+          response.statusCode == 201) {
+
+        await fetchAppointments();
+
+        return true;
+      }
+
+      return false;
+
+    } catch (e) {
+
+      print("GROOM ATTEND ERROR: $e");
+
+      return false;
+    }
+  }
 }

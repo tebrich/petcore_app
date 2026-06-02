@@ -4,9 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:peticare/features/groom_appointments/data/services/groom_appointments_service.dart';
-import 'package:peticare/features/shopping/presentation/pages/shopping_page.dart';
 import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:peticare/features/notifications/controllers/notifications_controller.dart';
+import 'package:peticare/core/commn/presentation/controllers/global_controller.dart';
 
 class AddNewGroomAppointmentPageController extends GetxController {
   // ================================
@@ -169,10 +169,12 @@ class AddNewGroomAppointmentPageController extends GetxController {
       selectedGroomerID = (fullItem['groomer_id'] ?? fullItem['clinic_id'])?.toString();
 
       // fecha/horario seguro (puede ser nullable)
-      final rawDt = fullItem['appointment_datetime'] ??
-          fullItem['appointment_datetime_raw'] ??
-          fullItem['date'] ??
-          fullItem['created_at'];
+      final rawDt =
+          fullItem['proposed_datetime'] ??
+              fullItem['appointment_datetime'] ??
+              fullItem['appointment_datetime_raw'] ??
+              fullItem['date'] ??
+              fullItem['created_at'];
 
       // default seguro
       final DateTime defaultDt = DateTime.now().add(const Duration(days: 3)).copyWith(
@@ -489,8 +491,15 @@ class AddNewGroomAppointmentPageController extends GetxController {
           textConfirm: "Ir a Shopping",
           confirmTextColor: Colors.white,
           onConfirm: () {
+
             Get.back();
-            Get.to(() => const ShoppingPage());
+
+            final globalController =
+            Get.find<GlobalController>();
+
+            globalController.updateMenuSelectedIndex(2);
+
+            Get.until((route) => route.isFirst);
           },
         );
 

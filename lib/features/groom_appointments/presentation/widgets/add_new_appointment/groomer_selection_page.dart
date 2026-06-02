@@ -221,7 +221,8 @@ Widget groomerSelectionPage(
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            "${groomer['rating'] ?? 4.5}",
+                                            "${groomer['rating'] ?? '0.0'} "
+                                                "(${groomer['reviews_count'] ?? 0})",
                                             style: const TextStyle(
                                               fontSize: 13,
                                             ),

@@ -138,7 +138,22 @@ Widget dateTimeSelectionPage(
                         /// 🔥 FIX REAL
                         onTimeChanged: (TimeOfDay time) {
 
-                          final current = controller.appointmentDateTime ?? DateTime.now();
+                          if (time.hour < 8 || time.hour > 19) {
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Horario permitido: 08:00 a 19:00",
+                                ),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+
+                            return;
+                          }
+
+                          final current =
+                              controller.appointmentDateTime ?? DateTime.now();
 
                           final finalDateTime = DateTime(
                             current.year,

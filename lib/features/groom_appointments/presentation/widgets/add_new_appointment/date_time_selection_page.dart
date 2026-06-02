@@ -148,6 +148,21 @@ Widget dateTimeSelectionPage(
                         initialTime: TimeOfDay(hour: 09, minute: 30),
 
                         onTimeChanged: (TimeOfDay time) {
+
+                          if (time.hour < 8 || time.hour > 19) {
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Horario permitido: 08:00 a 19:00",
+                                ),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+
+                            return;
+                          }
+
                           controller.updateAppointmentDateTime(
                             controller.appointmentDateTime.copyWith(
                               hour: time.hour,

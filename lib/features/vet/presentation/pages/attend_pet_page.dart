@@ -252,7 +252,12 @@ class AttendPetPage extends StatelessWidget {
                           note: note,
                         );
                         if (success) {
-                          Get.showSnackbar(const GetSnackBar(message: "Próxima visita propuesta creada", duration: Duration(seconds: 2)));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Próxima visita propuesta creada"),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
                         }
                       },
                     ),
@@ -277,14 +282,16 @@ class AttendPetPage extends StatelessWidget {
 
                         if (recordId != null) {
 
-                          Get.offAllNamed('/vet-home');
-
-                          Get.showSnackbar(
-                            const GetSnackBar(
-                              message: "Visita registrada correctamente",
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Visita registrada correctamente"),
                               duration: Duration(seconds: 2),
                             ),
                           );
+
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            Navigator.of(context).pop();
+                          });
                         }
                       },
                       child: const Text("Guardar visita"),
@@ -396,20 +403,18 @@ class AttendPetPage extends StatelessWidget {
 
                                   if (success) {
 
-                                    Get.offAllNamed('/vet-home');
-
-                                    Get.showSnackbar(
-                                      const GetSnackBar(
-                                        message: "Documento subido correctamente",
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Documento subido correctamente"),
                                         duration: Duration(seconds: 2),
                                       ),
                                     );
 
                                   } else {
 
-                                    Get.showSnackbar(
-                                      const GetSnackBar(
-                                        message: "Error al subir documento",
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Error al subir documento"),
                                         duration: Duration(seconds: 2),
                                       ),
                                     );

@@ -166,8 +166,23 @@ class PostSignupPageController extends GetxController {
   /// MAP PET TYPE → SPECIES ID
   /// =========================
   int getSpeciesId() {
+
     if (petType == "Dog") return 1;
+
     if (petType == "Cat") return 2;
+
+    if (petType == "Bird") return 3;
+
+    if (petType == "Fish") return 4;
+
+    if (petType == "Rabbit") return 5;
+
+    if (petType == "Reptile") return 6;
+
+    if (petType == "Rodent") return 7;
+
+    if (petType == "Other") return 8;
+
     return 1;
   }
 

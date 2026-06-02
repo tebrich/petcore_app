@@ -115,11 +115,21 @@ class _AttendGroomPageState extends State<AttendGroomPage> {
 
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      Get.snackbar("OK", "Servicio guardado");
+                    onPressed: () async {
 
-                      // 🔥 REDIRECCIÓN
-                      Get.offAllNamed('/VetHome');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Servicio guardado"),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+
+                      await controller.attendAppointment(widget.appointmentId);
+                      await controller.fetchAppointments();
+
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        Navigator.of(context).pop();
+                      });
                     },
                     child: const Text("Guardar"),
                   ),

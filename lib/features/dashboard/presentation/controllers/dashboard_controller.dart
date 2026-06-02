@@ -76,12 +76,18 @@ class DashboardController extends GetxController {
                   [isDog ? "Dog" : "Cat"]?[pet["avatar_code"]];
 
           return {
-            "id": pet["id"], // 🔥 IMPORTANTE
+            "id": pet["id"],
             "name": pet["name"] ?? "",
             "age": age,
             "gender": pet["gender"] ?? "",
             "energy": pet["energy_level_id"] ?? 1,
+
             "avatar": avatarFn,
+
+            "avatar_code": pet["avatar_code"],
+
+            "photo_url": pet["photo_url"],
+
             "species": pet["species_name"] ?? "",
             "breed": pet["breed_name"] ?? "",
           };
@@ -328,7 +334,8 @@ class DashboardController extends GetxController {
               }
 
               if (success) {
-                Get.back();
+
+                Navigator.of(Get.context!).pop();
               }
             },
 
@@ -378,10 +385,11 @@ class DashboardController extends GetxController {
 
       if (res.statusCode == 200 || res.statusCode == 201) {
 
-        Get.snackbar(
-          "¡Gracias!",
-          "Tu review fue enviada correctamente 🐾",
-          snackPosition: SnackPosition.BOTTOM,
+        Get.showSnackbar(
+          const GetSnackBar(
+            message: "Tu review fue enviada correctamente 🐾",
+            duration: Duration(seconds: 2),
+          ),
         );
 
         pendingReviews.removeWhere(
@@ -392,10 +400,13 @@ class DashboardController extends GetxController {
 
       } else {
 
-        Get.snackbar(
-          "Error",
-          res.body?['detail'] ?? "No se pudo enviar la review",
-          snackPosition: SnackPosition.BOTTOM,
+        Get.showSnackbar(
+          GetSnackBar(
+            message:
+            res.body?['detail'] ??
+                "No se pudo enviar la review",
+            duration: const Duration(seconds: 2),
+          ),
         );
 
         return false;
@@ -405,10 +416,12 @@ class DashboardController extends GetxController {
 
       print("ERROR SUBMIT REVIEW: $e");
 
-      Get.snackbar(
-        "Error",
-        "Ocurrió un problema enviando la review",
-        snackPosition: SnackPosition.BOTTOM,
+      Get.showSnackbar(
+        const GetSnackBar(
+          message:
+          "Ocurrió un problema enviando la review",
+          duration: Duration(seconds: 2),
+        ),
       );
 
       return false;
@@ -452,10 +465,11 @@ class DashboardController extends GetxController {
 
       if (res.statusCode == 200 || res.statusCode == 201) {
 
-        Get.snackbar(
-          "¡Gracias!",
-          "Tu review de grooming fue enviada 🐾",
-          snackPosition: SnackPosition.BOTTOM,
+        Get.showSnackbar(
+          const GetSnackBar(
+            message: "Tu review Groom fue enviada correctamente 🐾",
+            duration: Duration(seconds: 2),
+          ),
         );
 
         pendingGroomReviews.removeWhere(
@@ -466,10 +480,13 @@ class DashboardController extends GetxController {
 
       } else {
 
-        Get.snackbar(
-          "Error",
-          res.body?['detail'] ?? "No se pudo enviar la review",
-          snackPosition: SnackPosition.BOTTOM,
+        Get.showSnackbar(
+          GetSnackBar(
+            message:
+            res.body?['detail'] ??
+                "No se pudo enviar la review Groom",
+            duration: const Duration(seconds: 2),
+          ),
         );
 
         return false;
@@ -479,10 +496,12 @@ class DashboardController extends GetxController {
 
       print("ERROR SUBMIT GROOM REVIEW: $e");
 
-      Get.snackbar(
-        "Error",
-        "Ocurrió un problema enviando la review",
-        snackPosition: SnackPosition.BOTTOM,
+      Get.showSnackbar(
+        const GetSnackBar(
+          message:
+          "Ocurrió un problema enviando la review Groom",
+          duration: Duration(seconds: 2),
+        ),
       );
 
       return false;

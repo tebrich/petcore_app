@@ -182,10 +182,19 @@ Widget reviewAndPayPage(
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
+
               controller.appointmentDateTime != null
-                  ? controller.appointmentDateTime.toString()
+
+                  ? DateFormat(
+                "dd/MM/yyyy - HH:mm",
+              ).format(
+                controller.proposedAppointmentDateTime ??
+                    controller.appointmentDateTime!,
+              )
+
                   : "-",
             ),
+
 
             VerticalSpacing.md(Get.context!),
 

@@ -205,15 +205,23 @@ class AppointmentsPage extends StatelessWidget {
                 currentStatus.toLowerCase().trim() == "rescheduled";
 
             if (!allowed) {
+              String msg = "Aún no fue confirmada";
+
+              if (currentStatus.toLowerCase().trim() == "rejected") {
+                msg = "La cita fue rechazada por la veterinaria";
+              }
+
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                content: Text("Aún no fue confirmada"),
-                duration: Duration(seconds: 2),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-            return;
-          }
+                SnackBar(
+                  content: Text(msg),
+                  duration: const Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+
+              return;
+            }
+
 
           final notificationsController = Get.find<NotificationsController>();
 
@@ -243,6 +251,18 @@ class AppointmentsPage extends StatelessWidget {
           });
 
           if (paidNow) {
+            final rawDt =
+                fullItem["proposed_datetime"] ??
+                    fullItem["appointment_datetime"];
+
+            final dt = DateTime.parse(rawDt);
+
+            final formattedDate =
+                "${dt.day.toString().padLeft(2, '0')}/"
+                "${dt.month.toString().padLeft(2, '0')}/"
+                "${dt.year} - "
+                "${dt.hour.toString().padLeft(2, '0')}:"
+                "${dt.minute.toString().padLeft(2, '0')}";
             showDialog(
               context: context,
               builder: (_) => AlertDialog(
@@ -253,7 +273,7 @@ class AppointmentsPage extends StatelessWidget {
                   children: [
                     Text('Mascota: ${fullItem['pet_name'] ?? '-'}'),
                     Text('Servicio: ${fullItem['appointment_type'] ?? '-'}'),
-                    Text('Fecha: ${fullItem['appointment_datetime'] ?? '-'}'),
+                    Text('Fecha: $formattedDate'),
                     const SizedBox(height: 8),
                     const Text('Esta cita ya fue pagada y no puede modificarse.'),
                   ],
@@ -279,8 +299,12 @@ class AppointmentsPage extends StatelessWidget {
             controller.selectedVetID = fullItem["vet_id"];
             controller.appointmentType = fullItem["appointment_type"];
             controller.appointmentId = fullItem["appointment_id"];
+            final rawDt =
+                fullItem["proposed_datetime"] ??
+                    fullItem["appointment_datetime"];
+
             controller.appointmentDateTime =
-                DateTime.parse(fullItem["appointment_datetime"]);
+                DateTime.parse(rawDt);
 
             Get.to(() => Scaffold(
                   body: reviewAndPayPage(
@@ -298,10 +322,18 @@ class AppointmentsPage extends StatelessWidget {
             controller.selectedPetId = fullItem["pet_id"];
             controller.appointmentType = fullItem["appointment_type"];
             controller.appointmentId = fullItem["appointment_id"];
+            final rawDt =
+                fullItem["proposed_datetime"] ??
+                    fullItem["appointment_datetime"];
+
             controller.appointmentDateTime =
-                DateTime.parse(fullItem["appointment_datetime"]);
+                DateTime.parse(rawDt.toString());
             controller.selectedGroomerID =
                 fullItem["groomer_id"]?.toString();
+            controller.selectedGroomerName =
+                fullItem["clinic_name"] ??
+                    fullItem["groomer_name"] ??
+                    "Peluquería";
 
             Get.to(() => Scaffold(
                   body: groom_review.reviewAndPayPage(

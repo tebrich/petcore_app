@@ -45,7 +45,7 @@ class DashboardPage extends StatelessWidget {
             final type = (e['type'] ?? '').toString().toLowerCase();
             final serviceType = (e['service_type'] ?? '').toString().toLowerCase();
             final status = (e['status'] ?? '').toString().toLowerCase();
-            final dtStr = e['appointment_datetime'];
+            final dtStr = e['proposed_datetime'] ?? e['appointment_datetime'];
             if (type != 'appointment') return false;
             if (serviceType != 'vet' && serviceType != 'grooming') return false;
             if (status != 'accepted' && status != 'rescheduled') return false;
@@ -60,7 +60,11 @@ class DashboardPage extends StatelessWidget {
             return date.isAtSameMomentAs(today) || date.isAfter(today);
           }).map<Map<String, dynamic>>((e) {
             final serviceType = (e['service_type'] ?? '').toString().toLowerCase();
-            final dt = DateTime.parse(e['appointment_datetime']);
+            final rawDt =
+                e['proposed_datetime'] ??
+                    e['appointment_datetime'];
+
+            final dt = DateTime.parse(rawDt.toString());
             final dateLabel = "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}";
             final timeLabel = "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
             final isVet = serviceType == 'vet';
@@ -78,8 +82,18 @@ class DashboardPage extends StatelessWidget {
 
           // 2) Eventos desde vet_appointments (mis citas del usuario)
           final myApptEvents = notifController.myAppointmentsList.where((a) {
-            final dtStr = a['appointment_datetime'];
-            if (dtStr == null) return false;
+
+            final status =
+            (a['status'] ?? '').toString().toLowerCase();
+
+            // ❌ ocultar rechazadas
+            if (status == 'rejected') {
+              return false;
+            }
+
+            final dtStr =
+                a['proposed_datetime'] ??
+                    a['appointment_datetime'];
 
             DateTime dt;
             try {
@@ -92,7 +106,11 @@ class DashboardPage extends StatelessWidget {
             return date.isAtSameMomentAs(today) || date.isAfter(today);
 
           }).map<Map<String, dynamic>>((a) {
-            final dt = DateTime.parse(a['appointment_datetime']);
+            final rawDt =
+                a['proposed_datetime'] ??
+                    a['appointment_datetime'];
+
+            final dt = DateTime.parse(rawDt.toString());
 
             final dateLabel =
                 "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}";
@@ -294,42 +312,8 @@ class DashboardPage extends StatelessWidget {
                                 ),
                                 child: Obx(() {
                                   // 🔥 contar solo citas vet/grooming aceptadas o reprogramadas
-                                  final total = notifController.notificationsList.where((e) {
-                                    final type = (e['type'] ?? '').toString().toLowerCase();
-                                    final serviceType = (e['service_type'] ?? '').toString().toLowerCase();
-                                    final status = (e['status'] ?? '').toString().toLowerCase();
+                                  final total = notifController.notificationsList.length;
 
-                                    // exclude non-appointments
-                                    if (type != 'appointment') return false;
-                                    // only vet or grooming
-                                    if (!(serviceType == 'vet' || serviceType == 'grooming')) return false;
-                                    // only relevant statuses
-                                    if (!(status == 'accepted' || status == 'rescheduled')) return false;
-
-                                    // exclude paid
-                                    final paid = (e['paid'] == true) ||
-                                        (e['raw'] != null && (e['raw']['paid'] == true)) ||
-                                        (e['raw'] != null && (e['raw']['paid']?.toString()?.toLowerCase() == 'true'));
-                                    if (paid) return false;
-
-                                    // get appointment datetime (try top-level then raw)
-                                    final dtStr = e['appointment_datetime'] ?? (e['raw'] != null ? e['raw']['appointment_datetime'] : null);
-                                    if (dtStr == null) return true; // keep if no datetime info
-
-                                    DateTime dt;
-                                    try {
-                                      dt = DateTime.parse(dtStr.toString());
-                                    } catch (_) {
-                                      return true; // keep if unparsable
-                                    }
-
-                                    final now = DateTime.now();
-                                    final today = DateTime(now.year, now.month, now.day);
-                                    final apptDate = DateTime(dt.year, dt.month, dt.day);
-
-                                    // count only if appointment is today or in the future
-                                    return apptDate.isAtSameMomentAs(today) || apptDate.isAfter(today);
-                                  }).length;
                                   return Text(
                                     total.toString(),
                                     style: AppTextStyles.playfulTag.copyWith(

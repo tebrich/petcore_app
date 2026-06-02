@@ -49,6 +49,7 @@ import 'package:peticare/features/vet/presentation/pages/vet_home_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:peticare/features/shopping/presentation/controller/cart_controller.dart';
 import 'package:peticare/features/settings/presentation/pages/sub_pages/petcore_ai_page.dart';
+import 'package:peticare/features/pets/presentation/pages/edit_pets_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -261,6 +262,10 @@ class MyApp extends StatelessWidget {
                 GetPage(
                   name: '/PetCoreAI',
                   page: () => const PetCoreAIPage(),
+                ),
+                GetPage(
+                  name: '/EditPets',
+                  page: () => const EditPetsPage(),
                 ),
               ],
             );

@@ -144,10 +144,13 @@ Widget reviewAndPayPage(
                   context,
                   'Fecha',
                   controller.appointmentDateTime != null
-                      ? DateFormat('EEEE, dd MMM yyyy').format(controller.appointmentDateTime)
+                      ? DateFormat(
+                          'EEEE dd MMM yyyy',
+                          'es_ES',
+                        ).format(controller.appointmentDateTime!)
                       : '-',
-                ),
-                _divider(context),
+                  ),
+                  _divider(context),
 
                 _row(
                   context,

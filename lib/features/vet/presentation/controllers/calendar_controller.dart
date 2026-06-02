@@ -46,7 +46,21 @@ class CalendarController extends GetxController {
       final Map<DateTime, List<Map<String, dynamic>>> temp = {};
 
       for (var e in all) {
-        final dt = DateTime.parse(e['appointment_datetime'].toString());
+
+        final status =
+        (e['status'] ?? '').toString().toLowerCase();
+
+        // ❌ NO mostrar rechazadas
+        if (status == 'rejected') {
+          continue;
+        }
+
+        // 🔥 usar fecha reprogramada si existe
+        final rawDt =
+            e['proposed_datetime'] ??
+                e['appointment_datetime'];
+
+        final dt = DateTime.parse(rawDt.toString());
 
         final day = DateTime(dt.year, dt.month, dt.day);
 

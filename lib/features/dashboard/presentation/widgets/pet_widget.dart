@@ -133,13 +133,23 @@ Widget petWidget(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                petDetails['avatar']?.call(
-                    80.0,
-                    0.9,
-                    petDetails['gender'] == 'Female'
-                        ? AppPalette.roseQuartz
-                        : AppPalette.softBlue,
+                petDetails['photo_url'] != null
+
+                    ? CircleAvatar(
+                        radius: 40,
+                        backgroundImage: NetworkImage(
+                          petDetails['photo_url'],
+                        ),
+                    )
+
+                    : petDetails['avatar']?.call(
+                        80.0,
+                        0.9,
+                        petDetails['gender'] == 'Female'
+                            ? AppPalette.roseQuartz
+                            : AppPalette.softBlue,
                         ) ??
+
                         const SizedBox(),
 
                 Text(

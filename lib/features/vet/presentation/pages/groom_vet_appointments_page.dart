@@ -29,6 +29,9 @@ class GroomVetAppointmentsPage extends StatelessWidget {
             itemCount: controller.appointments.length,
             itemBuilder: (context, index) {
               final appointment = controller.appointments[index];
+              final rawDt =
+                  appointment['proposed_datetime'] ??
+                      appointment['appointment_datetime'];
 
               return Card(
                 margin:
@@ -57,14 +60,14 @@ class GroomVetAppointmentsPage extends StatelessWidget {
 
                       const SizedBox(height: 8),
 
-                      /// 📅 Fecha
+
                       Text(
-                        "📅 ${_formatDate(appointment['appointment_datetime'].toString())}",
+                        "📅 ${_formatDate(rawDt.toString())}",
                       ),
 
                       /// 🕒 Hora
                       Text(
-                        "🕒 ${_formatTime(appointment['appointment_datetime'].toString())}",
+                        "🕒 ${_formatTime(rawDt.toString())}",
                       ),
 
                       const SizedBox(height: 6),
@@ -147,7 +150,7 @@ Widget _buildActionButtons(Map<String, dynamic> appointment) {
   }
 
   /// 🟢 ACCEPTED → atender (opcional)
-  if (status == "accepted") {
+  if (status == "accepted" || status == "rescheduled") {
     final paid = (appointment['paid'] == true) ||
         (appointment['paid']?.toString().toLowerCase() == 'true');
 
@@ -273,12 +276,17 @@ void _openRescheduleDialog(int appointmentId) async {
 
   Get.defaultDialog(
     title: "Confirmar",
-    middleText: "¿Reprogramar cita a ${newDateTime.toString()}?",
+    middleText:
+    "¿Reprogramar cita a "
+        "${_formatDate(newDateTime.toString())} "
+        "${_formatTime(newDateTime.toString())}?",
     textConfirm: "Sí",
     textCancel: "No",
-    onConfirm: () {
-      Get.back();
-      Get.find<GroomVetAppointmentsController>()
+    onConfirm: () async {
+
+      Navigator.of(Get.overlayContext!).pop();
+
+      await Get.find<GroomVetAppointmentsController>()
           .rescheduleAppointment(appointmentId, newDateTime);
     },
   );

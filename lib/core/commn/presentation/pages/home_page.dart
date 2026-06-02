@@ -47,17 +47,17 @@ class HomePage extends GetView<GlobalController> {
                 : null,
             // Handles tap events on the navigation items.
             onTap: (value) => value == 2
-                // The center button (index 2) opens the "Add Pet" flow.
+            // The center button (index 2) opens the "Add Pet" flow.
                 ? Get.to(
-                    () => PostSignupWelcomePage(isPostSigning: false),
-                    transition: Transition.downToUp,
-                  )
-                // Other buttons update the page index in the GlobalController.
+                  () => PostSignupWelcomePage(isPostSigning: false),
+              transition: Transition.downToUp,
+            )
+            // Other buttons update the page index in the GlobalController.
                 : globalController.updateMenuSelectedIndex(
-                    // Adjusts the index to account for the special center button.
-                    // If the tapped index is > 2, we subtract 1 to match the PageView index.
-                    value < 2 ? value : value - 1,
-                  ),
+              // Adjusts the index to account for the special center button.
+              // If the tapped index is > 2, we subtract 1 to match the PageView index.
+              value < 2 ? value : value - 1,
+            ),
             style: TabStyle.fixedCircle,
             color: AppPalette.surfaces(context),
             backgroundColor: AppPalette.background(context),

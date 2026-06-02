@@ -6,6 +6,7 @@ import 'package:peticare/features/shopping/presentation/pages/shopping_page.dart
 import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:peticare/core/commn/presentation/controllers/global_controller.dart';
 import 'package:peticare/core/commn/presentation/pages/home_page.dart';
+import 'package:peticare/core/commn/presentation/controllers/global_controller.dart';
 
 class AddNewVetAppointmentPageController extends GetxController {
   final storage = const FlutterSecureStorage();
@@ -24,6 +25,7 @@ class AddNewVetAppointmentPageController extends GetxController {
   int? selectedVetID;
 
   DateTime? appointmentDateTime;
+  DateTime? proposedAppointmentDateTime;
 
   bool addToCalendar = false;
   bool addReminder = false;
@@ -158,14 +160,28 @@ class AddNewVetAppointmentPageController extends GetxController {
   /// Inicializa campos del controller desde un mapa de notificación (fullItem)
   void setFromNotificationItem(Map<String, dynamic> fullItem) {
     print("DEBUG VetController setFromNotificationItem fullItem >>> $fullItem");
+    print("DEBUG proposed_datetime >>> ${fullItem['proposed_datetime']}");
     try {
       appointmentId = fullItem['appointment_id'] ?? fullItem['id'];
       selectedPetId = fullItem['pet_id'] ?? selectedPetId;
       selectedPetName = fullItem['pet_name'] ?? selectedPetName;
       selectedVetID = fullItem['vet_id'] ?? selectedVetID;
       appointmentType = fullItem['appointment_type'] ?? appointmentType;
-      final rawDt = fullItem['appointment_datetime'];
-      appointmentDateTime = rawDt != null ? DateTime.tryParse(rawDt.toString()) : appointmentDateTime;
+      final originalDt = fullItem['appointment_datetime'];
+
+      appointmentDateTime =
+          originalDt != null
+              ? DateTime.tryParse(originalDt.toString())
+              : appointmentDateTime;
+
+      final proposedDt = fullItem['proposed_datetime'];
+
+      proposedAppointmentDateTime =
+          proposedDt != null
+              ? DateTime.tryParse(proposedDt.toString())
+              : null;
+      print(
+          "DEBUG proposedAppointmentDateTime >>> $proposedAppointmentDateTime");
       final paid = (fullItem['paid'] == true) || (fullItem['paid']?.toString().toLowerCase() == 'true');
       isReadOnly.value = paid;
       update();
@@ -317,7 +333,9 @@ class AddNewVetAppointmentPageController extends GetxController {
         petId: selectedPetId!,
         vetId: selectedVetID!,
         appointmentType: appointmentType!,
-        appointmentDateTime: appointmentDateTime!,
+        appointmentDateTime:
+            proposedAppointmentDateTime ??
+            appointmentDateTime!,
         addToCalendar: addToCalendar,
         addReminder: addReminder,
       );
@@ -334,6 +352,7 @@ class AddNewVetAppointmentPageController extends GetxController {
               "Te notificaremos cuando sea confirmada.",
           textConfirm: "Ir a Shopping",
           confirmTextColor: Colors.white,
+
           onConfirm: () {
 
             Get.back();
@@ -341,20 +360,9 @@ class AddNewVetAppointmentPageController extends GetxController {
             final globalController =
             Get.find<GlobalController>();
 
-            globalController.menuSelectedIndex = 2;
+            globalController.updateMenuSelectedIndex(2);
 
-            Get.offAll(() => const HomePage());
-
-            Future.delayed(
-              const Duration(milliseconds: 300),
-                  () {
-
-                globalController.pageController.jumpToPage(2);
-
-                globalController.update();
-
-              },
-            );
+            Get.until((route) => route.isFirst);
           },
         );
 
