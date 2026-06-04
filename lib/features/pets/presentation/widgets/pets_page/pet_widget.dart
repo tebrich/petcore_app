@@ -5,6 +5,7 @@ import 'package:peticare/core/commn/presentation/widgets/floating_aniamation.dar
 import 'package:peticare/core/theme/app_pallete.dart';
 import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
+import 'package:peticare/core/commn/presentation/widgets/pet_avatar_widget.dart';
 
 /// Builds a widget that displays a summary card for a single pet. 🐾
 ///
@@ -65,10 +66,10 @@ Widget petWidget(
             /// AVATAR (controlado)
             SizedBox(
               width: screenSize.width * 0.25,
-              child: petDetails['avatar'](
-                screenSize.width * 0.22,
-                0.9,
-                AppPalette.primary,
+
+              child: PetAvatarWidget(
+                pet: petDetails,
+                radius: screenSize.width * 0.11,
               ),
             ),
 

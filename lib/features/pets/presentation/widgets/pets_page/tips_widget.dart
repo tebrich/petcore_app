@@ -7,6 +7,7 @@ import 'package:peticare/core/theme/app_textstyles.dart';
 import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:get/get.dart';
 import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:peticare/core/commn/presentation/widgets/pet_avatar_widget.dart';
 
 /// A widget that displays an animated, auto-scrolling carousel of helpful tips. 💡
 ///
@@ -225,16 +226,9 @@ class _TipsWidgetState extends State<TipsWidget>
 
                 Column(
                   children: [
-                    CircleAvatar(
+                    PetAvatarWidget(
+                      pet: tipDetails,
                       radius: 32,
-                      backgroundColor: Colors.white,
-                      child: tipDetails["avatar"] != null
-                          ? tipDetails["avatar"](
-                              50.0,
-                              50.0,
-                              Colors.black,
-                            )
-                          : const Icon(Icons.pets),
                     ),
 
                     VerticalSpacing.sm(context),

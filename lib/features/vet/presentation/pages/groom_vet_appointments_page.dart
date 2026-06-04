@@ -230,17 +230,26 @@ String _monthName(int month) {
 }
 
 String _translateStatus(String status) {
-  switch (status) {
+  switch (status.toLowerCase()) {
+
     case "accepted":
       return "Aceptado";
+
     case "pending":
       return "Pendiente";
+
     case "rejected":
       return "Rechazado";
+
     case "expired":
       return "Expirado";
+
     case "rescheduled":
       return "Reprogramado";
+
+    case "attended":
+      return "Atendido";
+
     default:
       return status;
   }

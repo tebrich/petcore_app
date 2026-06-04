@@ -5,6 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_storage/get_storage.dart';
 
 class NotificationsController extends GetxController {
+  NotificationsController() {
+    print("🔥 CONSTRUCTOR NotificationsController");
+  }
   var notificationsList = <Map<String, dynamic>>[].obs;
   var followUpsList = <Map<String, dynamic>>[].obs;
   var myAppointmentsList = <Map<String, dynamic>>[].obs;
@@ -18,6 +21,8 @@ class NotificationsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    print("🔥 NOTIFICATIONS CONTROLLER INICIADO");
+    print("🔥 NOTIFICATIONS CONTROLLER HASH >>> $hashCode");
     api.baseUrl = baseUrl;
     loadAll();
   }
@@ -41,6 +46,7 @@ class NotificationsController extends GetxController {
   }
 
   Future<void> loadNotifications() async {
+    print("🚀 loadNotifications() EJECUTADO");
     print(">> ENTER loadNotifications()");
     print('DEBUG NOTIFS: reading token from secure >>> ${await storage.read(key: "access_token")}');
     print('DEBUG NOTIFS: reading token from getstorage >>> ${GetStorage().read("token")}');
@@ -49,6 +55,9 @@ class NotificationsController extends GetxController {
       final headers = await _getHeaders();
       print(">> headers prepared: $headers");
       final response = await api.get("/notifications", headers: headers);
+      print("TOKEN USADO >>> ${headers["Authorization"]}");
+      print("NOTIFICATIONS STATUS >>> ${response.statusCode}");
+      print("NOTIFICATIONS BODY >>> ${response.body}");
       print("NOTIFICATIONS STATUS >>> ${response.statusCode}");
       print("NOTIFICATIONS BODY >>> ${response.body}");
       print("NOTIFICATIONS BODY TYPE >>> ${response.body.runtimeType}");

@@ -6,6 +6,7 @@ import 'package:peticare/core/utils/vertical_spacing.dart';
 import 'package:peticare/features/vet_appointments/presentation/controllers/add_new_vet_appointment_page_controller.dart';
 import 'package:get/get.dart';
 import 'package:peticare/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:peticare/core/commn/presentation/widgets/pet_avatar_widget.dart';
 
 Widget petSelectionPage(
   Size screenSize,
@@ -97,10 +98,9 @@ Widget petSelectionPage(
                         contentPadding: EdgeInsets.all(16.0),
 
                         /// 🐶 AVATAR (YA VIENE DEL DASHBOARD)
-                        leading: pet['avatar'](
-                          75.0,
-                          0.9,
-                          AppPalette.primary,
+                        leading: PetAvatarWidget(
+                          pet: pet,
+                          radius: 38,
                         ),
 
                         title: Text(

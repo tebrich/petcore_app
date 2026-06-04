@@ -83,45 +83,53 @@ class ShoppingPage extends StatelessWidget {
     /// allows for dynamic styling of promotional text directly from the
     /// string data.
     final List<Widget> listOfPromos = [
+
       promotionBannerWidget(
         context,
-        promoText: 'Just for You',
+        promoText: 'Especial para Ti',
         promoColor: AppPalette.primary,
-        title: 'Happy Pet',
-        subtitle: '***30% OFF*** all pet food the whole month!',
+        title: 'Alimentos Premium',
+        subtitle:
+        '***30% OFF*** en alimentos para mascotas durante todo el mes',
         color: AppPalette.primary,
         imageUrl:
-            "https://www.laughingdogfood.com/wp-content/uploads/2021/06/LaughingDog-Food-Treat-Fruit.webp",
+        "https://www.laughingdogfood.com/wp-content/uploads/2021/06/LaughingDog-Food-Treat-Fruit.webp",
       ),
+
       promotionBannerWidget(
         context,
-        promoText: 'Limited Time',
+        promoText: 'Tiempo Limitado',
         promoColor: AppPalette.lavenderMist,
-        title: 'Groom & Glow',
-        subtitle: '***20% OFF*** all grooming services – only this weekend!',
+        title: 'Belleza y Cuidado',
+        subtitle:
+        '***20% OFF*** en servicios de peluquería este fin de semana',
         color: AppPalette.lavenderMist,
         imageUrl:
-            "https://www.canaanalpha.com/wp-content/uploads/2023/05/Aniflea_.png",
+        "https://www.canaanalpha.com/wp-content/uploads/2023/05/Aniflea_.png",
       ),
+
       promotionBannerWidget(
         context,
+        promoText: 'Solo por Hoy',
         promoColor: AppPalette.success(context),
-        title: 'Toy Fiesta',
-        subtitle: 'Buy 2 toys, get 1 FREE – because playtime never ends!',
+        title: 'Diversión a full',
+        subtitle:
+        '***2x1*** en juguetes seleccionados',
         color: AppPalette.success(context),
         imageUrl:
-            "https://static.vecteezy.com/system/resources/previews/049/106/208/non_2x/cute-dog-toy-isolated-on-transparent-background-free-png.png",
+        "https://static.vecteezy.com/system/resources/previews/049/106/208/non_2x/cute-dog-toy-isolated-on-transparent-background-free-png.png",
       ),
+
       promotionBannerWidget(
         context,
-        promoText: 'Special Offer',
+        promoText: 'Oferta Especial',
         promoColor: AppPalette.coralRose,
-        title: 'Wellness Week',
+        title: 'Salud y Bienestar',
         subtitle:
-            '***Get 25% OFF*** all health care items – let your pet thrive!',
+        '***25% OFF*** en productos para el cuidado de tu mascota',
         color: AppPalette.coralRose,
         imageUrl:
-            "https://zestypaws.com/cdn/shop/products/API2.0CalmingTurkey-01.png",
+        "https://zestypaws.com/cdn/shop/products/API2.0CalmingTurkey-01.png",
       ),
     ];
 

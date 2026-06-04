@@ -52,7 +52,9 @@ class LoginController extends GetxController {
           await Get.delete<NotificationsController>();
         }
         final notifsCtrl = Get.put(NotificationsController());
+        print("🔥 NOTIF CTRL CREADO >>> ${notifsCtrl.hashCode}");
         await notifsCtrl.loadAll();
+        print("🔥 LOADALL TERMINADO");
 
         /// 🔥 REDIRECCIÓN DIRECTA
         if (savedUser["role"] == "vet") {
