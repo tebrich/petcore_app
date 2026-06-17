@@ -29,7 +29,7 @@ class _AttendGroomPageState extends State<AttendGroomPage> {
   // 🔥 LOAD PET
   Future<void> loadPet() async {
     final res = await GetConnect().get(
-      "http://192.168.40.54:8000/api/v1/pets/${widget.petId}",
+      "https://api.pet-core.app/api/v1/pets/${widget.petId}",
     );
 
     if (res.statusCode == 200) {

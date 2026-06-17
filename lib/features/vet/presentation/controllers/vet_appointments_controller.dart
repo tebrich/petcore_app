@@ -6,7 +6,7 @@ class VetAppointmentsController extends GetxController {
   var isLoading = true.obs;
   var appointments = [].obs;
 
-  final String baseUrl = "http://192.168.40.54:8000/api/v1";
+  final String baseUrl = "https://api.pet-core.app/api/v1";
   final GetConnect http = GetConnect();
 
   @override

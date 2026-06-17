@@ -29,7 +29,7 @@ class GroomAppointmentsService {
       };
 
       final response = await _api.post(
-        "http://192.168.40.54:8000/api/v1/groom-appointments/",
+        "https://api.pet-core.app/api/v1/groom-appointments/",
         payload,
         headers: {
           'Authorization': 'Bearer $token',
@@ -59,7 +59,7 @@ class GroomAppointmentsService {
   static Future<bool> markAppointmentPaid(dynamic appointmentId) async {
     try {
       final token = await _storage.read(key: 'access_token');
-      final url = "http://192.168.40.54:8000/api/v1/groom-appointments/$appointmentId/mark-paid";
+      final url = "https://api.pet-core.app/api/v1/groom-appointments/$appointmentId/mark-paid";
       final response = await _api.put(
         url,
         {},
@@ -90,7 +90,7 @@ class GroomAppointmentsService {
     try {
       final token = await _storage.read(key: 'access_token');
       final response = await _api.get(
-        "http://192.168.40.54:8000/api/v1/groom-appointments/my",
+        "https://api.pet-core.app/api/v1/groom-appointments/my",
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

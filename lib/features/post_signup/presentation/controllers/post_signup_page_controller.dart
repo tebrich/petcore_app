@@ -101,7 +101,7 @@ class PostSignupPageController extends GetxController {
   Future<void> loadBreeds(int speciesId) async {
     try {
       final response = await _api.get(
-        'http://192.168.40.54:8000/api/v1/pets/breeds/$speciesId',
+        'https://api.pet-core.app/api/v1/pets/breeds/$speciesId',
       );
 
       if (response.statusCode == 200) {
@@ -135,7 +135,7 @@ class PostSignupPageController extends GetxController {
       }
 
       final response = await _api.post(
-        'http://192.168.40.54:8000/api/v1/pets/',
+        'https://api.pet-core.app/api/v1/pets/',
         {
           "user_id": 1,
           "name": petNameController.text,

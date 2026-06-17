@@ -10,7 +10,7 @@ class CalendarController extends GetxController {
   var selectedDay = DateTime.now().obs;
   var focusedDay = DateTime.now().obs;
 
-  final String baseUrl = "http://192.168.40.54:8000/api/v1";
+  final String baseUrl = "https://api.pet-core.app/api/v1";
 
   @override
   void onInit() {

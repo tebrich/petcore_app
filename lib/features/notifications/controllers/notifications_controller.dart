@@ -15,7 +15,7 @@ class NotificationsController extends GetxController {
   var isLoading = false.obs;
 
   final storage = const FlutterSecureStorage();
-  final String baseUrl = "http://192.168.40.54:8000/api/v1";
+  final String baseUrl = "https://api.pet-core.app/api/v1";
   final GetConnect api = GetConnect();
 
   @override

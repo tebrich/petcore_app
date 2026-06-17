@@ -5,7 +5,7 @@ class FollowUpsService {
   final GetConnect http = GetConnect();
 
   FollowUpsService() {
-    http.baseUrl = "http://192.168.40.54:8000/api/v1";
+    http.baseUrl = "https://api.pet-core.app/api/v1";
   }
 
   Future<List<dynamic>> getMyFollowUps(int userId) async {

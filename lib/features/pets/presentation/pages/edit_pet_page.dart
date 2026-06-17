@@ -71,7 +71,7 @@ class _EditPetPageState extends State<EditPetPage> {
       });
 
       final response = await api.post(
-        "http://192.168.40.54:8000/api/v1/pets/${widget.pet["id"]}/avatar",
+        "https://api.pet-core.app/api/v1/pets/${widget.pet["id"]}/avatar",
         form,
         headers: {
           "Authorization": "Bearer $token",

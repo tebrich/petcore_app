@@ -58,7 +58,7 @@ Widget reviewAndPayPage(
       final api = GetConnect();
 
       final response = await api.get(
-        "http://192.168.40.54:8000/api/v1/pricing/base"
+        "https://api.pet-core.app/api/v1/pricing/base"
         "?service_type=grooming"
         "&is_mobile=$isMobile",
         headers: {

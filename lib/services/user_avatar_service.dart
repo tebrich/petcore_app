@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserAvatarService {
-  static const String baseUrl = "http://192.168.40.54:8000";
+  static const String baseUrl = "https://api.pet-core.app";
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
   static Future<void> uploadAvatar(File imageFile) async {

@@ -137,7 +137,7 @@ class _TodosWidgetState extends State<TodosWidget> {
                       final api = GetConnect();
 
                       await api.put(
-                        "http://192.168.40.54:8000/api/v1/reminders/complete/${reminder["id"]}",
+                        "https://api.pet-core.app/api/v1/reminders/complete/${reminder["id"]}",
                         {},
                       );
 

@@ -224,7 +224,7 @@ class AddNewGroomAppointmentPageController extends GetxController {
       final api = GetConnect();
 
       String url =
-          "http://192.168.40.54:8000/api/v1/groomers?is_mobile=$isMobileGrooming";
+          "https://api.pet-core.app/api/v1/groomers?is_mobile=$isMobileGrooming";
 
       if (useMobileLocation) {
         LocationPermission permission = await Geolocator.checkPermission();
@@ -368,7 +368,7 @@ class AddNewGroomAppointmentPageController extends GetxController {
       final token = await storage.read(key: 'access_token');
 
       final response = await GetConnect().get(
-        "http://192.168.40.54:8000/api/v1/pricing/base"
+        "https://api.pet-core.app/api/v1/pricing/base"
         "?service_type=grooming"
         "&is_mobile=$isMobile",
         headers: {

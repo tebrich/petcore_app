@@ -591,7 +591,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
                       };
 
                       final response = await api.post(
-                        "http://192.168.40.54:8000/api/v1/reminders/",
+                        "https://api.pet-core.app/api/v1/reminders/",
                         payload,
                       );
 
@@ -621,7 +621,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
       final api = GetConnect();
 
       final response = await api.get(
-        "http://192.168.40.54:8000/api/v1/reminders/reminder-types",
+        "https://api.pet-core.app/api/v1/reminders/reminder-types",
       );
 
       if (response.statusCode == 200) {

@@ -9,7 +9,7 @@ class ShopService extends GetConnect {
   Future<List<dynamic>> getFeaturedProducts() async {
 
     final response = await get(
-      'http://192.168.40.54:8000/api/v1/shop/products/featured',
+      'https://api.pet-core.app/api/v1/shop/products/featured',
     );
 
     if (response.statusCode == 200) {
@@ -31,7 +31,7 @@ class ShopService extends GetConnect {
   Future<List<dynamic>> getAllProducts() async {
 
     final response = await get(
-      'http://192.168.40.54:8000/api/v1/shop/products',
+      'https://api.pet-core.app/api/v1/shop/products',
     );
 
     if (response.statusCode == 200) {

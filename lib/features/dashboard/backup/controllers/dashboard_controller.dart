@@ -35,7 +35,7 @@ class DashboardController extends GetxController {
       /// PETS
       /// =========================
       final petsRes =
-          await _api.get('http://192.168.40.54:8000/api/v1/pets/user/1');
+          await _api.get('https://api.pet-core.app/api/v1/pets/user/1');
 
       if (petsRes.statusCode == 200 && petsRes.body != null) {
         final raw = List<Map<String, dynamic>>.from(petsRes.body);
@@ -83,7 +83,7 @@ class DashboardController extends GetxController {
   Future<void> loadReminders() async {
     try {
       final res = await _api.get(
-        'http://192.168.40.54:8000/api/v1/reminders/user/4/formatted',
+        'https://api.pet-core.app/api/v1/reminders/user/4/formatted',
       );
 
       if (res.statusCode == 200 && res.body != null) {

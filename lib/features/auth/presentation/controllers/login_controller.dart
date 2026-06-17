@@ -22,7 +22,7 @@ class LoginController extends GetxController {
       final api = GetConnect();
 
       final response = await api.post(
-        "http://192.168.40.54:8000/api/v1/login",
+        "https://api.pet-core.app/api/v1/login",
         {
           "username": email,
           "password": password,

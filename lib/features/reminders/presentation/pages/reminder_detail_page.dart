@@ -53,7 +53,7 @@ class ReminderDetailPage extends StatelessWidget {
                       final api = GetConnect();
 
                       await api.put(
-                        "http://192.168.40.54:8000/api/v1/reminders/deactivate/${reminder["id"]}",
+                        "https://api.pet-core.app/api/v1/reminders/deactivate/${reminder["id"]}",
                         {},
                       );
 

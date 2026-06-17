@@ -77,7 +77,7 @@ class _EditReminderPageState extends State<EditReminderPage> {
     print("BODY EDIT >>> $body");
 
     await api.put(
-      "http://192.168.40.54:8000/api/v1/reminders/update/${widget.reminder["id"]}",
+      "https://api.pet-core.app/api/v1/reminders/update/${widget.reminder["id"]}",
       body,
     );
 

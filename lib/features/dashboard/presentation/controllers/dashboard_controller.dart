@@ -46,7 +46,7 @@ class DashboardController extends GetxController {
       /// PETS (DINÁMICO)
       /// =========================
       final petsRes = await _api.get(
-        'http://192.168.40.54:8000/api/v1/pets/user/${userId.value}',
+        'https://api.pet-core.app/api/v1/pets/user/${userId.value}',
       );
 
       print("PETS RESPONSE >>> ${petsRes.body}");
@@ -123,7 +123,7 @@ class DashboardController extends GetxController {
   Future<void> loadReminders() async {
     try {
       final res = await _api.get(
-        'http://192.168.40.54:8000/api/v1/reminders/today/${userId.value}',
+        'https://api.pet-core.app/api/v1/reminders/today/${userId.value}',
       );
 
       print("REMINDERS >>> ${res.body}");
@@ -142,7 +142,7 @@ class DashboardController extends GetxController {
   Future<void> loadReminderTypes() async {
     try {
       final res = await _api.get(
-        'http://192.168.40.54:8000/api/v1/reminders/reminder-types',
+        'https://api.pet-core.app/api/v1/reminders/reminder-types',
       );
 
       if (res.statusCode == 200 && res.body != null) {
@@ -180,7 +180,7 @@ class DashboardController extends GetxController {
       final token = await AuthService.getToken();
 
       final res = await _api.get(
-        'http://192.168.40.54:8000/api/v1/vet-reviews/pending',
+        'https://api.pet-core.app/api/v1/vet-reviews/pending',
         headers: {
           "Authorization": "Bearer $token",
         },
@@ -371,7 +371,7 @@ class DashboardController extends GetxController {
       };
 
       final res = await _api.post(
-        'http://192.168.40.54:8000/api/v1/vet-reviews/',
+        'https://api.pet-core.app/api/v1/vet-reviews/',
         body,
 
         headers: {
@@ -451,7 +451,7 @@ class DashboardController extends GetxController {
       };
 
       final res = await _api.post(
-        'http://192.168.40.54:8000/api/v1/groom-reviews/',
+        'https://api.pet-core.app/api/v1/groom-reviews/',
         body,
 
         headers: {
@@ -515,7 +515,7 @@ class DashboardController extends GetxController {
       final token = await AuthService.getToken();
 
       final res = await _api.get(
-        'http://192.168.40.54:8000/api/v1/groom-reviews/pending',
+        'https://api.pet-core.app/api/v1/groom-reviews/pending',
         headers: {
           "Authorization": "Bearer $token",
         },

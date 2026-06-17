@@ -8,7 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class OrderService {
 
   static const String baseUrl =
-      'http://192.168.40.54:8000/api/v1/shop';
+      'https://api.pet-core.app/api/v1/shop';
 
   static final FlutterSecureStorage storage =
       FlutterSecureStorage();
